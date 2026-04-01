@@ -1,0 +1,82 @@
+﻿@model Convocation.Entities.Event
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Create Event";
+}
+
+<div class="form-card">
+    <h3 class="form-title mb-4">Create Event</h3>
+
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="EventTitle" class="form-label"></label>
+                <input asp-for="EventTitle" class="form-control" />
+                <span asp-validation-for="EventTitle" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Venue" class="form-label"></label>
+                <input asp-for="Venue" class="form-control" />
+                <span asp-validation-for="Venue" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="EventDate" class="form-label"></label>
+                <input asp-for="EventDate" type="date" class="form-control" />
+                <span asp-validation-for="EventDate" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="RegistrationStartDate" class="form-label"></label>
+                <input asp-for="RegistrationStartDate" type="date" class="form-control" />
+                <span asp-validation-for="RegistrationStartDate" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="RegistrationEndDate" class="form-label"></label>
+                <input asp-for="RegistrationEndDate" type="date" class="form-control" />
+                <span asp-validation-for="RegistrationEndDate" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="BaseFee" class="form-label"></label>
+                <input asp-for="BaseFee" class="form-control" />
+                <span asp-validation-for="BaseFee" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="GuestFee" class="form-label"></label>
+                <input asp-for="GuestFee" class="form-control" />
+                <span asp-validation-for="GuestFee" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="MaxGuestAllowed" class="form-label"></label>
+                <input asp-for="MaxGuestAllowed" class="form-control" />
+                <span asp-validation-for="MaxGuestAllowed" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6 d-flex align-items-center">
+                <div class="form-check mt-4">
+                    <input asp-for="IsActive" class="form-check-input" />
+                    <label asp-for="IsActive" class="form-check-label"></label>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

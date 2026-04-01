@@ -1,0 +1,62 @@
+﻿@model Convocation.Entities.DistributionLog
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Edit Distribution Log";
+}
+
+<div class="form-card">
+    <h3 class="form-title mb-4">Edit Distribution Log</h3>
+
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="DistributionLogId" />
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="RegistrationId" class="form-label"></label>
+                <select asp-for="RegistrationId" class="form-select" asp-items="ViewBag.RegistrationId">
+                    <option value="">-- Select Registration --</option>
+                </select>
+                <span asp-validation-for="RegistrationId" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="UserAccountId" class="form-label"></label>
+                <select asp-for="UserAccountId" class="form-select" asp-items="ViewBag.StaffUserAccountId">
+                    <option value="">-- Select Staff/User --</option>
+                </select>
+                <span asp-validation-for="UserAccountId" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="ActionType" class="form-label"></label>
+                <select asp-for="ActionType" class="form-select">
+                    <option value="">-- Select Action Type --</option>
+                    <option value="Entry">Entry</option>
+                    <option value="Gown">Gown</option>
+                    <option value="Certificate">Certificate</option>
+                    <option value="Kit">Kit</option>
+                </select>
+                <span asp-validation-for="ActionType" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="ActionDate" class="form-label"></label>
+                <input asp-for="ActionDate" type="datetime-local" class="form-control" />
+                <span asp-validation-for="ActionDate" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-12">
+                <label asp-for="Note" class="form-label"></label>
+                <textarea asp-for="Note" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Note" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">Update</button>
+            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+        </div>
+    </form>
+</div>

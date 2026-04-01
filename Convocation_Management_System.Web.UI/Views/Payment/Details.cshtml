@@ -1,0 +1,77 @@
+﻿@model Convocation.Entities.Payment
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Payment Details";
+}
+
+<div class="details-card">
+    <h3 class="details-title mb-4">Payment Details</h3>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="label-title">Payment ID</div>
+            <div class="value-text">@Model.PaymentId</div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="label-title">Registration ID</div>
+            <div class="value-text">#@Model.RegistrationId</div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="label-title">Participant</div>
+            <div class="value-text">@Model.Registration?.Participant?.StudentId</div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="label-title">Event</div>
+            <div class="value-text">@Model.Registration?.Event?.EventTitle</div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="label-title">Payment Method</div>
+            <div class="value-text">@Model.PaymentMethod</div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="label-title">Transaction ID</div>
+            <div class="value-text">@Model.TransactionId</div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="label-title">Paid Amount</div>
+            <div class="value-text">@Model.PaidAmount</div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="label-title">Payment Status</div>
+            <div class="value-text">
+                @if (Model.PaymentStatus == "Paid")
+                {
+                    <span class="badge-status badge-success">Paid</span>
+                }
+                else if (Model.PaymentStatus == "Pending")
+                {
+                    <span class="badge-status badge-warning">Pending</span>
+                }
+                else
+                {
+                    <span class="badge-status badge-danger">Failed</span>
+                }
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="label-title">Payment Date</div>
+            <div class="value-text">
+                @(Model.PaymentDate.HasValue? Model.PaymentDate.Value.ToString("dd MMM yyyy hh:mm tt") : "N/A")
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="Edit" asp-route-id="@Model.PaymentId" class="btn btn-warning">Edit</a>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>

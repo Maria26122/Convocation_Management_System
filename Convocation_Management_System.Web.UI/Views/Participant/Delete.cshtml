@@ -1,0 +1,48 @@
+﻿@model Convocation.Entities.Participant
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Delete Participant";
+}
+
+<div class="delete-card">
+    <h3 class="delete-title mb-2 text-danger">Delete Participant</h3>
+    <p class="text-soft">Are you sure you want to delete this participant?</p>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="label-title">Student ID</div>
+            <div class="value-text">@Model.StudentId</div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="label-title">Department</div>
+            <div class="value-text">@Model.Department</div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="label-title">Program</div>
+            <div class="value-text">@Model.Program</div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="label-title">Eligibility</div>
+            <div class="value-text">
+                @if (Model.IsEligible)
+                {
+                    <span class="badge-status badge-success">Eligible</span>
+                }
+                else
+                {
+                    <span class="badge-status badge-danger">Not Eligible</span>
+                }
+            </div>
+        </div>
+    </div>
+
+    <form asp-action="Delete" method="post" class="mt-4">
+        <input type="hidden" asp-for="ParticipantId" />
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </form>
+</div>

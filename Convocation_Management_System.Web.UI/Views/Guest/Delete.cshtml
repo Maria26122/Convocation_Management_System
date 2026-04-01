@@ -1,0 +1,32 @@
+﻿@model Convocation.Entities.Guest
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Delete Guest";
+}
+
+<div class="delete-card">
+    <h3 class="delete-title mb-2 text-danger">Delete Guest</h3>
+    <p class="text-soft">Are you sure you want to delete this guest?</p>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="label-title">Guest Name</div>
+            <div class="value-text">@Model.GuestName</div>
+        </div>
+        <div class="col-md-6">
+            <div class="label-title">Relation</div>
+            <div class="value-text">@Model.Relation</div>
+        </div>
+        <div class="col-md-6">
+            <div class="label-title">Registration ID</div>
+            <div class="value-text">#@Model.RegistrationId</div>
+        </div>
+    </div>
+
+    <form asp-action="Delete" method="post" class="mt-4">
+        <input type="hidden" asp-for="GuestId" />
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </form>
+</div>

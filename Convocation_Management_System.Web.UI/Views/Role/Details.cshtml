@@ -1,0 +1,18 @@
+﻿@model Convocation.Entities.Role
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Role Details";
+}
+
+<div class="form-card">
+    <h3 class="form-title mb-4">Role Details</h3>
+
+    <dl class="row">
+        <dt class="col-sm-3">Role Name</dt>
+        <dd class="col-sm-9">@Model.RoleName</dd>
+    </dl>
+
+    <a asp-action="Edit" asp-route-id="@Model.RoleId" class="btn btn-warning">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>

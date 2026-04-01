@@ -1,0 +1,69 @@
+﻿@model IEnumerable<Convocation.Entities.Event>
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Events";
+}
+
+<div class="page-card">
+    <div class="page-header">
+        <h3>Event List</h3>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i> Create New Event
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle table-hover">
+            <thead>
+                <tr>
+                    <th>Event Title</th>
+                    <th>Event Date</th>
+                    <th>Venue</th>
+                    <th>Base Fee</th>
+                    <th>Guest Fee</th>
+                    <th>Max Guests</th>
+                    <th>Status</th>
+                    <th style="width: 220px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.EventTitle</td>
+                            <td>@item.EventDate.ToString("dd MMM yyyy")</td>
+                            <td>@item.Venue</td>
+                            <td>@item.BaseFee</td>
+                            <td>@item.GuestFee</td>
+                            <td>@item.MaxGuestAllowed</td>
+                            <td>
+                                @if (item.IsActive)
+                                {
+                                    <span class="badge-status badge-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-status badge-danger">Inactive</span>
+                                }
+                            </td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@item.EventId" class="btn btn-sm btn-info text-white">Details</a>
+                                <a asp-action="Edit" asp-route-id="@item.EventId" class="btn btn-sm btn-warning">Edit</a>
+                                <a asp-action="Delete" asp-route-id="@item.EventId" class="btn btn-sm btn-danger">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8" class="text-center text-soft">No events found.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

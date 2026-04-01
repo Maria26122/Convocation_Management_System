@@ -1,0 +1,27 @@
+﻿@model Convocation.Entities.RolePermission
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Edit Role Permission";
+}
+<div class="form-card">
+    <h3 class="form-title mb-4">Edit Role Permission</h3>
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="RolePermissionId" />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="mb-3">
+            <label asp-for="RoleId" class="form-label">Role</label>
+            <select asp-for="RoleId" asp-items="ViewBag.RoleId" class="form-select"></select>
+            <span asp-validation-for="RoleId" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="PermissionId" class="form-label">Permission</label>
+            <select asp-for="PermissionId" asp-items="ViewBag.PermissionId" class="form-select"></select>
+            <span asp-validation-for="PermissionId" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">Update</button>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </form>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,56 @@
+﻿@model IEnumerable<Convocation.Entities.Guest>
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Guests";
+}
+
+<div class="page-card">
+    <div class="page-header">
+        <h3>Guest List</h3>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i> Add New Guest
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle table-hover">
+            <thead>
+                <tr>
+                    <th>Guest Name</th>
+                    <th>Relation</th>
+                    <th>Registration</th>
+                    <th>Participant</th>
+                    <th>Event</th>
+                    <th style="width:220px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.GuestName</td>
+                            <td>@item.Relation</td>
+                            <td>#@item.RegistrationId</td>
+                            <td>@item.Registration?.Participant?.StudentId</td>
+                            <td>@item.Registration?.Event?.EventTitle</td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@item.GuestId" class="btn btn-sm btn-info">Details</a>
+                                <a asp-action="Edit" asp-route-id="@item.GuestId" class="btn btn-sm btn-warning">Edit</a>
+                                <a asp-action="Delete" asp-route-id="@item.GuestId" class="btn btn-sm btn-danger">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-soft">No guests found.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

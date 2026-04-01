@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
+  <Project Path="Convocation.DataAccess/Convocation.DataAccess.csproj" />
+  <Project Path="Convocation.Entities/Convocation.Entities.csproj" />
+  <Project Path="Convocation.Facade/Convocation.Facade.csproj" />
+  <Project Path="Convocation.Framework/Convocation.Framework.csproj" />
+  <Project Path="Convocation_Management_System.Web.UI/Convocation_Management_System.Web.UI.csproj" />
+</Solution>

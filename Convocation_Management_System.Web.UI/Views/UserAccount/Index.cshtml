@@ -1,0 +1,57 @@
+﻿@model IEnumerable<Convocation.Entities.UserAccount>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Users";
+}
+<div class="table-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="form-title mb-0">User List</h3>
+        <a asp-action="Create" class="btn btn-primary">Add User</a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Phone</th>
+                <th>Status</th>
+                <th style="width:220px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.FullName</td>
+                        <td>@item.Email</td>
+                        <td>@item.Role?.RoleName</td>
+                        <td>@item.Phone</td>
+                        <td>@(item.IsActive ? "Active" : "Inactive")</td>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@item.UserAccountId" class="btn btn-sm btn-info">Details</a>
+                            <a asp-action="Edit" asp-route-id="@item.UserAccountId" class="btn btn-sm btn-warning">Edit</a>
+                            <a asp-action="Delete" asp-route-id="@item.UserAccountId" class="btn btn-sm btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="6" class="text-center">No users found.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>

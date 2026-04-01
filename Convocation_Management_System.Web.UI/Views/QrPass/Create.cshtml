@@ -1,0 +1,48 @@
+﻿@model Convocation.Entities.QrPass
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Create QR Pass";
+}
+
+<div class="form-card">
+    <h3 class="form-title mb-4">Create QR Pass</h3>
+
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="RegistrationId" class="form-label"></label>
+                <select asp-for="RegistrationId" class="form-select" asp-items="ViewBag.RegistrationId">
+                    <option value="">-- Select Registration --</option>
+                </select>
+                <span asp-validation-for="RegistrationId" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="QrCodeText" class="form-label"></label>
+                <input asp-for="QrCodeText" class="form-control" placeholder="Leave blank for auto generation" />
+                <span asp-validation-for="QrCodeText" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="IssuedAt" class="form-label"></label>
+                <input asp-for="IssuedAt" type="datetime-local" class="form-control" />
+                <span asp-validation-for="IssuedAt" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6 d-flex align-items-center">
+                <div class="form-check mt-4">
+                    <input asp-for="IsUsed" class="form-check-input" />
+                    <label asp-for="IsUsed" class="form-check-label"></label>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+        </div>
+    </form>
+</div>

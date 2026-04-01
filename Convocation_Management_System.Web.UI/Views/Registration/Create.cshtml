@@ -1,0 +1,110 @@
+﻿@model Convocation.Entities.Registration
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Create Registration";
+}
+
+<div class="form-card">
+    <h3 class="form-title mb-4">Create Registration</h3>
+
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="ParticipantId" class="form-label"></label>
+                <select asp-for="ParticipantId" class="form-select" asp-items="ViewBag.ParticipantId">
+                    <option value="">-- Select Participant --</option>
+                </select>
+                <span asp-validation-for="ParticipantId" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="EventId" class="form-label"></label>
+                <select asp-for="EventId" class="form-select" id="eventSelect">
+                    <option value="">-- Select Event --</option>
+                    @foreach (var item in ViewBag.Events)
+                    {
+                        <option value="@item.EventId"
+                                data-basefee="@item.BaseFee"
+                                data-guestfee="@item.GuestFee">
+                            @item.EventTitle - @Convert.ToDateTime(item.EventDate).ToString("dd MMM yyyy")
+                        </option>
+                    }
+                </select>
+                <span asp-validation-for="EventId" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="GuestCount" class="form-label"></label>
+                <input asp-for="GuestCount" class="form-control" />
+                <span asp-validation-for="GuestCount" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="TotalAmount" class="form-label"></label>
+                <input asp-for="TotalAmount" class="form-control" readonly />
+                <span asp-validation-for="TotalAmount" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="RegistrationStatus" class="form-label"></label>
+                <select asp-for="RegistrationStatus" class="form-select">
+                    <option value="">-- Select Status --</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Confirmed">Confirmed</option>
+                    <option value="Rejected">Rejected</option>
+                </select>
+                <span asp-validation-for="RegistrationStatus" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        function calculateAmount() {
+            var eventSelect = document.getElementById("eventSelect");
+            var guestCountInput = document.getElementById("GuestCount");
+            var totalAmountInput = document.getElementById("TotalAmount");
+
+            if (!eventSelect || !guestCountInput || !totalAmountInput) return;
+
+            var selectedOption = eventSelect.options[eventSelect.selectedIndex];
+
+            var baseFee = parseFloat(selectedOption.getAttribute("data-basefee")) || 0;
+            var guestFee = parseFloat(selectedOption.getAttribute("data-guestfee")) || 0;
+            var guestCount = parseInt(guestCountInput.value) || 0;
+
+            if (guestCount < 0) guestCount = 0;
+
+            var total = baseFee + (guestCount * guestFee);
+            totalAmountInput.value = total.toFixed(2);
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            var eventSelect = document.getElementById("eventSelect");
+            var guestCountInput = document.getElementById("GuestCount");
+
+            if (eventSelect) {
+                eventSelect.addEventListener("change", calculateAmount);
+            }
+
+            if (guestCountInput) {
+                guestCountInput.addEventListener("input", calculateAmount);
+            }
+
+            calculateAmount();
+        });
+    </script>
+}

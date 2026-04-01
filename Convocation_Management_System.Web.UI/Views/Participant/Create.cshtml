@@ -1,0 +1,64 @@
+﻿@model Convocation.Entities.Participant
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Create Participant";
+}
+
+<div class="form-card">
+    <h3 class="form-title mb-4">Create Participant</h3>
+
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="UserAccountId" class="form-label"></label>
+                <input asp-for="UserAccountId" class="form-control" />
+                <span asp-validation-for="UserAccountId" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="StudentId" class="form-label"></label>
+                <input asp-for="StudentId" class="form-control" />
+                <span asp-validation-for="StudentId" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Department" class="form-label"></label>
+                <input asp-for="Department" class="form-control" />
+                <span asp-validation-for="Department" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Program" class="form-label"></label>
+                <input asp-for="Program" class="form-control" />
+                <span asp-validation-for="Program" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Session" class="form-label"></label>
+                <input asp-for="Session" class="form-control" />
+                <span asp-validation-for="Session" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6 d-flex align-items-center">
+                <div class="form-check mt-4">
+                    <input asp-for="IsEligible" class="form-check-input" />
+                    <label asp-for="IsEligible" class="form-check-label"></label>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

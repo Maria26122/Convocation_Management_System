@@ -1,0 +1,311 @@
+﻿@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+
+    bool isDashboard = currentController == "Admin" && currentAction == "Index";
+    bool isReports = currentController == "Admin" && currentAction == "Reports";
+
+    bool isStudentOpen =
+        currentController == "Participant" ||
+        currentController == "Registration" ||
+        currentController == "Guest";
+
+    bool isEventOpen =
+        currentController == "Event" ||
+        currentController == "QrPass";
+
+    bool isOperationOpen =
+        currentController == "DistributionLog";
+
+    bool isPaymentOpen =
+        currentController == "Payment";
+
+    bool isUserAccessOpen =
+        currentController == "Role" ||
+        currentController == "UserAccount" ||
+        currentController == "Permission" ||
+        currentController == "RolePermission" ||
+        currentController == "UserPermission";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin Panel</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/admin-theme.css" />
+</head>
+<body>
+    <div class="sidebar">
+        <div class="brand d-flex align-items-center gap-2">
+            <i class="fas fa-graduation-cap brand-icon"></i>
+            <div>
+                <h4>Convocation</h4>
+                <p>Admin Panel</p>
+            </div>
+        </div>
+
+        <div class="menu-group">
+            <a asp-controller="Admin" asp-action="Index"
+               class="sidebar-link @(isDashboard ? "active-menu" : "")">
+                <span class="menu-left">
+                    <i class="fas fa-house menu-icon"></i>
+                    <span>Dashboard</span>
+                </span>
+            </a>
+        </div>
+
+        <!-- STUDENT -->
+        <div class="menu-group">
+            <a class="sidebar-link menu-toggle section-toggle @(isStudentOpen ? "open-menu" : "")"
+               data-bs-toggle="collapse"
+               href="#studentMenu"
+               role="button"
+               aria-expanded="@(isStudentOpen.ToString().ToLower())"
+               aria-controls="studentMenu">
+                <span class="menu-left">
+                    <span class="section-text">Student</span>
+                </span>
+                <i class="fas fa-chevron-right toggle-icon @(isStudentOpen ? "rotate" : "")"></i>
+            </a>
+
+            <div class="collapse submenu-wrap @(isStudentOpen ? "show" : "")" id="studentMenu">
+                <div class="submenu">
+                    <a asp-controller="Participant" asp-action="Index"
+                       class="sidebar-link @(currentController == "Participant" ? "active-menu" : "")">
+                        <span class="menu-left">
+                            <i class="fas fa-user-graduate menu-icon"></i>
+                            <span>Participants</span>
+                        </span>
+                    </a>
+
+                    <a asp-controller="Registration" asp-action="Index"
+                       class="sidebar-link @(currentController == "Registration" ? "active-menu" : "")">
+                        <span class="menu-left">
+                            <i class="fas fa-file-signature menu-icon"></i>
+                            <span>Registrations</span>
+                        </span>
+                    </a>
+
+                    <a asp-controller="Guest" asp-action="Index"
+                       class="sidebar-link @(currentController == "Guest" ? "active-menu" : "")">
+                        <span class="menu-left">
+                            <i class="fas fa-user-group menu-icon"></i>
+                            <span>Guests</span>
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- EVENT -->
+        <div class="menu-group">
+            <a class="sidebar-link menu-toggle section-toggle @(isEventOpen ? "open-menu" : "")"
+               data-bs-toggle="collapse"
+               href="#eventMenu"
+               role="button"
+               aria-expanded="@(isEventOpen.ToString().ToLower())"
+               aria-controls="eventMenu">
+                <span class="menu-left">
+                    <span class="section-text">Event</span>
+                </span>
+                <i class="fas fa-chevron-right toggle-icon @(isEventOpen ? "rotate" : "")"></i>
+            </a>
+
+            <div class="collapse submenu-wrap @(isEventOpen ? "show" : "")" id="eventMenu">
+                <div class="submenu">
+                    <a asp-controller="Event" asp-action="Index"
+                       class="sidebar-link @(currentController == "Event" ? "active-menu" : "")">
+                        <span class="menu-left">
+                            <i class="fas fa-calendar-days menu-icon"></i>
+                            <span>Events</span>
+                        </span>
+                    </a>
+
+                    <a asp-controller="QrPass" asp-action="Index"
+                       class="sidebar-link @(currentController == "QrPass" ? "active-menu" : "")">
+                        <span class="menu-left">
+                            <i class="fas fa-qrcode menu-icon"></i>
+                            <span>QR Passes</span>
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- OPERATION -->
+        <div class="menu-group">
+            <a class="sidebar-link menu-toggle section-toggle @(isOperationOpen ? "open-menu" : "")"
+               data-bs-toggle="collapse"
+               href="#operationMenu"
+               role="button"
+               aria-expanded="@(isOperationOpen.ToString().ToLower())"
+               aria-controls="operationMenu">
+                <span class="menu-left">
+                    <span class="section-text">Operation</span>
+                </span>
+                <i class="fas fa-chevron-right toggle-icon @(isOperationOpen ? "rotate" : "")"></i>
+            </a>
+
+            <div class="collapse submenu-wrap @(isOperationOpen ? "show" : "")" id="operationMenu">
+                <div class="submenu">
+                    <a asp-controller="DistributionLog" asp-action="Index"
+                       class="sidebar-link @(currentController == "DistributionLog" ? "active-menu" : "")">
+                        <span class="menu-left">
+                            <i class="fas fa-box-open menu-icon"></i>
+                            <span>Distribution</span>
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAYMENT -->
+        <div class="menu-group">
+            <a class="sidebar-link menu-toggle section-toggle @(isPaymentOpen ? "open-menu" : "")"
+               data-bs-toggle="collapse"
+               href="#paymentMenu"
+               role="button"
+               aria-expanded="@(isPaymentOpen.ToString().ToLower())"
+               aria-controls="paymentMenu">
+                <span class="menu-left">
+                    <span class="section-text">Payment</span>
+                </span>
+                <i class="fas fa-chevron-right toggle-icon @(isPaymentOpen ? "rotate" : "")"></i>
+            </a>
+
+            <div class="collapse submenu-wrap @(isPaymentOpen ? "show" : "")" id="paymentMenu">
+                <div class="submenu">
+                    <a asp-controller="Payment" asp-action="Index"
+                       class="sidebar-link @(currentController == "Payment" ? "active-menu" : "")">
+                        <span class="menu-left">
+                            <i class="fas fa-money-bill-wave menu-icon"></i>
+                            <span>Payments</span>
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- USER ACCESS -->
+        <div class="menu-group">
+            <a class="sidebar-link menu-toggle section-toggle @(isUserAccessOpen ? "open-menu" : "")"
+               data-bs-toggle="collapse"
+               href="#userAccessMenu"
+               role="button"
+               aria-expanded="@(isUserAccessOpen.ToString().ToLower())"
+               aria-controls="userAccessMenu">
+                <span class="menu-left">
+                    <span class="section-text">User Access</span>
+                </span>
+                <i class="fas fa-chevron-right toggle-icon @(isUserAccessOpen ? "rotate" : "")"></i>
+            </a>
+
+            <div class="collapse submenu-wrap @(isUserAccessOpen ? "show" : "")" id="userAccessMenu">
+                <div class="submenu">
+                    <a asp-controller="Role" asp-action="Index"
+                       class="sidebar-link @(currentController == "Role" ? "active-menu" : "")">
+                        <span class="menu-left">
+                            <i class="fas fa-user-tag menu-icon"></i>
+                            <span>Roles</span>
+                        </span>
+                    </a>
+
+                    <a asp-controller="UserAccount" asp-action="Index"
+                       class="sidebar-link @(currentController == "UserAccount" ? "active-menu" : "")">
+                        <span class="menu-left">
+                            <i class="fas fa-users menu-icon"></i>
+                            <span>Users</span>
+                        </span>
+                    </a>
+
+                    <a asp-controller="Permission" asp-action="Index"
+                       class="sidebar-link @(currentController == "Permission" ? "active-menu" : "")">
+                        <span class="menu-left">
+                            <i class="fas fa-key menu-icon"></i>
+                            <span>Permissions</span>
+                        </span>
+                    </a>
+
+                    <a asp-controller="RolePermission" asp-action="Index"
+                       class="sidebar-link @(currentController == "RolePermission" ? "active-menu" : "")">
+                        <span class="menu-left">
+                            <i class="fas fa-lock menu-icon"></i>
+                            <span>Role Permission</span>
+                        </span>
+                    </a>
+
+                    <a asp-controller="UserPermission" asp-action="Index"
+                       class="sidebar-link @(currentController == "UserPermission" ? "active-menu" : "")">
+                        <span class="menu-left">
+                            <i class="fas fa-user-lock menu-icon"></i>
+                            <span>User Permission</span>
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- REPORT -->
+        <div class="menu-group">
+            <a asp-controller="Admin" asp-action="Reports"
+               class="sidebar-link @(isReports ? "active-menu" : "")">
+                <span class="menu-left">
+                    <i class="fas fa-chart-column menu-icon"></i>
+                    <span>Report</span>
+                </span>
+            </a>
+        </div>
+
+        <!-- LOGOUT -->
+        <div class="menu-group">
+            <a asp-controller="Account" asp-action="Logout" class="sidebar-link">
+                <span class="menu-left">
+                    <i class="fas fa-right-from-bracket menu-icon"></i>
+                    <span>Logout</span>
+                </span>
+            </a>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="topbar">
+            <h4>@ViewData["Title"]</h4>
+            <span>Graduation & Convocation Management System</span>
+        </div>
+
+        @RenderBody()
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const toggles = document.querySelectorAll(".menu-toggle");
+
+            toggles.forEach(toggle => {
+                const targetSelector = toggle.getAttribute("href");
+                const target = document.querySelector(targetSelector);
+                const icon = toggle.querySelector(".toggle-icon");
+
+                if (!target || !icon) return;
+
+                target.addEventListener("show.bs.collapse", function () {
+                    icon.classList.add("rotate");
+                    toggle.classList.add("open-menu");
+                });
+
+                target.addEventListener("hide.bs.collapse", function () {
+                    icon.classList.remove("rotate");
+                    toggle.classList.remove("open-menu");
+                });
+            });
+        });
+    </script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

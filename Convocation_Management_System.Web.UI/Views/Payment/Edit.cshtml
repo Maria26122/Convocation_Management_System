@@ -1,0 +1,78 @@
+﻿@model Convocation.Entities.Payment
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Edit Payment";
+}
+
+<div class="form-card">
+    <h3 class="form-title mb-4">Edit Payment</h3>
+
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="PaymentId" />
+
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="RegistrationId" class="form-label"></label>
+                <select asp-for="RegistrationId" class="form-select" asp-items="ViewBag.RegistrationId">
+                    <option value="">-- Select Registration --</option>
+                </select>
+                <span asp-validation-for="RegistrationId" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="PaymentMethod" class="form-label"></label>
+                <select asp-for="PaymentMethod" class="form-select">
+                    <option value="">-- Select Payment Method --</option>
+                    <option value="Cash">Cash</option>
+                    <option value="Card">Card</option>
+                    <option value="Mobile Banking">Mobile Banking</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
+                </select>
+                <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="TransactionId" class="form-label"></label>
+                <input asp-for="TransactionId" class="form-control" />
+                <span asp-validation-for="TransactionId" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="PaidAmount" class="form-label"></label>
+                <input asp-for="PaidAmount" class="form-control" />
+                <span asp-validation-for="PaidAmount" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="PaymentStatus" class="form-label"></label>
+                <select asp-for="PaymentStatus" class="form-select">
+                    <option value="">-- Select Payment Status --</option>
+                    <option value="Paid">Paid</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Failed">Failed</option>
+                </select>
+                <span asp-validation-for="PaymentStatus" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="PaymentDate" class="form-label"></label>
+                <input asp-for="PaymentDate" type="datetime-local" class="form-control" />
+                <span asp-validation-for="PaymentDate" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">Update</button>
+            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

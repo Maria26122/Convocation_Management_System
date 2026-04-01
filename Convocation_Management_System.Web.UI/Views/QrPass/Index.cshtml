@@ -1,0 +1,67 @@
+﻿@model IEnumerable<Convocation.Entities.QrPass>
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "QR Passes";
+}
+
+<div class="page-card">
+    <div class="page-header">
+        <h3>QR Pass List</h3>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i> Add New QR Pass
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle table-hover">
+            <thead>
+                <tr>
+                    <th>Registration</th>
+                    <th>Participant</th>
+                    <th>Event</th>
+                    <th>QR Code</th>
+                    <th>Status</th>
+                    <th>Generated Date</th>
+                    <th style="width:220px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>#@item.RegistrationId</td>
+                            <td>@item.Registration?.Participant?.StudentId</td>
+                            <td>@item.Registration?.Event?.EventTitle</td>
+                            <td>@item.QrCodeText</td>
+                            <td>
+                                @if (item.IsUsed)
+                                {
+                                    <span class="badge-status badge-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-status badge-danger">Inactive</span>
+                                }
+                            </td>
+                            <td>@item.IssuedAt.ToString("dd MMM yyyy hh:mm tt")</td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@item.QrPassId" class="btn btn-sm btn-info">Details</a>
+                                <a asp-action="Edit" asp-route-id="@item.QrPassId" class="btn btn-sm btn-warning">Edit</a>
+                                <a asp-action="Delete" asp-route-id="@item.QrPassId" class="btn btn-sm btn-danger">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" class="text-center text-soft">No QR passes found.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

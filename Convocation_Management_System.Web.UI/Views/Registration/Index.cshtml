@@ -1,0 +1,71 @@
+﻿@model IEnumerable<Convocation.Entities.Registration>
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Registrations";
+}
+
+<div class="page-card">
+    <div class="page-header">
+        <h3>Registration List</h3>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i> Add New Registration
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle table-hover">
+            <thead>
+                <tr>
+                    <th>Participant</th>
+                    <th>Event</th>
+                    <th>Guest Count</th>
+                    <th>Total Amount</th>
+                    <th>Status</th>
+                    <th>Registration Date</th>
+                    <th style="width: 220px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Participant?.StudentId</td>
+                            <td>@item.Event?.EventTitle</td>
+                            <td>@item.GuestCount</td>
+                            <td>@item.TotalAmount</td>
+                            <td>
+                                @if (item.RegistrationStatus == "Pending")
+                                {
+                                    <span class="badge-status badge-warning">Pending</span>
+                                }
+                                else if (item.RegistrationStatus == "Confirmed")
+                                {
+                                    <span class="badge-status badge-success">Confirmed</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-status badge-danger">Rejected</span>
+                                }
+                            </td>
+                            <td>@item.RegistrationDate.ToString("dd MMM yyyy hh:mm tt")</td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@item.RegistrationId" class="btn btn-sm btn-info text-white">Details</a>
+                                <a asp-action="Edit" asp-route-id="@item.RegistrationId" class="btn btn-sm btn-warning">Edit</a>
+                                <a asp-action="Delete" asp-route-id="@item.RegistrationId" class="btn btn-sm btn-danger">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" class="text-center text-soft">No registrations found.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

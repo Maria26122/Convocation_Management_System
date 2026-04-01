@@ -1,0 +1,22 @@
+﻿@model Convocation.Entities.Permission
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Edit Permission";
+}
+<div class="form-card">
+    <h3 class="form-title mb-4">Edit Permission</h3>
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="PermissionId" />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="mb-3">
+            <label asp-for="PermissionName" class="form-label"></label>
+            <input asp-for="PermissionName" class="form-control" />
+            <span asp-validation-for="PermissionName" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">Update</button>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </form>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

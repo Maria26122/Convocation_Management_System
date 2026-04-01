@@ -1,0 +1,30 @@
+﻿@model Convocation.Entities.UserPermission
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Create User Permission";
+}
+<div class="form-card">
+    <h3 class="form-title mb-4">Create User Permission</h3>
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="mb-3">
+            <label asp-for="UserAccountId" class="form-label">User</label>
+            <select asp-for="UserAccountId" asp-items="ViewBag.UserAccountId" class="form-select">
+                <option value="">-- Select User --</option>
+            </select>
+            <span asp-validation-for="UserAccountId" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="PermissionId" class="form-label">Permission</label>
+            <select asp-for="PermissionId" asp-items="ViewBag.PermissionId" class="form-select">
+                <option value="">-- Select Permission --</option>
+            </select>
+            <span asp-validation-for="PermissionId" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </form>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

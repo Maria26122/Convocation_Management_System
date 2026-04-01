@@ -1,0 +1,42 @@
+﻿@model Convocation.Entities.Guest
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Guest Details";
+}
+
+<div class="details-card">
+    <h3 class="details-title mb-4">Guest Details</h3>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="label-title">Guest ID</div>
+            <div class="value-text">@Model.GuestId</div>
+        </div>
+        <div class="col-md-6">
+            <div class="label-title">Guest Name</div>
+            <div class="value-text">@Model.GuestName</div>
+        </div>
+        <div class="col-md-6">
+            <div class="label-title">Relation</div>
+            <div class="value-text">@Model.Relation</div>
+        </div>
+        <div class="col-md-6">
+            <div class="label-title">Registration ID</div>
+            <div class="value-text">#@Model.RegistrationId</div>
+        </div>
+        <div class="col-md-6">
+            <div class="label-title">Participant</div>
+            <div class="value-text">@Model.Registration?.Participant?.StudentId</div>
+        </div>
+        <div class="col-md-6">
+            <div class="label-title">Event</div>
+            <div class="value-text">@Model.Registration?.Event?.EventTitle</div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="Edit" asp-route-id="@Model.GuestId" class="btn btn-warning">Edit</a>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>

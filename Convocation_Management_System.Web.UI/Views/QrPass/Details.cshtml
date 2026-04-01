@@ -1,0 +1,55 @@
+﻿@model Convocation.Entities.QrPass
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "QR Pass Details";
+}
+
+<div class="details-card">
+    <h3 class="details-title mb-4">QR Pass Details</h3>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="label-title">QR Pass ID</div>
+            <div class="value-text">@Model.QrPassId</div>
+        </div>
+        <div class="col-md-6">
+            <div class="label-title">Registration ID</div>
+            <div class="value-text">#@Model.RegistrationId</div>
+        </div>
+        <div class="col-md-6">
+            <div class="label-title">Participant</div>
+            <div class="value-text">@Model.Registration?.Participant?.StudentId</div>
+        </div>
+        <div class="col-md-6">
+            <div class="label-title">Event</div>
+            <div class="value-text">@Model.Registration?.Event?.EventTitle</div>
+        </div>
+        <div class="col-md-6">
+            <div class="label-title">QR Code</div>
+            <div class="value-text">@Model.QrCodeText</div>
+        </div>
+        <div class="col-md-6">
+            <div class="label-title">Status</div>
+            <div class="value-text">
+                @if (Model.IsUsed)
+                {
+                    <span class="badge-status badge-success">Active</span>
+                }
+                else
+                {
+                    <span class="badge-status badge-danger">Inactive</span>
+                }
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="label-title">Generated Date</div>
+            <div class="value-text">@Model.IssuedAt.ToString("dd MMM yyyy hh:mm tt")</div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="Edit" asp-route-id="@Model.QrPassId" class="btn btn-warning">Edit</a>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>

@@ -1,0 +1,38 @@
+﻿@model Convocation.Entities.UserAccount
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "User Details";
+}
+<div class="form-card">
+    <h3 class="form-title mb-4">User Details</h3>
+    <dl class="row">
+        <dt class="col-sm-3">Full Name</dt>
+        <dd class="col-sm-9">@Model.FullName</dd>
+        <dt class="col-sm-3">Email</dt>
+        <dd class="col-sm-9">@Model.Email</dd>
+        <dt class="col-sm-3">Role</dt>
+        <dd class="col-sm-9">@Model.Role?.RoleName</dd>
+        <dt class="col-sm-3">Phone</dt>
+        <dd class="col-sm-9">@Model.Phone</dd>
+        <dt class="col-sm-3">Status</dt>
+        <dd class="col-sm-9">@(Model.IsActive ? "Active" : "Inactive")</dd>
+        <dt class="col-sm-3">Created At</dt>
+        <dd class="col-sm-9">@Model.CreatedAt</dd>
+        <dt class="col-sm-3">Participant Linked</dt>
+        <dd class="col-sm-9">@(Model.Participant != null ? "Yes" : "No")</dd>
+    </dl>
+
+    @if (Model.UserPermissions != null && Model.UserPermissions.Any())
+    {
+        <h5 class="mt-4">Assigned Permissions</h5>
+        <ul>
+            @foreach (var item in Model.UserPermissions)
+            {
+                <li>@item.Permission?.PermissionName</li>
+            }
+        </ul>
+    }
+
+    <a asp-action="Edit" asp-route-id="@Model.UserAccountId" class="btn btn-warning">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>

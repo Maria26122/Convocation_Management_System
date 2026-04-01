@@ -1,0 +1,64 @@
+﻿@model Convocation.Entities.Payment
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Delete Payment";
+}
+
+<div class="delete-card">
+    <h3 class="delete-title mb-2 text-danger">Delete Payment</h3>
+    <p class="text-soft">Are you sure you want to delete this payment?</p>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="label-title">Registration ID</div>
+            <div class="value-text">#@Model.RegistrationId</div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="label-title">Payment Method</div>
+            <div class="value-text">@Model.PaymentMethod</div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="label-title">Transaction ID</div>
+            <div class="value-text">@Model.TransactionId</div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="label-title">Paid Amount</div>
+            <div class="value-text">@Model.PaidAmount</div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="label-title">Payment Status</div>
+            <div class="value-text">
+                @if (Model.PaymentStatus == "Paid")
+                {
+                    <span class="badge-status badge-success">Paid</span>
+                }
+                else if (Model.PaymentStatus == "Pending")
+                {
+                    <span class="badge-status badge-warning">Pending</span>
+                }
+                else
+                {
+                    <span class="badge-status badge-danger">Failed</span>
+                }
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="label-title">Payment Date</div>
+            <div class="value-text">
+                @(Model.PaymentDate.HasValue? Model.PaymentDate.Value.ToString("dd MMM yyyy hh:mm tt") : "N/A")
+            </div>
+        </div>
+    </div>
+
+    <form asp-action="Delete" method="post" class="mt-4">
+        <input type="hidden" asp-for="PaymentId" />
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </form>
+</div>

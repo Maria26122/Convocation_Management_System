@@ -1,0 +1,73 @@
+﻿@model Convocation.Entities.Participant
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Participant Details";
+}
+
+<div class="details-card">
+    <h3 class="details-title mb-4">Participant Details</h3>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="label-title">Participant ID</div>
+            <div class="value-text">@Model.ParticipantId</div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="label-title">User Account ID</div>
+            <div class="value-text">@Model.UserAccountId</div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="label-title">Student ID</div>
+            <div class="value-text">@Model.StudentId</div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="label-title">Department</div>
+            <div class="value-text">@Model.Department</div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="label-title">Program</div>
+            <div class="value-text">@Model.Program</div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="label-title">Session</div>
+            <div class="value-text">@Model.Session</div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="label-title">Eligibility</div>
+            <div class="value-text">
+                @if (Model.IsEligible)
+                {
+                    <span class="badge-status badge-success">Eligible</span>
+                }
+                else
+                {
+                    <span class="badge-status badge-danger">Not Eligible</span>
+                }
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="label-title">Created At</div>
+            <div class="value-text">@Model.CreatedAt.ToString("dd MMM yyyy hh:mm tt")</div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="label-title">Updated At</div>
+            <div class="value-text">
+                @(Model.UpdatedAt.HasValue? Model.UpdatedAt.Value.ToString("dd MMM yyyy hh:mm tt") : "Not Updated")
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="Edit" asp-route-id="@Model.ParticipantId" class="btn btn-warning">Edit</a>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>

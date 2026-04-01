@@ -1,0 +1,45 @@
+﻿@model Convocation.Entities.Event
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Delete Event";
+}
+
+<div class="delete-card">
+    <h3 class="delete-title mb-2 text-danger">Delete Event</h3>
+    <p class="text-soft">Are you sure you want to delete this event?</p>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="label-title">Event Title</div>
+            <div class="value-text">@Model.EventTitle</div>
+        </div>
+        <div class="col-md-6">
+            <div class="label-title">Venue</div>
+            <div class="value-text">@Model.Venue</div>
+        </div>
+        <div class="col-md-6">
+            <div class="label-title">Event Date</div>
+            <div class="value-text">@Model.EventDate.ToString("dd MMM yyyy")</div>
+        </div>
+        <div class="col-md-6">
+            <div class="label-title">Status</div>
+            <div class="value-text">
+                @if (Model.IsActive)
+                {
+                    <span class="badge-status badge-success">Active</span>
+                }
+                else
+                {
+                    <span class="badge-status badge-danger">Inactive</span>
+                }
+            </div>
+        </div>
+    </div>
+
+    <form asp-action="Delete" method="post" class="mt-4">
+        <input type="hidden" asp-for="EventId" />
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </form>
+</div>
