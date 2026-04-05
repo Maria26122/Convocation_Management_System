@@ -17,7 +17,13 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
         public async Task<IActionResult> Index()
         {
-            if (HttpContext.Session.GetString("UserEmail") == null)
+            if (HttpContext.Session.GetString("UserId") == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            var role = HttpContext.Session.GetString("Role");
+
+            if (role != "Admin" && role != "Staff")
             {
                 return RedirectToAction("Login", "Account");
             }

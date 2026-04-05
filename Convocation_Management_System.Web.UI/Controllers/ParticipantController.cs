@@ -17,6 +17,14 @@ namespace Convocation_Management_System.Web.UI.Controllers
         // GET: Participant
         public async Task<IActionResult> Index()
         {
+            if (HttpContext.Session.GetString("UserId") == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            if (HttpContext.Session.GetString("Role") != "Participant")
+            {
+                return RedirectToAction("Login", "Account");
+            }
             var participants = await _context.Participants
                 .Include(p => p.UserAccount)
                 .OrderByDescending(p => p.ParticipantId)

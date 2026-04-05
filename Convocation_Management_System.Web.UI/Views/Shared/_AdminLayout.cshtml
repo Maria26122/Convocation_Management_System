@@ -125,14 +125,22 @@
                             <span>Events</span>
                         </span>
                     </a>
+                     <a asp-controller="QrPass" asp-action="Index"
+           class="sidebar-link @(currentController == "QrPass" && currentAction == "Index" ? "active-menu" : "")">
+            <span class="menu-left">
+                <i class="fas fa-qrcode menu-icon"></i>
+                <span>QR Passes</span>
+            </span>
+        </a>
 
-                    <a asp-controller="QrPass" asp-action="Index"
-                       class="sidebar-link @(currentController == "QrPass" ? "active-menu" : "")">
-                        <span class="menu-left">
-                            <i class="fas fa-qrcode menu-icon"></i>
-                            <span>QR Passes</span>
-                        </span>
-                    </a>
+        <a asp-controller="QrPass" asp-action="Verify"
+           class="sidebar-link @(currentController == "QrPass" && currentAction == "Verify" ? "active-menu" : "")">
+            <span class="menu-left">
+                <i class="fas fa-check-circle menu-icon"></i>
+                <span>Verify QR Pass</span>
+            </span>
+        </a>
+                  
                 </div>
             </div>
         </div>

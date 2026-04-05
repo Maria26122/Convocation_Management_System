@@ -18,6 +18,14 @@ namespace Convocation_Management_System.Web.UI.Controllers
         // GET: Registration
         public async Task<IActionResult> Index()
         {
+            if (HttpContext.Session.GetString("UserId") == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            if (HttpContext.Session.GetString("Role") != "Participant")
+            {
+                return RedirectToAction("Login", "Account");
+            }
             var registrations = await _context.Registrations
                 .Include(r => r.Participant)
                 .Include(r => r.Event)

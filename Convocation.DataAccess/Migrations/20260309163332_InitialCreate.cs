@@ -200,7 +200,7 @@ namespace Convocation.DataAccess.Migrations
                     DistributionLogId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RegistrationId = table.Column<int>(type: "int", nullable: false),
-                    StaffUserAccountId = table.Column<int>(type: "int", nullable: false),
+                 UserAccountId = table.Column<int>(type: "int", nullable: false),
                     ActionType = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     ActionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Note = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true)
@@ -216,7 +216,7 @@ namespace Convocation.DataAccess.Migrations
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_DistributionLogs_UserAccounts_StaffUserAccountId",
-                        column: x => x.StaffUserAccountId,
+                        column: x => x.UserAccountId,
                         principalTable: "UserAccounts",
                         principalColumn: "UserAccountId",
                         onDelete: ReferentialAction.Cascade);

@@ -28,5 +28,6 @@ namespace Convocation.Entities
 
         [ForeignKey("UserAccountId")]
         public virtual UserAccount? UserAccount { get; set; }
+       
     }
 }

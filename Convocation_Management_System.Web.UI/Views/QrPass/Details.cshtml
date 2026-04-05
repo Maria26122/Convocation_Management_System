@@ -28,6 +28,22 @@
         <div class="col-md-6">
             <div class="label-title">QR Code</div>
             <div class="value-text">@Model.QrCodeText</div>
+            <div class="mb-3">
+                <label class="fw-bold">QR Code Image:</label><br />
+                @if (!string.IsNullOrEmpty(Model.QrImagePath))
+                {
+                    <img src="@Model.QrImagePath" alt="QR Code" width="220" height="220" class="img-thumbnail" />
+                }
+                else
+                {
+                    <span class="text-muted">No QR image available.</span>
+                }
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">QR Code Text:</label>
+                <div>@Model.QrCodeText</div>
+            </div>
         </div>
         <div class="col-md-6">
             <div class="label-title">Status</div>

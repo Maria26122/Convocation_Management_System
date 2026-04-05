@@ -1,0 +1,45 @@
+﻿@model Convocation_Management_System.Web.UI.Models.VerifyOtpViewModel
+
+@{
+    ViewData["Title"] = "Verify OTP";
+}
+
+<div class="container mt-5" style="max-width: 500px;">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4">
+            <h3 class="mb-4 text-center">Verify OTP</h3>
+
+            @if (TempData["OtpMessage"] != null)
+            {
+                <div class="alert alert-info">
+                    @TempData["OtpMessage"]
+                </div>
+            }
+
+            <form asp-action="VerifyOtp" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <input asp-for="Email" type="hidden" />
+
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input value="@Model.Email" class="form-control" readonly />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="OtpCode" class="form-label"></label>
+                    <input asp-for="OtpCode" class="form-control" placeholder="Enter 6-digit OTP" />
+                    <span asp-validation-for="OtpCode" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Verify OTP</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

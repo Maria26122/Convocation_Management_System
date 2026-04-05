@@ -22,6 +22,10 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
         public async Task<IActionResult> Index()
         {
+            if (HttpContext.Session.GetString("UserEmail") == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
             var users = await _context.UserAccounts
                 .Include(u => u.Role)
                 .OrderByDescending(u => u.UserAccountId)

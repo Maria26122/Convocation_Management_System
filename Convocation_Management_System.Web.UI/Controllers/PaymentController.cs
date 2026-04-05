@@ -18,6 +18,15 @@ namespace Convocation_Management_System.Web.UI.Controllers
         // GET: Payment
         public async Task<IActionResult> Index()
         {
+            if (HttpContext.Session.GetString("UserId") == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            var role = HttpContext.Session.GetString("Role");
+            if (role != "Admin" && role != "Staff")
+            {
+                return RedirectToAction("Login", "Account");
+            }
             var payments = await _context.Payments
                 .Include(p => p.Registration)
                 .ThenInclude(r => r.Participant)

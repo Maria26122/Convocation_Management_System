@@ -15,7 +15,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
         public IActionResult Index()
         {
-            if (HttpContext.Session.GetString("UserEmail") == null)
+            if (HttpContext.Session.GetString("Role") != "Admin")
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -43,7 +43,11 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
         public IActionResult Reports()
         {
-            if (HttpContext.Session.GetString("UserEmail") == null)
+            if (HttpContext.Session.GetString("UserId") == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            if (HttpContext.Session.GetString("Role") != "Admin")
             {
                 return RedirectToAction("Login", "Account");
             }

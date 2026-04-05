@@ -23,6 +23,10 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
         public async Task<IActionResult> Index()
         {
+            if (HttpContext.Session.GetString("Role") != "Admin")
+            {
+                return RedirectToAction("Login", "Account");
+            }
             var items = await _context.UserPermissions
                 .Include(up => up.UserAccount)
                 .Include(up => up.Permission)

@@ -1,0 +1,90 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Verify QR Pass";
+}
+
+<div class="form-card">
+    <h3 class="form-title mb-4">Verify QR Pass</h3>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <form asp-action="Verify" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="mb-3">
+            <label class="form-label">QR Code Text</label>
+            <input type="text" id="qrCodeText" name="qrCodeText" class="form-control" placeholder="Enter or scan QR code text" />
+        </div>
+
+        <div class="mb-3 d-flex gap-2">
+            <button type="button" class="btn btn-outline-primary" onclick="startScanner()">Start Scan</button>
+            <button type="button" class="btn btn-outline-danger" onclick="stopScanner()">Stop Scan</button>
+        </div>
+
+        <div id="reader" style="width: 320px; max-width: 100%;"></div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">Verify</button>
+            <a asp-action="Index" class="btn btn-secondary">Back</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script>
+        let html5QrCode;
+
+        function startScanner() {
+            const readerId = "reader";
+
+            if (!html5QrCode) {
+                html5QrCode = new Html5Qrcode(readerId);
+            }
+
+            Html5Qrcode.getCameras().then(devices => {
+                if (devices && devices.length) {
+                    const cameraId = devices[0].id;
+
+                    html5QrCode.start(
+                        cameraId,
+                        {
+                            fps: 10,
+                            qrbox: 250
+                        },
+                        (decodedText) => {
+                            document.getElementById("qrCodeText").value = decodedText;
+                            stopScanner();
+                        },
+                        (errorMessage) => {
+                        }
+                    );
+                } else {
+                    alert("No camera found.");
+                }
+            }).catch(err => {
+                alert("Unable to access camera.");
+            });
+        }
+
+        function stopScanner() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                }).catch(err => {
+                });
+            }
+        }
+    </script>
+}
