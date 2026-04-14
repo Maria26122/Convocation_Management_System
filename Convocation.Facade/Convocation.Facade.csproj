@@ -1,9 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.NETCore.App" Version="2.1.30" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Convocation.Entities\Convocation.Entities.csproj" />
+		<ProjectReference Include="..\Convocation.DataAccess\Convocation.DataAccess.csproj" />
+	</ItemGroup>
 
 </Project>

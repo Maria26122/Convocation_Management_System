@@ -9,7 +9,7 @@ using System.Drawing.Imaging;
 
 namespace Convocation_Management_System.Web.UI.Controllers
 {
-    public class QrPassController : Controller
+    public class QrPassController : BaseController
     {
         private readonly ConvocationDbContext _context;
         private readonly IWebHostEnvironment _environment;
@@ -56,7 +56,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         public IActionResult Create()
         {
             LoadRegistrationDropdown();
-            return View(new QrPass { IsUsed = false, IssuedAt = DateTime.Now });
+            return View(new QrPass { IsUsed = false, IssuedAt = DateTime.Now, QrCodeText = string.Empty });
         }
 
         [HttpPost]
@@ -194,12 +194,14 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return View();
             }
 
+            var trimmed = qrCodeText.Trim();
+
             var qrPass = await _context.QrPasses
                 .Include(q => q.Registration)
                     .ThenInclude(r => r.Participant)
                 .Include(q => q.Registration)
                     .ThenInclude(r => r.Event)
-                .FirstOrDefaultAsync(q => q.QrCodeText.Trim() == qrCodeText.Trim());
+                .FirstOrDefaultAsync(q => q.QrCodeText != null && q.QrCodeText.Trim() == trimmed);
 
             if (qrPass == null)
             {
@@ -248,15 +250,22 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
+            // Ensure the registration navigation property is available
+            if (qrPass.Registration == null)
+            {
+                TempData["ErrorMessage"] = "Registration not found for this QR pass.";
+                return RedirectToAction(nameof(Verify));
+            }
+
             qrPass.IsUsed = true;
 
             var log = new DistributionLog
             {
-                RegistrationId = qrPass.RegistrationId,
-                UserAccountId = userId,
-                ActionType = "Entry Confirmed",
-                ActionDate = DateTime.Now,
-                Note = "Verified by QR check-in"
+                ParticipantId = qrPass.Registration.ParticipantId,
+                ItemName = "Entry Confirmation",
+                DistributedAt = DateTime.Now,
+                DistributedBy = userId.ToString(),
+                Remarks = "Verified by QR check-in"
             };
 
             // Ensure the modified qrPass is tracked and save both changes atomically
@@ -294,7 +303,8 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
         private string GenerateQrImage(string qrText)
         {
-            string folderPath = Path.Combine(_environment.WebRootPath, "qrcodes");
+            var webRoot = _environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+            string folderPath = Path.Combine(webRoot, "qrcodes");
 
             if (!Directory.Exists(folderPath))
             {

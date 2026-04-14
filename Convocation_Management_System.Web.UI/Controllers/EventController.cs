@@ -2,10 +2,11 @@
 using Convocation.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 
 namespace Convocation_Management_System.Web.UI.Controllers
 {
-    public class EventController : Controller
+    public class EventController : BaseController
     {
         private readonly ConvocationDbContext _context;
 
@@ -17,21 +18,22 @@ namespace Convocation_Management_System.Web.UI.Controllers
         // GET: Event
         public async Task<IActionResult> Index()
         {
-            if (HttpContext.Session.GetString("UserId") == null)
-            {
+            var role = (HttpContext.Session.GetString("Role") ?? "").ToLower();
+
+            if (role != "admin" && role != "eventmanager")
                 return RedirectToAction("Login", "Account");
-            }
-            if (HttpContext.Session.GetString("Role") != "Admin")
-            {
+            if (!LoggedIn())
                 return RedirectToAction("Login", "Account");
-            }
+
+            if (!IsAdmin() && !IsEventManager())
+                return RedirectToAction("Login", "Account");
+
             var events = await _context.Events
                 .OrderByDescending(e => e.EventDate)
                 .ToListAsync();
 
             return View(events);
         }
-
         // GET: Event/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -54,37 +56,47 @@ namespace Convocation_Management_System.Web.UI.Controllers
         // GET: Event/Create
         public IActionResult Create()
         {
+            var role = (HttpContext.Session.GetString("Role") ?? "").ToLower();
+
+            if (role != "admin" && role != "eventmanager")
+                return RedirectToAction("Login", "Account");
+
             return View();
         }
 
         // POST: Event/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Event eventItem)
+        [HttpPost]
+        public async Task<IActionResult> Create(Event model)
         {
+            var role = (HttpContext.Session.GetString("Role") ?? "").ToLower();
+
+            if (role != "admin" && role != "eventmanager")
+                return RedirectToAction("Login", "Account");
+
             if (ModelState.IsValid)
             {
-                _context.Add(eventItem);
+                _context.Events.Add(model);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index");
             }
 
-            return View(eventItem);
+            return View(model);
         }
 
         // GET: Event/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var role = (HttpContext.Session.GetString("Role") ?? "").ToLower();
+
+            if (role != "admin" && role != "eventmanager")
+                return RedirectToAction("Login", "Account");
 
             var eventItem = await _context.Events.FindAsync(id);
+
             if (eventItem == null)
-            {
                 return NotFound();
-            }
 
             return View(eventItem);
         }
@@ -92,70 +104,60 @@ namespace Convocation_Management_System.Web.UI.Controllers
         // POST: Event/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Event eventItem)
+        public async Task<IActionResult> Edit(int id, Event model)
         {
-            if (id != eventItem.EventId)
-            {
+            var role = (HttpContext.Session.GetString("Role") ?? "").ToLower();
+
+            if (role != "admin" && role != "eventmanager")
+                return RedirectToAction("Login", "Account");
+
+            if (id != model.EventId)
                 return NotFound();
-            }
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(eventItem);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!EventExists(eventItem.EventId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-
-                return RedirectToAction(nameof(Index));
+                _context.Events.Update(model);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Index");
             }
 
-            return View(eventItem);
+            return View(model);
         }
 
         // GET: Event/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var role = (HttpContext.Session.GetString("Role") ?? "").ToLower();
 
-            var eventItem = await _context.Events
-                .FirstOrDefaultAsync(e => e.EventId == id);
+            if (role != "admin" && role != "eventmanager")
+                return RedirectToAction("Login", "Account");
+
+            var eventItem = await _context.Events.FindAsync(id);
 
             if (eventItem == null)
-            {
                 return NotFound();
-            }
 
             return View(eventItem);
         }
-
         // POST: Event/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            var role = (HttpContext.Session.GetString("Role") ?? "").ToLower();
+
+            if (role != "admin" && role != "eventmanager")
+                return RedirectToAction("Login", "Account");
+
             var eventItem = await _context.Events.FindAsync(id);
+
             if (eventItem != null)
             {
                 _context.Events.Remove(eventItem);
                 await _context.SaveChangesAsync();
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index");
         }
 
         private bool EventExists(int id)

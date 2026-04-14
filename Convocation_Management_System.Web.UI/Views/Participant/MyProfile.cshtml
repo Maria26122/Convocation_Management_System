@@ -1,0 +1,58 @@
+﻿@model Convocation.Entities.Participant
+
+@{
+    ViewData["Title"] = "My Profile";
+    Layout = "~/Views/Shared/_ParticipantLayout.cshtml";
+}
+
+<div class="card shadow-sm border-0 rounded-4">
+    <div class="card-body p-4">
+        <h2 class="mb-4">My Profile</h2>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="fw-bold">Full Name</label>
+                <div class="form-control">@Model.UserAccount?.FullName</div>
+            </div>
+            <div class="col-md-6">
+                <label class="fw-bold">Email</label>
+                <div class="form-control">@Model.UserAccount?.Email</div>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="fw-bold">Phone</label>
+                <div class="form-control">@Model.UserAccount?.Phone</div>
+            </div>
+            <div class="col-md-6">
+                <label class="fw-bold">Student ID</label>
+                <div class="form-control">@Model.StudentId</div>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="fw-bold">Department</label>
+                <div class="form-control">@Model.Department</div>
+            </div>
+            <div class="col-md-6">
+                <label class="fw-bold">Program</label>
+                <div class="form-control">@Model.Program</div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <label class="fw-bold">Session</label>
+                <div class="form-control">@Model.Session</div>
+            </div>
+            <div class="col-md-6">
+                <label class="fw-bold">Eligibility</label>
+                <div class="form-control">
+                    @(Model.IsEligible ? "Eligible" : "Not Eligible")
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

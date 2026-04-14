@@ -14,32 +14,28 @@
             <div class="value-text">@Model.DistributionLogId</div>
         </div>
         <div class="col-md-6">
-            <div class="label-title">Registration ID</div>
-            <div class="value-text">#@Model.RegistrationId</div>
+            <div class="label-title">Participant Id</div>
+            <div class="value-text">@Model.ParticipantId</div>
         </div>
         <div class="col-md-6">
             <div class="label-title">Participant</div>
-            <div class="value-text">@Model.Registration?.Participant?.StudentId</div>
+            <div class="value-text">@Model.Participant?.StudentId</div>
         </div>
         <div class="col-md-6">
-            <div class="label-title">Event</div>
-            <div class="value-text">@Model.Registration?.Event?.EventTitle</div>
+            <div class="label-title">Item Name</div>
+            <div class="value-text">@Model.ItemName</div>
         </div>
         <div class="col-md-6">
-            <div class="label-title">Staff/User</div>
-            <div class="value-text">@Model.UserAccount?.FullName</div>
+            <div class="label-title">Distributed At</div>
+            <div class="value-text">@Model.DistributedAt.ToString("dd MMM yyyy hh:mm tt")</div>
         </div>
         <div class="col-md-6">
-            <div class="label-title">Action Type</div>
-            <div class="value-text"><span class="badge-status badge-info">@Model.ActionType</span></div>
-        </div>
-        <div class="col-md-6">
-            <div class="label-title">Action Date</div>
-            <div class="value-text">@Model.ActionDate.ToString("dd MMM yyyy hh:mm tt")</div>
+            <div class="label-title">Distributed By</div>
+            <div class="value-text">@Model.DistributedBy</div>
         </div>
         <div class="col-md-12">
-            <div class="label-title">Note</div>
-            <div class="value-text">@Model.Note</div>
+            <div class="label-title">Remarks</div>
+            <div class="value-text">@Model.Remarks</div>
         </div>
     </div>
 

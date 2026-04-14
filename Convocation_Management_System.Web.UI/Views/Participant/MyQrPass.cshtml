@@ -1,0 +1,37 @@
+﻿@model Convocation.Entities.QrPass
+
+@{
+    ViewData["Title"] = "My QR Pass";
+    Layout = "~/Views/Shared/_ParticipantLayout.cshtml";
+}
+
+<div class="card shadow-sm border-0 rounded-4">
+    <div class="card-body p-4">
+        <h2 class="mb-4">My QR Pass</h2>
+
+        @if (Model == null)
+        {
+            <div class="alert alert-warning">No QR pass found.</div>
+        }
+        else
+        {
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="fw-bold">QR Code</label>
+                    <div class="form-control">@Model.QrCodeText</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="fw-bold">Issued Date</label>
+                    <div class="form-control">@Model.IssuedAt</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="fw-bold">Status</label>
+                    <div class="form-control">@Model.IsUsed</div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

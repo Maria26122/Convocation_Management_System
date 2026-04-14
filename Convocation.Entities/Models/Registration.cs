@@ -31,5 +31,7 @@ namespace Convocation.Entities
 
         [ForeignKey("EventId")]
         public Event? Event { get; set; }
+
+        public virtual ICollection<DistributionLog> DistributionLogs { get; set; } = new List<DistributionLog>();
     }
 }

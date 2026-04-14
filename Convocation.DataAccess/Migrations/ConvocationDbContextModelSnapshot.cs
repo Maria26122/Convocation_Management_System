@@ -253,7 +253,8 @@ namespace Convocation.DataAccess.Migrations
 
                     b.Property<string>("QrCodeText")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(450)")
+                        .HasColumnName("QrCode");
 
                     b.Property<string>("QrImagePath")
                         .HasColumnType("nvarchar(max)");
@@ -368,25 +369,33 @@ namespace Convocation.DataAccess.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("FullName")
                         .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsTwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("OtpCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("OtpExpiryTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<int>("RoleId")
                         .HasColumnType("int");
@@ -434,7 +443,7 @@ namespace Convocation.DataAccess.Migrations
                         .IsRequired();
 
                     b.HasOne("Convocation.Entities.UserAccount", "UserAccount")
-                        .WithMany("DistributionLogs")
+                        .WithMany()
                         .HasForeignKey("UserAccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -577,8 +586,6 @@ namespace Convocation.DataAccess.Migrations
 
             modelBuilder.Entity("Convocation.Entities.UserAccount", b =>
                 {
-                    b.Navigation("DistributionLogs");
-
                     b.Navigation("Participant");
 
                     b.Navigation("UserPermissions");

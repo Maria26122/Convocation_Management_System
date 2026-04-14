@@ -147,7 +147,10 @@ namespace Convocation_Management_System.Web.UI.Controllers
             if (user == null) return RedirectToAction(nameof(Index));
 
             bool hasParticipant = await _context.Participants.AnyAsync(p => p.UserAccountId == id);
-            bool hasDistributionLog = await _context.DistributionLogs.AnyAsync(d => d.UserAccountId == id);
+            // DistributionLog does not have UserAccountId; check via Participant's UserAccountId
+            bool hasDistributionLog = await _context.DistributionLogs
+                .Include(d => d.Participant)
+                .AnyAsync(d => d.Participant != null && d.Participant.UserAccountId == id);
             bool hasUserPermission = await _context.UserPermissions.AnyAsync(up => up.UserAccountId == id);
 
             if (hasParticipant || hasDistributionLog || hasUserPermission)

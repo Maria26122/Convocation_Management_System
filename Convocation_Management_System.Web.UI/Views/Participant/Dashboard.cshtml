@@ -1,0 +1,65 @@
+﻿@model Convocation.Entities.Participant
+
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_ParticipantLayout.cshtml";
+}
+
+<div class="soft-card p-4 mb-4">
+    <h3 class="fw-bold mb-2">Welcome, @Model.UserAccount?.FullName</h3>
+    <p class="text-muted mb-0">
+        From this panel, you can view your profile, registration, payment, QR pass, and guest information.
+    </p>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="stat-card p-4">
+            <div class="stat-icon"><i class="fas fa-id-card"></i></div>
+            <div class="text-muted small">Student ID</div>
+            <h5 class="fw-bold mb-0">@Model.StudentId</h5>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stat-card p-4">
+            <div class="stat-icon"><i class="fas fa-building-columns"></i></div>
+            <div class="text-muted small">Department</div>
+            <h5 class="fw-bold mb-0">@Model.Department</h5>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stat-card p-4">
+            <div class="stat-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div class="text-muted small">Program</div>
+            <h5 class="fw-bold mb-0">@Model.Program</h5>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stat-card p-4">
+            <div class="stat-icon"><i class="fas fa-calendar"></i></div>
+            <div class="text-muted small">Session</div>
+            <h5 class="fw-bold mb-0">@Model.Session</h5>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stat-card p-4">
+            <div class="stat-icon"><i class="fas fa-circle-check"></i></div>
+            <div class="text-muted small">Eligibility</div>
+            <h5 class="fw-bold mb-0 @(Model.IsEligible ? "text-success" : "text-danger")">
+                @(Model.IsEligible ? "Eligible" : "Not Eligible")
+            </h5>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stat-card p-4">
+            <div class="stat-icon"><i class="fas fa-envelope"></i></div>
+            <div class="text-muted small">Email</div>
+            <h6 class="fw-bold mb-0">@Model.UserAccount?.Email</h6>
+        </div>
+    </div>
+</div>

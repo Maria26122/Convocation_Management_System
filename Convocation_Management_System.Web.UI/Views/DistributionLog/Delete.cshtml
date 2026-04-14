@@ -5,28 +5,45 @@
     ViewData["Title"] = "Delete Distribution Log";
 }
 
-<div class="delete-card">
-    <h3 class="delete-title mb-2 text-danger">Delete Distribution Log</h3>
-    <p class="text-soft">Are you sure you want to delete this distribution log?</p>
+<h2 class="mb-4">Delete Distribution Log</h2>
 
-    <div class="row g-3">
-        <div class="col-md-6">
-            <div class="label-title">Registration ID</div>
-            <div class="value-text">#@Model.RegistrationId</div>
-        </div>
-        <div class="col-md-6">
-            <div class="label-title">Action Type</div>
-            <div class="value-text">@Model.ActionType</div>
-        </div>
-        <div class="col-md-6">
-            <div class="label-title">Action Date</div>
-            <div class="value-text">@Model.ActionDate.ToString("dd MMM yyyy hh:mm tt")</div>
-        </div>
-    </div>
-
-    <form asp-action="Delete" method="post" class="mt-4">
-        <input type="hidden" asp-for="DistributionLogId" />
-        <button type="submit" class="btn btn-danger">Delete</button>
-        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-    </form>
+<div class="alert alert-warning">
+    Are you sure you want to delete this distribution record?
 </div>
+
+<table class="table table-bordered">
+    <tr>
+        <th>Log Id</th>
+        <td>@Model.DistributionLogId</td>
+    </tr>
+    <tr>
+        <th>Participant Id</th>
+        <td>@Model.ParticipantId</td>
+    </tr>
+    <tr>
+        <th>Student Id</th>
+        <td>@Model.Participant?.StudentId</td>
+    </tr>
+    <tr>
+        <th>Item Name</th>
+        <td>@Model.ItemName</td>
+    </tr>
+    <tr>
+        <th>Distributed At</th>
+        <td>@Model.DistributedAt.ToString("dd MMM yyyy hh:mm tt")</td>
+    </tr>
+    <tr>
+        <th>Distributed By</th>
+        <td>@Model.DistributedBy</td>
+    </tr>
+    <tr>
+        <th>Remarks</th>
+        <td>@Model.Remarks</td>
+    </tr>
+</table>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="DistributionLogId" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

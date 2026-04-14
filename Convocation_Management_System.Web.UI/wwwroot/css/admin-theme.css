@@ -15,7 +15,7 @@ a {
    ========================= */
 
 .sidebar {
-    width: 240px;
+    width: 260px;
     height: 100vh;
     position: fixed;
     top: 0;
@@ -139,9 +139,11 @@ a {
    ========================= */
 
 .content {
-    margin-left: 240px;
+    margin-left: 260px;
     min-height: 100vh;
-    padding: 1.5rem;
+    padding: 25px;
+    padding: 25px;
+    width: calc(100% - 260px);
 }
 
 .topbar {

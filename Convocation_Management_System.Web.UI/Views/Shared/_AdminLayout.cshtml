@@ -1,6 +1,8 @@
 ﻿@{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var isOperationOpen =
+           currentController == "DistributionLog";
 
     bool isDashboard = currentController == "Admin" && currentAction == "Index";
     bool isReports = currentController == "Admin" && currentAction == "Reports";
@@ -14,8 +16,7 @@
         currentController == "Event" ||
         currentController == "QrPass";
 
-    bool isOperationOpen =
-        currentController == "DistributionLog";
+   
 
     bool isPaymentOpen =
         currentController == "Payment";
@@ -148,11 +149,11 @@
         <!-- OPERATION -->
         <div class="menu-group">
             <a class="sidebar-link menu-toggle section-toggle @(isOperationOpen ? "open-menu" : "")"
-               data-bs-toggle="collapse"
-               href="#operationMenu"
-               role="button"
-               aria-expanded="@(isOperationOpen.ToString().ToLower())"
-               aria-controls="operationMenu">
+                   data-bs-toggle="collapse"
+                   href="#operationMenu"
+                   role="button"
+                   aria-expanded="@(isOperationOpen.ToString().ToLower())"
+                   aria-controls="operationMenu">
                 <span class="menu-left">
                     <span class="section-text">Operation</span>
                 </span>
@@ -162,7 +163,7 @@
             <div class="collapse submenu-wrap @(isOperationOpen ? "show" : "")" id="operationMenu">
                 <div class="submenu">
                     <a asp-controller="DistributionLog" asp-action="Index"
-                       class="sidebar-link @(currentController == "DistributionLog" ? "active-menu" : "")">
+                           class="sidebar-link @(currentController == "DistributionLog" ? "active-menu" : "")">
                         <span class="menu-left">
                             <i class="fas fa-box-open menu-icon"></i>
                             <span>Distribution</span>
@@ -285,7 +286,13 @@
             <h4>@ViewData["Title"]</h4>
             <span>Graduation & Convocation Management System</span>
         </div>
-
+        <a asp-controller="Account" asp-action="ChangePassword"
+               class="sidebar-link">
+            <span class="menu-left">
+                <i class="fas fa-key menu-icon"></i>
+                <span>Change Password</span>
+            </span>
+        </a>
         @RenderBody()
     </div>
 

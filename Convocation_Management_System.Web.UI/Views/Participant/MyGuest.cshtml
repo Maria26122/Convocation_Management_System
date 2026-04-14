@@ -1,0 +1,39 @@
+﻿@model IEnumerable<Convocation.Entities.Guest>
+
+@{
+    ViewData["Title"] = "My Guests";
+    Layout = "~/Views/Shared/_ParticipantLayout.cshtml";
+}
+
+<div class="card shadow-sm border-0 rounded-4">
+    <div class="card-body p-4">
+        <h2 class="mb-4">My Guests</h2>
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="alert alert-warning">No guest information found.</div>
+        }
+        else
+        {
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Guest Name</th>
+                        <th>Relationship</th>
+                      
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var guest in Model)
+                    {
+                        <tr>
+                            <td>@guest.GuestName</td>
+                            <td>@guest.Relation</td>
+                           
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>

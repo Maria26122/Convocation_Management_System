@@ -1,4 +1,10 @@
-﻿<table class="table table-bordered table-striped align-middle">
+﻿@model IEnumerable<Convocation.Entities.QrPass>
+
+@{
+    ViewData["Title"] = "QR Pass List";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<table class="table table-bordered table-striped align-middle">
     <thead class="table-light">
         <tr>
             <th>Registration</th>

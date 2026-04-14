@@ -1,0 +1,130 @@
+﻿@model IEnumerable<Convocation.Entities.Event>
+
+@{
+    ViewData["Title"] = "Convocation Management System";
+}
+
+<style>
+    .landing-hero {
+        background: linear-gradient(135deg, #f8fbff, #eef4ff);
+        border-radius: 20px;
+        padding: 50px 40px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+        margin-bottom: 40px;
+    }
+
+    .landing-title {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #1f2d3d;
+    }
+
+    .landing-subtitle {
+        font-size: 1.08rem;
+        color: #5f6b7a;
+        max-width: 950px;
+        margin: 20px auto 0;
+        line-height: 1.8;
+    }
+
+    .landing-btn {
+        min-width: 130px;
+        border-radius: 10px;
+        padding: 10px 22px;
+        font-weight: 600;
+    }
+
+    .event-card {
+        border: none;
+        border-radius: 18px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        height: 100%;
+    }
+
+        .event-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.10);
+        }
+
+        .event-card .card-body {
+            padding: 24px;
+        }
+
+    .event-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #1f2d3d;
+        margin-bottom: 18px;
+    }
+
+    .event-detail {
+        margin-bottom: 10px;
+        color: #495057;
+        font-size: 1rem;
+    }
+
+        .event-detail strong {
+            color: #212529;
+        }
+
+    .section-title {
+        text-align: center;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 30px;
+        color: #1f2d3d;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="landing-hero text-center" style="background: linear-gradient(135deg, #eef2ff, #ffffff);">
+        <h1 class="landing-title">Convocation Management System</h1>
+        <p class="landing-subtitle">
+            Welcome to the official convocation portal. This platform helps students and organizers
+            manage convocation activities smoothly. View upcoming events, complete registration,
+            and access your participation details in one place.
+        </p>
+
+        <div class="mt-4">
+            <a asp-controller="Account" asp-action="Register" class="btn btn-primary landing-btn me-2">Register</a>
+            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary landing-btn">Login</a>
+        </div>
+    </div>
+
+    <h2 class="section-title">Upcoming Convocation Events</h2>
+
+    <div class="row g-4">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card event-card">
+                        <div class="card-body">
+                            <h5 class="event-title">
+                                🎓 @item.EventTitle
+                            </h5>
+                            <p class="event-detail"><strong>Date:</strong> @item.EventDate.ToString("dd MMM yyyy")</p>
+                            <p class="event-detail"><strong>Venue:</strong> @item.Venue</p>
+                            <p class="event-detail">
+                                <strong>Registration:</strong>
+                                @item.RegistrationStartDate.ToString("dd MMM yyyy") - @item.RegistrationEndDate.ToString("dd MMM yyyy")
+                            </p>
+                            <p class="event-detail"><strong>Base Fee:</strong> @item.BaseFee</p>
+                            <p class="event-detail mb-0"><strong>Guest Fee:</strong> @item.GuestFee</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="alert alert-info text-center rounded-4 shadow-sm">
+                    No active convocation events are available right now.
+                </div>
+            </div>
+        }
+    </div>
+</div>

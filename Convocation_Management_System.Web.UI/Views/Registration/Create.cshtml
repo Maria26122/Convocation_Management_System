@@ -13,12 +13,19 @@
 
         <div class="row g-3">
             <div class="col-md-6">
-                <label asp-for="ParticipantId" class="form-label"></label>
-                <select asp-for="ParticipantId" class="form-select" asp-items="ViewBag.ParticipantId">
-                    <option value="">-- Select Participant --</option>
-                </select>
-                <span asp-validation-for="ParticipantId" class="text-danger"></span>
-            </div>
+                @if (Context.Session.GetString("Role") == "Admin" || Context.Session.GetString("Role") == "Staff")
+                {
+                    <div class="mb-3">
+                        <label asp-for="ParticipantId" class="form-label"></label>
+                        <select asp-for="ParticipantId" asp-items="ViewBag.ParticipantId" class="form-select"></select>
+                        <span asp-validation-for="ParticipantId" class="text-danger"></span>
+                    </div>
+                }
+                else
+                {
+                    <input type="hidden" asp-for="ParticipantId" />
+                }
+            </div> 
 
             <div class="col-md-6">
                 <label asp-for="EventId" class="form-label"></label>

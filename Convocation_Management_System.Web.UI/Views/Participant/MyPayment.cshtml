@@ -1,0 +1,41 @@
+﻿@model Convocation.Entities.Payment
+
+@{
+    ViewData["Title"] = "My Payment";
+    Layout = "~/Views/Shared/_ParticipantLayout.cshtml";
+}
+
+<div class="card shadow-sm border-0 rounded-4">
+    <div class="card-body p-4">
+        <h2 class="mb-4">My Payment</h2>
+
+        @if (Model == null)
+        {
+            <div class="alert alert-warning">No payment record found.</div>
+        }
+        else
+        {
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="fw-bold">Amount</label>
+                    <div class="form-control">@Model.PaidAmount</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="fw-bold">Payment Status</label>
+                    <div class="form-control">@Model.PaymentStatus</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="fw-bold">Payment Date</label>
+                    <div class="form-control">@Model.PaymentDate</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="fw-bold">Transaction ID</label>
+                    <div class="form-control">@Model.TransactionId</div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

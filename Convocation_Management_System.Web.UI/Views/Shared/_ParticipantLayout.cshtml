@@ -1,0 +1,213 @@
+﻿@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var fullName = Context.Session.GetString("FullName");
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - Student Panel</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <style>
+            body {
+                margin: 0;
+                background: #f5f7fb;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
+
+            .sidebar {
+                min-height: 100vh;
+                background: linear-gradient(180deg, #0f172a, #1e3a8a);
+                color: white;
+                padding: 24px 16px;
+                position: sticky;
+                top: 0;
+            }
+
+            .brand-box {
+                padding: 12px 14px 22px;
+                border-bottom: 1px solid rgba(255,255,255,.12);
+                margin-bottom: 18px;
+            }
+
+            .brand-title {
+                font-size: 20px;
+                font-weight: 700;
+                margin-bottom: 4px;
+            }
+
+            .brand-subtitle {
+                font-size: 13px;
+                color: rgba(255,255,255,.75);
+            }
+
+            .menu-title {
+                font-size: 12px;
+                letter-spacing: .5px;
+                text-transform: uppercase;
+                color: rgba(255,255,255,.55);
+                margin: 16px 12px 10px;
+            }
+
+            .sidebar-link {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                color: #fff;
+                text-decoration: none;
+                padding: 12px 14px;
+                margin: 8px 6px;
+                border-radius: 14px;
+                transition: .2s ease;
+            }
+
+                .sidebar-link:hover,
+                .sidebar-link.active {
+                    background: rgba(255,255,255,.14);
+                    color: #fff;
+                }
+
+            .main-area {
+                min-height: 100vh;
+            }
+
+            .topbar {
+                background: #ffffff;
+                border-bottom: 1px solid #e5e7eb;
+                padding: 18px 28px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .topbar-title h4 {
+                margin: 0;
+                font-weight: 700;
+                color: #111827;
+            }
+
+            .topbar-title p {
+                margin: 2px 0 0;
+                color: #6b7280;
+                font-size: 14px;
+            }
+
+            .user-chip {
+                background: #eff6ff;
+                color: #1d4ed8;
+                padding: 10px 14px;
+                border-radius: 999px;
+                font-size: 14px;
+                font-weight: 600;
+            }
+
+            .page-content {
+                padding: 28px;
+            }
+
+            .soft-card {
+                background: #fff;
+                border: 0;
+                border-radius: 22px;
+                box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+            }
+
+            .stat-card {
+                border-radius: 20px;
+                border: 0;
+                background: #fff;
+                box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+            }
+
+            .stat-icon {
+                width: 48px;
+                height: 48px;
+                border-radius: 14px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                background: #eff6ff;
+                color: #2563eb;
+                font-size: 18px;
+                margin-bottom: 12px;
+            }
+
+            @@media (max-width: 991px) {
+                .sidebar {
+                    min-height: auto;
+                    position: relative;
+                }
+            }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row g-0">
+            <div class="col-lg-2 col-md-3 sidebar">
+                <div class="brand-box">
+                    <div class="brand-title">Student Portal</div>
+                    <div class="brand-subtitle">Convocation Management System</div>
+                </div>
+
+                <div class="menu-title">Navigation</div>
+
+                <a asp-controller="Participant" asp-action="Dashboard"
+                       class="sidebar-link @(currentController == "Participant" && currentAction == "Dashboard" ? "active" : "")">
+                    <i class="fas fa-chart-line"></i> <span>Dashboard</span>
+                </a>
+
+                <a asp-controller="Participant" asp-action="MyProfile"
+                       class="sidebar-link @(currentController == "Participant" && currentAction == "MyProfile" ? "active" : "")">
+                    <i class="fas fa-user"></i> <span>My Profile</span>
+                </a>
+
+                <a asp-controller="Participant" asp-action="MyRegistration"
+                       class="sidebar-link @(currentController == "Participant" && currentAction == "MyRegistration" ? "active" : "")">
+                    <i class="fas fa-file-signature"></i> <span>My Registration</span>
+                </a>
+
+                <a asp-controller="Participant" asp-action="MyPayment"
+                       class="sidebar-link @(currentController == "Participant" && currentAction == "MyPayment" ? "active" : "")">
+                    <i class="fas fa-credit-card"></i> <span>My Payment</span>
+                </a>
+
+                <a asp-controller="Participant" asp-action="MyQrPass"
+                       class="sidebar-link @(currentController == "Participant" && currentAction == "MyQrPass" ? "active" : "")">
+                    <i class="fas fa-qrcode"></i> <span>My QR Pass</span>
+                </a>
+
+                <a asp-controller="Participant" asp-action="MyGuests"
+                       class="sidebar-link @(currentController == "Participant" && currentAction == "MyGuests" ? "active" : "")">
+                    <i class="fas fa-users"></i> <span>My Guests</span>
+                </a>
+
+                <a asp-controller="Account" asp-action="Logout" class="sidebar-link">
+                    <i class="fas fa-right-from-bracket"></i> <span>Logout</span>
+                </a>
+            </div>
+
+            <div class="col-lg-10 col-md-9 main-area">
+                <div class="topbar">
+                    <div class="topbar-title">
+                        <h4>@ViewData["Title"]</h4>
+                        <p>Formal student access area for convocation activities</p>
+                    </div>
+                    <div class="user-chip">
+                        <i class="fas fa-user-circle me-1"></i> @fullName
+                    </div>
+                </div>
+
+                <div class="page-content">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

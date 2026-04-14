@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Convocation.Entities
@@ -9,25 +10,43 @@ namespace Convocation.Entities
         public int DistributionLogId { get; set; }
 
         [Required]
-        public int RegistrationId { get; set; }
+        public int ParticipantId { get; set; }
 
-        [Required]
-        public int UserAccountId { get; set; }
-
-        [Required]
-        [StringLength(30)]
-        public string ActionType { get; set; } = string.Empty;
-
-        public DateTime ActionDate { get; set; } = DateTime.Now;
-
-        [StringLength(200)]
-        public string? Note { get; set; }
+        // Optional link to a registration (some views/controllers expect this)
+        public int? RegistrationId { get; set; }
 
         [ForeignKey("RegistrationId")]
         public virtual Registration? Registration { get; set; }
 
+        [Required]
+        [StringLength(100)]
+        public string ItemName { get; set; } = string.Empty;
+
+        [Required]
+        public DateTime DistributedAt { get; set; } = DateTime.Now;
+
+        [StringLength(100)]
+        public string? DistributedBy { get; set; }
+
+        [StringLength(250)]
+        public string? Remarks { get; set; }
+
+        // Optional action fields (used by some existing views)
+        [StringLength(50)]
+        public string? ActionType { get; set; }
+
+        public DateTime? ActionDate { get; set; }
+
+        [StringLength(250)]
+        public string? Note { get; set; }
+
+        // Optional staff/user who performed the action
+        public int? UserAccountId { get; set; }
+
         [ForeignKey("UserAccountId")]
         public virtual UserAccount? UserAccount { get; set; }
-       
+
+        [ForeignKey("ParticipantId")]
+        public virtual Participant? Participant { get; set; }
     }
 }

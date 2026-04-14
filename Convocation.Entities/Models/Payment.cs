@@ -9,11 +9,11 @@ namespace Convocation.Entities
         [Key]
         public int PaymentId { get; set; }
 
-        [Required]
+       [Required]
         public int RegistrationId { get; set; }
 
         [StringLength(50)]
-        public string? PaymentMethod { get; set; }
+        public string? PaymentMethod { get; set; } = null;  
 
         [StringLength(120)]
         public string? TransactionId { get; set; }
@@ -29,5 +29,6 @@ namespace Convocation.Entities
 
         [ForeignKey("RegistrationId")]
         public virtual required Registration Registration { get; set; }
+        public string? SessionKey { get; set; }
     }
 }

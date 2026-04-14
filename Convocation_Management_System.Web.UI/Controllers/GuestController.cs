@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Convocation_Management_System.Web.UI.Controllers
 {
-    public class GuestController : Controller
+    public class GuestController : BaseController
     {
         private readonly ConvocationDbContext _context;
 
@@ -17,14 +17,18 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
         public async Task<IActionResult> Index()
         {
-            if (HttpContext.Session.GetString("UserId") == null)
+            var userId = HttpContext?.Session?.GetString("UserId");
+            if (string.IsNullOrEmpty(userId))
             {
                 return RedirectToAction("Login", "Account");
             }
-            if (HttpContext.Session.GetString("Role") != "Participant")
+
+            var role = HttpContext?.Session?.GetString("Role");
+            if (role != "Participant")
             {
                 return RedirectToAction("Login", "Account");
             }
+
             var guests = await _context.Guests
                 .Include(g => g.Registration)
                 .ThenInclude(r => r.Participant)
@@ -40,12 +44,14 @@ namespace Convocation_Management_System.Web.UI.Controllers
         {
             if (id == null) return NotFound();
 
+            var guestId = id.Value;
+
             var guest = await _context.Guests
                 .Include(g => g.Registration)
                 .ThenInclude(r => r.Participant)
                 .Include(g => g.Registration)
                 .ThenInclude(r => r.Event)
-                .FirstOrDefaultAsync(g => g.GuestId == id);
+                .FirstOrDefaultAsync(g => g.GuestId == guestId);
 
             if (guest == null) return NotFound();
 
@@ -64,7 +70,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         {
             if (!ModelState.IsValid)
             {
-                LoadRegistrationDropdown(guest.RegistrationId);
+                LoadRegistrationDropdown(guest?.RegistrationId);
                 return View(guest);
             }
 
@@ -77,7 +83,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError("", "Save failed: " + ex.Message);
-                LoadRegistrationDropdown(guest.RegistrationId);
+                LoadRegistrationDropdown(guest?.RegistrationId);
                 return View(guest);
             }
         }
@@ -86,7 +92,8 @@ namespace Convocation_Management_System.Web.UI.Controllers
         {
             if (id == null) return NotFound();
 
-            var guest = await _context.Guests.FindAsync(id);
+            var guestId = id.Value;
+            var guest = await _context.Guests.FindAsync(guestId);
             if (guest == null) return NotFound();
 
             LoadRegistrationDropdown(guest.RegistrationId);
@@ -123,12 +130,14 @@ namespace Convocation_Management_System.Web.UI.Controllers
         {
             if (id == null) return NotFound();
 
+            var guestId = id.Value;
+
             var guest = await _context.Guests
                 .Include(g => g.Registration)
                 .ThenInclude(r => r.Participant)
                 .Include(g => g.Registration)
                 .ThenInclude(r => r.Event)
-                .FirstOrDefaultAsync(g => g.GuestId == id);
+                .FirstOrDefaultAsync(g => g.GuestId == guestId);
 
             if (guest == null) return NotFound();
 

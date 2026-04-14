@@ -1,67 +1,42 @@
 ﻿@model IEnumerable<Convocation.Entities.Participant>
 
 @{
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
-    ViewData["Title"] = "Participants";
+    ViewData["Title"] = "Participant Dashboard";
 }
 
-<div class="page-card">
-    <div class="page-header">
-        <h3>Participant List</h3>
-        <a asp-action="Create" class="btn btn-primary">
-            <i class="fas fa-plus me-1"></i> Add New Participant
-        </a>
-    </div>
+<h2>Participant Dashboard</h2>
 
-    <div class="table-responsive">
-        <table class="table align-middle table-hover">
-            <thead>
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-warning">No participant data found.</div>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Participant ID</th>
+                <th>Student ID</th>
+                <th>Department</th>
+                <th>Program</th>
+                <th>Session</th>
+                <th>Eligible</th>
+                <th>User Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
                 <tr>
-                    <th>Student ID</th>
-                    <th>User Account ID</th>
-                    <th>Department</th>
-                    <th>Program</th>
-                    <th>Session</th>
-                    <th>Eligibility</th>
-                    <th style="width: 220px;">Actions</th>
+                    <td>@item.ParticipantId</td>
+                    <td>@item.StudentId</td>
+                    <td>@item.Department</td>
+                    <td>@item.Program</td>
+                    <td>@item.Session</td>
+                    <td>@item.IsEligible</td>
+                    <td>@item.UserAccount?.Email</td>
                 </tr>
-            </thead>
-            <tbody>
-                @if (Model != null && Model.Any())
-                {
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td>@item.StudentId</td>
-                            <td>@item.UserAccountId</td>
-                            <td>@item.Department</td>
-                            <td>@item.Program</td>
-                            <td>@item.Session</td>
-                            <td>
-                                @if (item.IsEligible)
-                                {
-                                    <span class="badge-status badge-success">Eligible</span>
-                                }
-                                else
-                                {
-                                    <span class="badge-status badge-danger">Not Eligible</span>
-                                }
-                            </td>
-                            <td>
-                                <a asp-action="Details" asp-route-id="@item.ParticipantId" class="btn btn-sm btn-info text-white">Details</a>
-                                <a asp-action="Edit" asp-route-id="@item.ParticipantId" class="btn btn-sm btn-warning">Edit</a>
-                                <a asp-action="Delete" asp-route-id="@item.ParticipantId" class="btn btn-sm btn-danger">Delete</a>
-                            </td>
-                        </tr>
-                    }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="7" class="text-center text-soft">No participants found.</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
+            }
+        </tbody>
+    </table>
+}

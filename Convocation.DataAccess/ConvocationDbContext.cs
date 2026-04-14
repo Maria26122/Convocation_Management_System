@@ -52,6 +52,12 @@ namespace Convocation.DataAccess
                 .HasIndex(q => q.QrCodeText)
                 .IsUnique();
 
+            modelBuilder.Entity<DistributionLog>()
+              .HasOne(d => d.Participant)
+              .WithMany(p => p.DistributionLogs)
+              .HasForeignKey(d => d.ParticipantId)
+              .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<Permission>()
                 .HasIndex(p => p.PermissionName)
                 .IsUnique();

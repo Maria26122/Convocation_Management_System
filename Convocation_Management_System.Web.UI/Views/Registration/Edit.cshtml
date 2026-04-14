@@ -8,21 +8,14 @@
 <div class="form-card">
     <h3 class="form-title mb-4">Edit Registration</h3>
 
-    <form asp-action="Edit" method="post">
+    <form asp-action="Edit"
+          method="post">
         <input type="hidden" asp-for="RegistrationId" />
         <input type="hidden"
                asp-for="RegistrationDate" />
         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
         <div class="row g-3">
-            <div class="col-md-6">
-                <label asp-for="ParticipantId" class="form-label"></label>
-                <select asp-for="ParticipantId" class="form-select" asp-items="ViewBag.ParticipantId">
-                    <option value="">-- Select Participant --</option>
-                </select>
-                <span asp-validation-for="ParticipantId" class="text-danger"></span>
-            </div>
-
             <div class="col-md-6">
                 <label asp-for="EventId" class="form-label"></label>
                 <select asp-for="EventId" class="form-select" id="eventSelect">

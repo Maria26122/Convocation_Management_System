@@ -5,6 +5,7 @@ namespace Convocation_Management_System.Web.UI.Models
     public class LoginViewModel
     {
         [Required]
+        [EmailAddress]
         public string Email { get; set; } = "";
 
         [Required]

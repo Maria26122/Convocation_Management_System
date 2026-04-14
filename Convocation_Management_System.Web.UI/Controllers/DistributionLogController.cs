@@ -1,5 +1,6 @@
 ﻿using Convocation.DataAccess;
 using Convocation.Entities;
+using Convocation_Management_System.Web.UI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -17,185 +18,87 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
         public async Task<IActionResult> Index()
         {
-            if (HttpContext.Session.GetString("UserId") == null)
+            if (_context.DistributionLogs == null)
             {
-                return RedirectToAction("Login", "Account");
+                return View(new List<DistributionLog>());
             }
-            var role = HttpContext.Session.GetString("Role");
 
-            if (role != "Admin" && role != "Staff")
-            {
-                return RedirectToAction("Login", "Account");
-            }
             var logs = await _context.DistributionLogs
-                .Include(d => d.Registration)
-                    .ThenInclude(r => r.Participant)
-                .Include(d => d.Registration)
-                    .ThenInclude(r => r.Event)
-                .Include(d => d.UserAccount)
-                .OrderByDescending(d => d.ActionDate)
+                .Include(d => d.Participant!)           // null-forgiving: navigation can be null in model, but safe here
+                .ThenInclude(p => p!.UserAccount!)      // null-forgiving for nested navigation
+                .OrderByDescending(d => d.DistributedAt)
                 .ToListAsync();
 
             return View(logs);
         }
 
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Create()
         {
-            if (id == null) return NotFound();
+            var vm = new DistributionLogCreateViewModel();
 
-            var log = await _context.DistributionLogs
-                .Include(d => d.Registration)
-                    .ThenInclude(r => r.Participant)
-                .Include(d => d.Registration)
-                    .ThenInclude(r => r.Event)
-                .Include(d => d.UserAccount)
-                .FirstOrDefaultAsync(d => d.DistributionLogId == id);
-
-            if (log == null) return NotFound();
-
-            return View(log);
-        }
-
-        public IActionResult Create()
-        {
-            LoadDropdowns();
-            return View(new DistributionLog
+            if (_context.Participants != null)
             {
-                ActionDate = DateTime.Now,
-                ActionType = "Entry"
-            });
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(DistributionLog distributionLog)
-        {
-            if (!await _context.Registrations.AnyAsync(r => r.RegistrationId == distributionLog.RegistrationId))
-            {
-                ModelState.AddModelError("RegistrationId", "Please select a valid registration.");
-            }
-
-            if (!await _context.UserAccounts.AnyAsync(u => u.UserAccountId == distributionLog.UserAccountId))
-            {
-                ModelState.AddModelError("StaffUserAccountId", "Please select a valid staff/user.");
-            }
-
-            if (ModelState.IsValid)
-            {
-                _context.DistributionLogs.Add(distributionLog);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-
-            LoadDropdowns(distributionLog.RegistrationId, distributionLog.UserAccountId);
-            return View(distributionLog);
-        }
-
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null) return NotFound();
-
-            var log = await _context.DistributionLogs.FindAsync(id);
-            if (log == null) return NotFound();
-
-            LoadDropdowns(log.RegistrationId, log.UserAccountId);
-            return View(log);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, DistributionLog distributionLog)
-        {
-            if (id != distributionLog.DistributionLogId) return NotFound();
-
-            if (!await _context.Registrations.AnyAsync(r => r.RegistrationId == distributionLog.RegistrationId))
-            {
-                ModelState.AddModelError("RegistrationId", "Please select a valid registration.");
-            }
-
-            if (!await _context.UserAccounts.AnyAsync(u => u.UserAccountId == distributionLog.UserAccountId))
-            {
-                ModelState.AddModelError("StaffUserAccountId", "Please select a valid staff/user.");
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(distributionLog);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!await _context.DistributionLogs.AnyAsync(d => d.DistributionLogId == distributionLog.DistributionLogId))
+                vm.Participant = await _context.Participants
+                    .Select(p => new SelectListItem
                     {
-                        return NotFound();
-                    }
-
-                    throw;
-                }
+                        Value = p.ParticipantId.ToString(),
+                        Text = p.StudentId + " - " + p.Department + " - " + p.Program
+                    })
+                    .ToListAsync();
             }
-
-            LoadDropdowns(distributionLog.RegistrationId, distributionLog.UserAccountId);
-            return View(distributionLog);
-        }
-
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null) return NotFound();
-
-            var log = await _context.DistributionLogs
-                .Include(d => d.Registration)
-                    .ThenInclude(r => r.Participant)
-                .Include(d => d.Registration)
-                    .ThenInclude(r => r.Event)
-                .Include(d => d.UserAccount)
-                .FirstOrDefaultAsync(d => d.DistributionLogId == id);
-
-            if (log == null) return NotFound();
-
-            return View(log);
-        }
-
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var log = await _context.DistributionLogs.FindAsync(id);
-            if (log != null)
+            else
             {
-                _context.DistributionLogs.Remove(log);
-                await _context.SaveChangesAsync();
+                vm.Participant = new List<SelectListItem>();
             }
 
-            return RedirectToAction(nameof(Index));
+            return View(vm);
         }
 
-        private void LoadDropdowns(object? selectedRegistration = null, object? selectedStaff = null)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(DistributionLogCreateViewModel vm)
         {
-            var registrations = _context.Registrations
-                .Include(r => r.Participant)
-                .Include(r => r.Event)
-                .AsEnumerable()
-                .Select(r => new
-                {
-                    r.RegistrationId,
-                    DisplayText = $"Reg #{r.RegistrationId} - {r.Participant?.StudentId ?? "No Student"} - {r.Event?.EventTitle ?? "No Event"}"
-                })
-                .ToList();
+            if (vm == null) return BadRequest();
 
-            var staffUsers = _context.UserAccounts
-                .OrderBy(u => u.FullName)
-                .Select(u => new
+            if (!ModelState.IsValid)
+            {
+                if (_context.Participants != null)
                 {
-                    u.UserAccountId,
-                    DisplayText = u.FullName + " - " + u.Email
-                })
-                .ToList();
+                    vm.Participant = await _context.Participants
+                        .Select(p => new SelectListItem
+                        {
+                            Value = p.ParticipantId.ToString(),
+                            Text = p.StudentId + " - " + p.Department + " - " + p.Program
+                        })
+                        .ToListAsync();
+                }
+                else
+                {
+                    vm.Participant = new List<SelectListItem>();
+                }
 
-            ViewBag.RegistrationId = new SelectList(registrations, "RegistrationId", "DisplayText", selectedRegistration);
-            ViewBag.StaffUserAccountId = new SelectList(staffUsers, "UserAccountId", "DisplayText", selectedStaff);
+                return View(vm);
+            }
+
+            var log = new DistributionLog
+            {
+                ParticipantId = vm.ParticipantId,
+                ItemName = vm.ItemName!,      // null-forgiving: model validation ensures ItemName is present
+                DistributedAt = DateTime.Now,
+                DistributedBy = vm.DistributedBy,
+                Remarks = vm.Remarks
+            };
+
+            if (_context.DistributionLogs == null)
+            {
+                return Problem("Database set for DistributionLogs is not available.");
+            }
+
+            _context.DistributionLogs.Add(log);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Distribution log saved successfully.";
+            return RedirectToAction(nameof(Index));
         }
     }
 }
