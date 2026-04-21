@@ -2,129 +2,319 @@
 
 @{
     ViewData["Title"] = "Convocation Management System";
+    Layout = null;
 }
 
-<style>
-    .landing-hero {
-        background: linear-gradient(135deg, #f8fbff, #eef4ff);
-        border-radius: 20px;
-        padding: 50px 40px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-        margin-bottom: 40px;
-    }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Convocation Management System</title>
 
-    .landing-title {
-        font-size: 3rem;
-        font-weight: 700;
-        color: #1f2d3d;
-    }
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
-    .landing-subtitle {
-        font-size: 1.08rem;
-        color: #5f6b7a;
-        max-width: 950px;
-        margin: 20px auto 0;
-        line-height: 1.8;
-    }
+    <style>
+            body {
+                margin: 0;
+                background: #f6f8fc;
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                color: #1f2937;
+            }
 
-    .landing-btn {
-        min-width: 130px;
-        border-radius: 10px;
-        padding: 10px 22px;
-        font-weight: 600;
-    }
+            .topbar {
+                background: #ffffff;
+                border-bottom: 1px solid #e5e7eb;
+                padding: 16px 0;
+            }
 
-    .event-card {
-        border: none;
-        border-radius: 18px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        height: 100%;
-    }
+            .brand {
+                font-size: 24px;
+                font-weight: 800;
+                color: #5b5bd6;
+                margin: 0;
+            }
 
-        .event-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.10);
-        }
+            .hero-section {
+                padding: 70px 0 50px;
+            }
 
-        .event-card .card-body {
-            padding: 24px;
-        }
+            .hero-card {
+                background: linear-gradient(135deg, #eef2ff, #ffffff);
+                border-radius: 28px;
+                padding: 50px 40px;
+                box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+                text-align: center;
+            }
 
-    .event-title {
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: #1f2d3d;
-        margin-bottom: 18px;
-    }
+            .hero-title {
+                font-size: 42px;
+                font-weight: 800;
+                color: #1f2d3d;
+                margin-bottom: 16px;
+            }
 
-    .event-detail {
-        margin-bottom: 10px;
-        color: #495057;
-        font-size: 1rem;
-    }
+            .hero-text {
+                font-size: 16px;
+                color: #6b7280;
+                max-width: 820px;
+                margin: 0 auto 28px;
+                line-height: 1.8;
+            }
 
-        .event-detail strong {
-            color: #212529;
-        }
+            .hero-btn {
+                min-width: 150px;
+                border-radius: 12px;
+                padding: 11px 20px;
+                font-weight: 700;
+            }
 
-    .section-title {
-        text-align: center;
-        font-size: 1.8rem;
-        font-weight: 700;
-        margin-bottom: 30px;
-        color: #1f2d3d;
-    }
-</style>
+            .section-wrap {
+                padding: 10px 0 70px;
+            }
 
-<div class="container py-5">
-    <div class="landing-hero text-center" style="background: linear-gradient(135deg, #eef2ff, #ffffff);">
-        <h1 class="landing-title">Convocation Management System</h1>
-        <p class="landing-subtitle">
-            Welcome to the official convocation portal. This platform helps students and organizers
-            manage convocation activities smoothly. View upcoming events, complete registration,
-            and access your participation details in one place.
-        </p>
+            .section-title {
+                font-size: 30px;
+                font-weight: 800;
+                text-align: center;
+                margin-bottom: 10px;
+                color: #1f2d3d;
+            }
 
-        <div class="mt-4">
-            <a asp-controller="Account" asp-action="Register" class="btn btn-primary landing-btn me-2">Register</a>
-            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary landing-btn">Login</a>
+            .section-subtitle {
+                text-align: center;
+                color: #6b7280;
+                margin-bottom: 35px;
+            }
+
+            .event-card {
+                background: #ffffff;
+                border: 1px solid #e5e7eb;
+                border-radius: 22px;
+                padding: 24px;
+                height: 100%;
+                box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05);
+                transition: 0.2s ease;
+            }
+
+                .event-card:hover {
+                    transform: translateY(-4px);
+                }
+
+            .event-icon {
+                width: 54px;
+                height: 54px;
+                border-radius: 16px;
+                background: #eef2ff;
+                color: #5b5bd6;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 22px;
+                margin-bottom: 16px;
+            }
+
+            .event-title {
+                font-size: 22px;
+                font-weight: 800;
+                color: #1f2d3d;
+                margin-bottom: 14px;
+            }
+
+            .event-line {
+                color: #4b5563;
+                margin-bottom: 10px;
+                font-size: 15px;
+            }
+
+                .event-line i {
+                    width: 20px;
+                    color: #6366f1;
+                }
+
+            .event-actions {
+                margin-top: 18px;
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+
+                .event-actions .btn {
+                    border-radius: 12px;
+                    font-weight: 700;
+                }
+
+            .empty-box {
+                background: #ffffff;
+                border: 1px dashed #d1d5db;
+                border-radius: 22px;
+                padding: 36px;
+                text-align: center;
+                color: #6b7280;
+            }
+
+            .footer {
+                background: #ffffff;
+                border-top: 1px solid #e5e7eb;
+                padding: 18px 0;
+                text-align: center;
+                color: #6b7280;
+                font-size: 14px;
+            }
+
+            @@media (max-width: 768px) {
+                .hero-card {
+                    padding: 35px 20px;
+                }
+
+                .hero-title {
+                    font-size: 32px;
+                }
+            }
+    </style>
+</head>
+<body>
+
+    <div class="topbar">
+        <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h2 class="brand">Convocation CMS</h2>
+
+            <div class="d-flex gap-2">
+                <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary hero-btn">Login</a>
+                <a asp-controller="Account" asp-action="Register" class="btn btn-primary hero-btn">Create Account</a>
+            </div>
         </div>
     </div>
 
-    <h2 class="section-title">Upcoming Convocation Events</h2>
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-card">
+                <h1 class="hero-title">Convocation Management System</h1>
+                <p class="hero-text">
+                    View upcoming convocation events, create your account, complete registration,
+                    pay your fee, and get your QR pass for event-day entry — all in one place.
+                </p>
 
-    <div class="row g-4">
-        @if (Model != null && Model.Any())
-        {
-            foreach (var item in Model)
-            {
-                <div class="col-md-6 col-lg-4">
-                    <div class="card event-card">
-                        <div class="card-body">
-                            <h5 class="event-title">
-                                🎓 @item.EventTitle
-                            </h5>
-                            <p class="event-detail"><strong>Date:</strong> @item.EventDate.ToString("dd MMM yyyy")</p>
-                            <p class="event-detail"><strong>Venue:</strong> @item.Venue</p>
-                            <p class="event-detail">
-                                <strong>Registration:</strong>
-                                @item.RegistrationStartDate.ToString("dd MMM yyyy") - @item.RegistrationEndDate.ToString("dd MMM yyyy")
-                            </p>
-                            <p class="event-detail"><strong>Base Fee:</strong> @item.BaseFee</p>
-                            <p class="event-detail mb-0"><strong>Guest Fee:</strong> @item.GuestFee</p>
-                        </div>
-                    </div>
-                </div>
-            }
-        }
-        else
-        {
-            <div class="col-12">
-                <div class="alert alert-info text-center rounded-4 shadow-sm">
-                    No active convocation events are available right now.
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a asp-controller="Account" asp-action="Register" class="btn btn-primary hero-btn">Get Started</a>
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary hero-btn">Login</a>
                 </div>
             </div>
-        }
+        </div>
+    </section>
+
+    <section class="section-wrap">
+        <div class="container">
+            <h2 class="section-title">Upcoming Convocation Events</h2>
+            <p class="section-subtitle">Choose an event and continue with your registration process.</p>
+
+            @{
+                var today = DateTime.Today;
+            }
+
+            @if (Model != null && Model.Any())
+            {
+                <div class="row g-4">
+                    @foreach (var item in Model)
+                    {
+                        var isUpcoming = item.EventDate.Date >= today;
+                        var isClosed = item.EventDate.Date < today;
+
+                        <div class="col-md-6 col-lg-4">
+                            <div class="event-card">
+                                <div class="event-icon">
+                                    <i class="fas fa-graduation-cap"></i>
+                                </div>
+
+                                <div class="event-title">@item.EventTitle</div>
+
+                                <div class="event-line">
+                                    <i class="fas fa-calendar-days"></i>
+                                    @item.EventDate.ToString("dd MMM yyyy")
+                                </div>
+
+                                <div class="event-line">
+                                    <i class="fas fa-location-dot"></i>
+                                    @(string.IsNullOrWhiteSpace(item.Venue) ? "TBA" : item.Venue)
+                                </div>
+
+                                <div class="event-line">
+                                    <i class="fas fa-user-group"></i>
+                                    Max Guests: @item.MaxGuestAllowed
+                                </div>
+
+                                <div class="event-line">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                    Base Fee: ৳@item.BaseFee
+                                </div>
+
+                                <div class="mt-3">
+                                    @if (isUpcoming)
+                                    {
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">
+                                            Registration Open
+                                        </span>
+                                    }
+                                    else if (isClosed)
+                                    {
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 rounded-pill">
+                                            Registration Closed
+                                        </span>
+                                    }
+                                </div>
+
+                                <div class="event-actions">
+                                    @if (isUpcoming)
+                                    {
+                                        <a asp-controller="Registration"
+                                               asp-action="Create"
+                                               asp-route-eventId="@item.EventId"
+                                               class="btn btn-primary flex-fill">
+                                            Register Event
+                                        </a>
+
+                                        <a asp-controller="Account"
+                                               asp-action="Register"
+                                               asp-route-eventId="@item.EventId"
+                                               class="btn btn-outline-primary flex-fill">
+                                            Create Account
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-secondary flex-fill" disabled>
+                                            Registration Closed
+                                        </button>
+
+                                        <a asp-controller="Account"
+                                               asp-action="Login"
+                                               class="btn btn-outline-secondary flex-fill">
+                                            Login
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-box">
+                    <h5 class="mb-2">No events available</h5>
+                    <p class="mb-0">Please add active events from the admin panel.</p>
+                </div>
+            }
+        </div>
+    </section>
+
+    <div class="footer">
+        <div class="container">
+            © 2026 Convocation Management System
+        </div>
     </div>
-</div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

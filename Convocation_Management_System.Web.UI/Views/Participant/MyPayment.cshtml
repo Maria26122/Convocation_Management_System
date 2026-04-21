@@ -5,37 +5,47 @@
     Layout = "~/Views/Shared/_ParticipantLayout.cshtml";
 }
 
-<div class="card shadow-sm border-0 rounded-4">
-    <div class="card-body p-4">
-        <h2 class="mb-4">My Payment</h2>
+<div class="content-card">
+    <h4 class="mb-4">My Payment</h4>
 
-        @if (Model == null)
-        {
-            <div class="alert alert-warning">No payment record found.</div>
-        }
-        else
-        {
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label class="fw-bold">Amount</label>
-                    <div class="form-control">@Model.PaidAmount</div>
-                </div>
-                <div class="col-md-6">
-                    <label class="fw-bold">Payment Status</label>
-                    <div class="form-control">@Model.PaymentStatus</div>
-                </div>
+    @if (Model == null)
+    {
+        <div class="alert alert-warning">No payment found.</div>
+    }
+    else
+    {
+        <div class="row g-4">
+
+            <div class="col-md-6">
+                <label class="text-muted">Payment ID</label>
+                <div class="fw-bold">@Model.PaymentId</div>
             </div>
 
-            <div class="row">
-                <div class="col-md-6">
-                    <label class="fw-bold">Payment Date</label>
-                    <div class="form-control">@Model.PaymentDate</div>
-                </div>
-                <div class="col-md-6">
-                    <label class="fw-bold">Transaction ID</label>
-                    <div class="form-control">@Model.TransactionId</div>
-                </div>
+            <div class="col-md-6">
+                <label class="text-muted">Registration ID</label>
+                <div class="fw-bold">@Model.RegistrationId</div>
             </div>
-        }
-    </div>
+
+            <div class="col-md-6">
+                <label class="text-muted">Amount</label>
+                <div class="fw-bold">৳@(Model?.PaidAmount.ToString() ?? "0")</div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="text-muted">Status</label>
+                <div class="fw-bold">@(Model?.PaymentStatus ?? "N/A")</div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="text-muted">Payment Date</label>
+                <div class="fw-bold">@(Model?.PaymentDate?.ToString("dd MMM yyyy") ?? "N/A")</div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="text-muted">Transaction ID</label>
+                <div class="fw-bold">@(!string.IsNullOrWhiteSpace(Model?.TransactionId) ? Model.TransactionId : "N/A")</div>
+            </div>
+
+        </div>
+    }
 </div>

@@ -1,0 +1,39 @@
+﻿@model IEnumerable<Convocation.Entities.Guest>
+
+@{
+    ViewData["Title"] = "My Guests";
+    Layout = "~/Views/Shared/_ParticipantLayout.cshtml";
+}
+
+<div class="content-card">
+    <h4 class="mb-4">My Guests</h4>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-warning">No guests added.</div>
+    }
+    else
+    {
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Relation</th>
+                    <th>Registration</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var g in Model)
+                {
+                    <tr>
+                        <td>@g.GuestId</td>
+                        <td>@g.GuestName</td>
+                        <td>@(!string.IsNullOrWhiteSpace(g.Relation) ? g.Relation : "N/A")</td>
+                        <td>@g.RegistrationId</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

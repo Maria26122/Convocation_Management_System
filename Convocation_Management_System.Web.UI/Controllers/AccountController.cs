@@ -4,6 +4,9 @@ using Convocation_Management_System.Web.UI.Helpers;
 using Convocation_Management_System.Web.UI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Convocation_Management_System.Web.UI.Controllers
 {
@@ -17,15 +20,19 @@ namespace Convocation_Management_System.Web.UI.Controllers
         }
         //--------- REGISTER PAGE --------//
         [HttpGet]
-        public IActionResult Register()
+        public IActionResult Register(int? eventId = null, string? returnUrl = null)
         {
+            ViewBag.EventId = eventId;
+            ViewBag.ReturnUrl = returnUrl;
             return View();
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel vm)
+        public async Task<IActionResult> Register(RegisterViewModel vm, int? eventId = null, string? returnUrl = null)
         {
+            ViewBag.EventId = eventId;
+            ViewBag.ReturnUrl = returnUrl;
+
             if (!ModelState.IsValid)
                 return View(vm);
 
@@ -37,7 +44,8 @@ namespace Convocation_Management_System.Web.UI.Controllers
             }
 
             var participantRole = await _context.Roles
-     .FirstOrDefaultAsync(r => r.RoleName.ToLower() == "student");
+                .FirstOrDefaultAsync(r => r.RoleName.ToLower() == "student");
+
             if (participantRole == null)
             {
                 ModelState.AddModelError("", "Participant role not found.");
@@ -73,20 +81,33 @@ namespace Convocation_Management_System.Web.UI.Controllers
             await _context.SaveChangesAsync();
 
             TempData["Success"] = "Registration completed successfully. Please login.";
+
+            if (eventId.HasValue)
+            {
+                return RedirectToAction("Login", new
+                {
+                    returnUrl = Url.Action("Create", "Registration", new { eventId = eventId.Value })
+                });
+            }
+
             return RedirectToAction("Login");
         }
+
         // -------- LOGIN PAGE --------
         [HttpGet]
-        public IActionResult Login()
+        public IActionResult Login(string? returnUrl = null)
         {
+            ViewBag.ReturnUrl = returnUrl;
             return View();
         }
 
         // -------- LOGIN POST --------
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel vm)
+        public async Task<IActionResult> Login(LoginViewModel vm, string? returnUrl = null)
         {
+            ViewBag.ReturnUrl = returnUrl;
+
             if (!ModelState.IsValid)
                 return View(vm);
 
@@ -120,6 +141,9 @@ namespace Convocation_Management_System.Web.UI.Controllers
             HttpContext.Session.SetString("Role", user.Role?.RoleName ?? "");
             HttpContext.Session.SetString("FullName", user.FullName ?? "");
 
+            if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return Redirect(returnUrl);
+
             if (roleName == "admin")
                 return RedirectToAction("Index", "Admin");
 
@@ -146,10 +170,13 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
 
         // -------- LOGOUT --------
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
-            SessionHelper.ClearSession(HttpContext);
-            return RedirectToAction("Login");
+            HttpContext.Session.Clear();
+
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            return RedirectToAction("Index", "Home");
         }
 
         // -------- TEMPORARY HASH GENERATOR --------

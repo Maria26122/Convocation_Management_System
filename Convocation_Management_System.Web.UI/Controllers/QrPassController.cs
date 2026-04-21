@@ -26,11 +26,12 @@ namespace Convocation_Management_System.Web.UI.Controllers
             {
                 return RedirectToAction("Login", "Account");
             }
+
             var qrPasses = await _context.QrPasses
                 .Include(q => q.Registration)
-                .ThenInclude(r => r.Participant)
+                    .ThenInclude(r => r.Participant)
                 .Include(q => q.Registration)
-                .ThenInclude(r => r.Event)
+                    .ThenInclude(r => r.Event)
                 .OrderByDescending(q => q.QrPassId)
                 .ToListAsync();
 
@@ -43,9 +44,9 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             var qrPass = await _context.QrPasses
                 .Include(q => q.Registration)
-                .ThenInclude(r => r.Participant)
+                    .ThenInclude(r => r.Participant)
                 .Include(q => q.Registration)
-                .ThenInclude(r => r.Event)
+                    .ThenInclude(r => r.Event)
                 .FirstOrDefaultAsync(q => q.QrPassId == id);
 
             if (qrPass == null) return NotFound();
@@ -56,7 +57,12 @@ namespace Convocation_Management_System.Web.UI.Controllers
         public IActionResult Create()
         {
             LoadRegistrationDropdown();
-            return View(new QrPass { IsUsed = false, IssuedAt = DateTime.Now, QrCodeText = string.Empty });
+            return View(new QrPass
+            {
+                IsUsed = false,
+                IssuedAt = DateTime.Now,
+                QrCodeText = string.Empty
+            });
         }
 
         [HttpPost]
@@ -97,6 +103,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             LoadRegistrationDropdown(qrPass.RegistrationId);
             return View(qrPass);
         }
+
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -125,6 +132,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 {
                     if (!_context.QrPasses.Any(e => e.QrPassId == qrPass.QrPassId))
                         return NotFound();
+
                     throw;
                 }
 
@@ -141,9 +149,9 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             var qrPass = await _context.QrPasses
                 .Include(q => q.Registration)
-                .ThenInclude(r => r.Participant)
+                    .ThenInclude(r => r.Participant)
                 .Include(q => q.Registration)
-                .ThenInclude(r => r.Event)
+                    .ThenInclude(r => r.Event)
                 .FirstOrDefaultAsync(q => q.QrPassId == id);
 
             if (qrPass == null) return NotFound();
@@ -172,6 +180,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             {
                 return RedirectToAction("Login", "Account");
             }
+
             var role = HttpContext.Session.GetString("Role");
 
             if (role != "Admin" && role != "Staff")
@@ -185,7 +194,6 @@ namespace Convocation_Management_System.Web.UI.Controllers
         // POST: QrPass/Verify
         [HttpPost]
         [ValidateAntiForgeryToken]
-       
         public async Task<IActionResult> Verify(string qrCodeText)
         {
             if (string.IsNullOrWhiteSpace(qrCodeText))
@@ -215,7 +223,6 @@ namespace Convocation_Management_System.Web.UI.Controllers
         // POST: QrPass/ConfirmEntry
         [HttpPost]
         [ValidateAntiForgeryToken]
-       
         public async Task<IActionResult> ConfirmEntry(int qrPassId)
         {
             var qrPass = await _context.QrPasses
@@ -250,7 +257,6 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // Ensure the registration navigation property is available
             if (qrPass.Registration == null)
             {
                 TempData["ErrorMessage"] = "Registration not found for this QR pass.";
@@ -268,7 +274,6 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 Remarks = "Verified by QR check-in"
             };
 
-            // Ensure the modified qrPass is tracked and save both changes atomically
             _context.Update(qrPass);
             _context.DistributionLogs.Add(log);
 
@@ -278,13 +283,15 @@ namespace Convocation_Management_System.Web.UI.Controllers
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "An error occurred while verifying the entry. " + (ex.InnerException?.Message ?? ex.Message);
+                TempData["ErrorMessage"] = "An error occurred while verifying the entry. " +
+                                           (ex.InnerException?.Message ?? ex.Message);
                 return RedirectToAction(nameof(Verify));
             }
 
             TempData["SuccessMessage"] = "Entry verified successfully.";
             return RedirectToAction(nameof(Verify));
         }
+
         private void LoadRegistrationDropdown(object? selectedRegistration = null)
         {
             var registrations = _context.Registrations

@@ -148,27 +148,36 @@
 
         <!-- OPERATION -->
         <div class="menu-group">
-            <a class="sidebar-link menu-toggle section-toggle @(isOperationOpen ? "open-menu" : "")"
+            <a class="sidebar-link menu-toggle section-toggle"
                    data-bs-toggle="collapse"
-                   href="#operationMenu"
-                   role="button"
-                   aria-expanded="@(isOperationOpen.ToString().ToLower())"
-                   aria-controls="operationMenu">
+                   href="#operationMenu">
+
                 <span class="menu-left">
                     <span class="section-text">Operation</span>
                 </span>
-                <i class="fas fa-chevron-right toggle-icon @(isOperationOpen ? "rotate" : "")"></i>
             </a>
 
-            <div class="collapse submenu-wrap @(isOperationOpen ? "show" : "")" id="operationMenu">
+            <div class="collapse submenu-wrap show" id="operationMenu">
                 <div class="submenu">
+
+                    <!-- EXISTING -->
                     <a asp-controller="DistributionLog" asp-action="Index"
-                           class="sidebar-link @(currentController == "DistributionLog" ? "active-menu" : "")">
+                           class="sidebar-link">
                         <span class="menu-left">
                             <i class="fas fa-box-open menu-icon"></i>
                             <span>Distribution</span>
                         </span>
                     </a>
+
+                    <!-- ADD THIS -->
+                    <a asp-controller="QrPass" asp-action="Verify"
+                           class="sidebar-link">
+                        <span class="menu-left">
+                            <i class="fas fa-qrcode menu-icon"></i>
+                            <span>Verify QR Pass</span>
+                        </span>
+                    </a>
+
                 </div>
             </div>
         </div>
@@ -259,16 +268,7 @@
             </div>
         </div>
 
-        <!-- REPORT -->
-        <div class="menu-group">
-            <a asp-controller="Admin" asp-action="Reports"
-               class="sidebar-link @(isReports ? "active-menu" : "")">
-                <span class="menu-left">
-                    <i class="fas fa-chart-column menu-icon"></i>
-                    <span>Report</span>
-                </span>
-            </a>
-        </div>
+      
 
         <!-- LOGOUT -->
         <div class="menu-group">

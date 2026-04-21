@@ -84,14 +84,20 @@ namespace Convocation_Management_System.Web.UI.Controllers
             return participant?.ParticipantId ?? 0;
         }
 
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(int? eventId, string? returnUrl = null)
         {
-            var role = (HttpContext.Session.GetString("Role") ?? "").ToLower();
+            var role = (HttpContext.Session.GetString("Role") ?? "").Trim().ToLower();
+            var userIdString = HttpContext.Session.GetString("UserId");
+
+            if (string.IsNullOrEmpty(userIdString))
+            {
+                return RedirectToAction("Login", "Account", new
+                {
+                    returnUrl = Url.Action("Create", "Registration", new { eventId = eventId })
+                });
+            }
 
             if (role != "student")
-                return RedirectToAction("Login", "Account");
-
-            if (HttpContext.Session.GetString("UserId") == null)
                 return RedirectToAction("Login", "Account");
 
             await LoadDropdownsAsync(_context.Events.Where(e => e.IsActive));
@@ -104,16 +110,26 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 TotalAmount = 0
             };
 
-           
-            var userIdString = HttpContext.Session.GetString("UserId");
-
-            if ((role ?? "").Trim().ToLower() == "student" && int.TryParse(userIdString, out int userId))
+            if (int.TryParse(userIdString, out int userId))
             {
                 var participant = await _context.Participants
                     .FirstOrDefaultAsync(p => p.UserAccountId == userId);
 
                 if (participant != null)
                     registration.ParticipantId = participant.ParticipantId;
+            }
+
+            if (eventId.HasValue)
+            {
+                var selectedEvent = await _context.Events
+                    .FirstOrDefaultAsync(e => e.EventId == eventId.Value && e.IsActive);
+
+                if (selectedEvent != null)
+                {
+                    registration.EventId = selectedEvent.EventId;
+                    registration.TotalAmount = selectedEvent.BaseFee;
+                    ViewBag.SelectedEventId = selectedEvent.EventId;
+                }
             }
 
             return View(registration);
@@ -241,10 +257,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             if (id != registration.RegistrationId)
                 return NotFound();
 
-            var existing = await _context.Registrations
-                .AsNoTracking()
-                .FirstOrDefaultAsync(r => r.RegistrationId == id);
-
+            var existing = await _context.Registrations.FindAsync(id);
             if (existing == null)
                 return NotFound();
 

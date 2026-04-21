@@ -1,70 +1,161 @@
 ﻿@model Convocation.Entities.QrPass
 
 @{
+    ViewData["Title"] = "Verification Result";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-    ViewData["Title"] = "QR Verification Result";
 }
 
-<div class="form-card">
-    <h3 class="form-title mb-4">QR Verification Result</h3>
+<style>
+    .page-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 22px;
+        padding: 24px;
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+        margin-bottom: 24px;
+    }
 
-    <div class="row g-3">
-        <div class="col-md-6">
-            <label class="form-label fw-bold">QR Code Text</label>
-            <div class="form-control">@Model.QrCodeText</div>
-        </div>
+    .section-title {
+        font-weight: 800;
+        margin-bottom: 18px;
+    }
 
-        <div class="col-md-6">
-            <label class="form-label fw-bold">Status</label>
-            <div class="form-control">
-                @(Model.IsUsed ? "Already Used" : "Valid")
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 18px;
+    }
+
+    .info-box {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        padding: 18px;
+    }
+
+    .info-label {
+        font-size: 13px;
+        color: #6b7280;
+        margin-bottom: 6px;
+    }
+
+    .info-value {
+        font-size: 16px;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .status-success {
+        background: #ecfdf3;
+        color: #15803d;
+    }
+
+    .status-warning {
+        background: #fff7ed;
+        color: #c2410c;
+    }
+
+    .action-row {
+        margin-top: 24px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+</style>
+
+<div class="page-card">
+    <h4 class="section-title">QR Verification Result</h4>
+
+    @if (Model == null)
+    {
+        <div class="alert alert-danger">QR pass not found.</div>
+    }
+    else
+    {
+        <div class="info-grid">
+            <div class="info-box">
+                <div class="info-label">QR Pass ID</div>
+                <div class="info-value">@Model.QrPassId</div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-label">QR Code Text</div>
+                <div class="info-value">@Model.QrCodeText</div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-label">Student ID</div>
+                <div class="info-value">@Model.Registration?.Participant?.StudentId</div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-label">Participant ID</div>
+                <div class="info-value">@Model.Registration?.ParticipantId</div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-label">Event Title</div>
+                <div class="info-value">@Model.Registration?.Event?.EventTitle</div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-label">Event Date</div>
+                <div class="info-value">@(Model.Registration?.Event?.EventDate.ToString("dd MMM yyyy") ?? "TBA")</div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-label">Venue</div>
+                <div class="info-value">@Model.Registration?.Event?.Venue</div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-label">Registration Status</div>
+                <div class="info-value">
+                    <span class="status-badge @(Model.Registration?.RegistrationStatus == "Paid" ? "status-success" : "status-warning")">
+                        @Model.Registration?.RegistrationStatus
+                    </span>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-label">Entry Used</div>
+                <div class="info-value">
+                    <span class="status-badge @(Model.IsUsed ? "status-warning" : "status-success")">
+                        @(Model.IsUsed ? "Already Used" : "Not Used Yet")
+                    </span>
+                </div>
             </div>
         </div>
 
-        <div class="col-md-6">
-            <label class="form-label fw-bold">Participant</label>
-            <div class="form-control">
-                @Model.Registration?.Participant?.StudentId
-            </div>
-        </div>
+        <div class="action-row">
+            @if (!Model.IsUsed && Model.Registration?.RegistrationStatus == "Paid")
+            {
+                <form asp-action="ConfirmEntry" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="qrPassId" value="@Model.QrPassId" />
+                    <button type="submit" class="btn btn-success">
+                        Confirm Entry
+                    </button>
+                </form>
+            }
+            else if (Model.IsUsed)
+            {
+                <button type="button" class="btn btn-secondary" disabled>Already Used</button>
+            }
+            else
+            {
+                <button type="button" class="btn btn-secondary" disabled>Payment Not Completed</button>
+            }
 
-        <div class="col-md-6">
-            <label class="form-label fw-bold">Department</label>
-            <div class="form-control">
-                @Model.Registration?.Participant?.Department
-            </div>
+            <a asp-action="Verify" class="btn btn-outline-primary">Back to Scanner</a>
         </div>
-
-        <div class="col-md-6">
-            <label class="form-label fw-bold">Event</label>
-            <div class="form-control">
-                @Model.Registration?.Event?.EventTitle
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <label class="form-label fw-bold">Guest Count</label>
-            <div class="form-control">
-                @Model.Registration?.GuestCount
-            </div>
-        </div>
-    </div>
-
-    <div class="mt-4">
-        @if (!Model.IsUsed)
-        {
-            <form asp-action="ConfirmEntry" method="post">
-                <input type="hidden" name="qrPassId" value="@Model.QrPassId" />
-                <button type="submit" class="btn btn-success">Confirm Entry</button>
-                <a asp-action="Verify" class="btn btn-secondary">Back</a>
-            </form>
-        }
-        else
-        {
-            <div class="alert alert-warning mt-3">
-                This QR pass has already been used.
-            </div>
-            <a asp-action="Verify" class="btn btn-secondary">Back</a>
-        }
-    </div>
+    }
 </div>

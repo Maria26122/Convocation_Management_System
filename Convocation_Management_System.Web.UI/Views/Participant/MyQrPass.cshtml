@@ -5,33 +5,28 @@
     Layout = "~/Views/Shared/_ParticipantLayout.cshtml";
 }
 
-<div class="card shadow-sm border-0 rounded-4">
-    <div class="card-body p-4">
-        <h2 class="mb-4">My QR Pass</h2>
+<div class="content-card text-center">
+    <h4 class="mb-4">My QR Pass</h4>
 
-        @if (Model == null)
-        {
-            <div class="alert alert-warning">No QR pass found.</div>
-        }
-        else
-        {
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label class="fw-bold">QR Code</label>
-                    <div class="form-control">@Model.QrCodeText</div>
-                </div>
-                <div class="col-md-6">
-                    <label class="fw-bold">Issued Date</label>
-                    <div class="form-control">@Model.IssuedAt</div>
-                </div>
-            </div>
+    @if (Model == null)
+    {
+        <div class="alert alert-warning">QR not generated yet.</div>
+    }
+    else
+    {
+        <div class="mb-3">
+            <i class="fas fa-qrcode fa-4x text-primary"></i>
+        </div>
 
-            <div class="row">
-                <div class="col-md-6">
-                    <label class="fw-bold">Status</label>
-                    <div class="form-control">@Model.IsUsed</div>
-                </div>
-            </div>
-        }
-    </div>
+        <h5>@(Model?.QrCodeText ?? "QR Not Available")</h5>
+
+        <p class="text-muted">
+            Issued: @(Model?.IssuedAt.ToString("dd MMM yyyy hh:mm tt") ?? "N/A")
+        </p>
+
+        <p>
+            Status:
+            @(Model?.IsUsed == true ? "Used" : "Ready")
+        </p>
+    }
 </div>

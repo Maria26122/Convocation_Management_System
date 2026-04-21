@@ -5,54 +5,59 @@
     Layout = "~/Views/Shared/_ParticipantLayout.cshtml";
 }
 
-<div class="card shadow-sm border-0 rounded-4">
-    <div class="card-body p-4">
-        <h2 class="mb-4">My Profile</h2>
+<div class="content-card">
+    <h4 class="mb-4">My Profile</h4>
 
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label class="fw-bold">Full Name</label>
-                <div class="form-control">@Model.UserAccount?.FullName</div>
-            </div>
-            <div class="col-md-6">
-                <label class="fw-bold">Email</label>
-                <div class="form-control">@Model.UserAccount?.Email</div>
-            </div>
-        </div>
+    @if (Model == null)
+    {
+        <div class="alert alert-warning">Profile not found.</div>
+    }
+    else
+    {
+        <div class="row g-4">
 
-        <div class="row mb-3">
             <div class="col-md-6">
-                <label class="fw-bold">Phone</label>
-                <div class="form-control">@Model.UserAccount?.Phone</div>
+                <label class="text-muted">Full Name</label>
+                <div class="fw-bold">@(!string.IsNullOrWhiteSpace(Model?.UserAccount?.FullName) ? Model.UserAccount.FullName : "N/A")</div>
             </div>
-            <div class="col-md-6">
-                <label class="fw-bold">Student ID</label>
-                <div class="form-control">@Model.StudentId</div>
-            </div>
-        </div>
 
-        <div class="row mb-3">
             <div class="col-md-6">
-                <label class="fw-bold">Department</label>
-                <div class="form-control">@Model.Department</div>
+                <label class="text-muted">Email</label>
+                <div class="fw-bold">@(!string.IsNullOrWhiteSpace(Model?.UserAccount?.Email) ? Model.UserAccount.Email : "N/A")</div>
             </div>
-            <div class="col-md-6">
-                <label class="fw-bold">Program</label>
-                <div class="form-control">@Model.Program</div>
-            </div>
-        </div>
 
-        <div class="row">
             <div class="col-md-6">
-                <label class="fw-bold">Session</label>
-                <div class="form-control">@Model.Session</div>
+                <label class="text-muted">Phone</label>
+                <div class="fw-bold">@(!string.IsNullOrWhiteSpace(Model?.UserAccount?.Phone) ? Model.UserAccount.Phone : "N/A")</div>
             </div>
+
             <div class="col-md-6">
-                <label class="fw-bold">Eligibility</label>
-                <div class="form-control">
-                    @(Model.IsEligible ? "Eligible" : "Not Eligible")
+                <label class="text-muted">Eligibility</label>
+                <div class="fw-bold">
+                    @(Model?.IsEligible == true ? "Eligible" : "Not Eligible")
                 </div>
             </div>
+
+            <div class="col-md-6">
+                <label class="text-muted">Student ID</label>
+                <div class="fw-bold">@(!string.IsNullOrWhiteSpace(Model?.StudentId) ? Model.StudentId : "N/A")</div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="text-muted">Department</label>
+                <div class="fw-bold">@(!string.IsNullOrWhiteSpace(Model?.Department) ? Model.Department : "N/A")</div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="text-muted">Program</label>
+                <div class="fw-bold">@(!string.IsNullOrWhiteSpace(Model?.Program) ? Model.Program : "N/A")</div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="text-muted">Session</label>
+                <div class="fw-bold">@(!string.IsNullOrWhiteSpace(Model?.Session) ? Model.Session : "N/A")</div>
+            </div>
+
         </div>
-    </div>
+    }
 </div>
