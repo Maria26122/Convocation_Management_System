@@ -2,118 +2,312 @@
 using Convocation.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using QRCoder;
-using System.IO;
 
-public class PaymentController : Controller
+namespace Convocation_Management_System.Web.UI.Controllers
 {
-    private readonly ConvocationDbContext _context;
-
-    public PaymentController(ConvocationDbContext context)
+    public class PaymentController : Controller
     {
-        _context = context;
-    }
+        private readonly ConvocationDbContext _context;
 
-    public IActionResult Pay(int registrationId)
-    {
-        var registration = _context.Registrations
-            .Include(r => r.Event)
-            .FirstOrDefault(r => r.RegistrationId == registrationId);
-
-        if (registration == null)
-            return RedirectToAction("Dashboard", "Participant");
-
-        // SSLCommerz Sandbox URL
-        string url = "https://sandbox.sslcommerz.com/gwprocess/v4/api.php";
-
-        var store_id = "testbox";
-        var store_passwd = "qwerty";
-
-        var data = new Dictionary<string, string>
+        public PaymentController(ConvocationDbContext context)
         {
-            { "store_id", store_id },
-            { "store_passwd", store_passwd },
-            { "total_amount", registration.TotalAmount.ToString() },
-            { "currency", "BDT" },
-            { "tran_id", registration.RegistrationId.ToString() },
-
-            { "success_url", "https://localhost:5001/Payment/Success" },
-            { "fail_url", "https://localhost:5001/Payment/Fail" },
-            { "cancel_url", "https://localhost:5001/Payment/Cancel" },
-
-            { "cus_name", "Student" },
-            { "cus_email", "student@email.com" },
-            { "cus_add1", "Dhaka" },
-            { "cus_phone", "01700000000" },
-
-            { "product_name", "Convocation Registration" },
-            { "product_category", "Education" },
-            { "product_profile", "general" }
-        };
-
-        using (var client = new HttpClient())
-        {
-            var response = client.PostAsync(url, new FormUrlEncodedContent(data)).Result;
-            var json = response.Content.ReadAsStringAsync().Result;
-
-            dynamic obj = JsonConvert.DeserializeObject<dynamic>(json);
-
-            return Redirect(obj.GatewayPageURL.ToString());
+            _context = context;
         }
-    }
 
-    [HttpPost]
-    public IActionResult Success()
-    {
-        var tranId = Request.Form["tran_id"];
-
-        var registration = _context.Registrations
-            .Include(r => r.Participant)
-            .FirstOrDefault(r => r.RegistrationId.ToString() == tranId);
-
-        if (registration != null)
+        // ==============================
+        // COMMON HELPERS
+        // ==============================
+        private string CurrentRole()
         {
-            // ✅ Update payment status
-            registration.RegistrationStatus = "Paid";
+            return (HttpContext.Session.GetString("Role") ?? "").Trim().ToLower();
+        }
 
-            // ✅ Generate QR text
-            string qrText = $"REG-{registration.RegistrationId}-USER-{registration.ParticipantId}";
+        private bool IsAdmin()
+        {
+            return CurrentRole() == "admin";
+        }
 
-            // ✅ Generate QR image
-            using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
+        private bool IsStudentLoggedIn()
+        {
+            var role = CurrentRole();
+            return role == "student" || role == "participant";
+        }
+
+        private int? GetLoggedInUserId()
+        {
+            var userId = HttpContext.Session.GetString("UserId");
+
+            if (string.IsNullOrWhiteSpace(userId))
+                return null;
+
+            if (!int.TryParse(userId, out int parsedId))
+                return null;
+
+            return parsedId;
+        }
+
+        private async Task<Participant?> GetLoggedInParticipantAsync()
+        {
+            var userId = GetLoggedInUserId();
+            if (userId == null)
+                return null;
+
+            return await _context.Participants
+                .Include(p => p.UserAccount)
+                .FirstOrDefaultAsync(p => p.UserAccountId == userId.Value);
+        }
+
+        // ==============================
+        // ADMIN PAYMENT LIST
+        // ==============================
+        public async Task<IActionResult> Index()
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Login", "Account");
+
+            var payments = await _context.Payments
+                .Include(p => p.Registration)
+                    .ThenInclude(r => r.Participant)
+                        .ThenInclude(p => p.UserAccount)
+                .Include(p => p.Registration)
+                    .ThenInclude(r => r.Event)
+                .OrderByDescending(p => p.PaymentDate)
+                .ThenByDescending(p => p.PaymentId)
+                .ToListAsync();
+
+            return View(payments);
+        }
+
+        // ==============================
+        // STUDENT: OPEN OWN PAYMENT PAGE
+        // ==============================
+        public async Task<IActionResult> PayNow(int? registrationId = null)
+        {
+            if (!IsStudentLoggedIn())
+                return RedirectToAction("Login", "Account");
+
+            var participant = await GetLoggedInParticipantAsync();
+            if (participant == null)
             {
-                var qrData = qrGenerator.CreateQrCode(qrText, QRCodeGenerator.ECCLevel.Q);
-                var qrCode = new PngByteQRCode(qrData);
-                byte[] qrBytes = qrCode.GetGraphic(20);
-
-                // Save image
-                string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/qrcodes");
-
-                if (!Directory.Exists(folderPath))
-                    Directory.CreateDirectory(folderPath);
-
-                string fileName = $"qr_{registration.RegistrationId}.png";
-                string filePath = Path.Combine(folderPath, fileName);
-
-                System.IO.File.WriteAllBytes(filePath, qrBytes);
-
-                // Save to DB
-                var qrPass = new QrPass
-                {
-                    RegistrationId = registration.RegistrationId,
-                    QrCodeText = qrText,
-                    QrImagePath = "/qrcodes/" + fileName,
-                    IssuedAt = DateTime.Now,
-                    IsUsed = false
-                };
-
-                _context.QrPasses.Add(qrPass);
+                TempData["Error"] = "Student profile not found.";
+                return RedirectToAction("Login", "Account");
             }
 
-            _context.SaveChanges();
+            Registration? registration;
+
+            if (registrationId.HasValue)
+            {
+                registration = await _context.Registrations
+                    .Include(r => r.Event)
+                    .FirstOrDefaultAsync(r =>
+                        r.RegistrationId == registrationId.Value &&
+                        r.ParticipantId == participant.ParticipantId);
+            }
+            else
+            {
+                registration = await _context.Registrations
+                    .Include(r => r.Event)
+                    .Where(r => r.ParticipantId == participant.ParticipantId)
+                    .OrderByDescending(r => r.RegistrationDate)
+                    .FirstOrDefaultAsync();
+            }
+
+            if (registration == null)
+            {
+                TempData["Error"] = "No registration found for payment.";
+                return RedirectToAction("MyRegistration", "Participant");
+            }
+
+            var payment = await _context.Payments
+                .Include(p => p.Registration)
+                .ThenInclude(r => r.Event)
+                .FirstOrDefaultAsync(p => p.RegistrationId == registration.RegistrationId);
+
+            if (payment == null)
+            {
+                payment = new Payment
+                {
+                    RegistrationId = registration.RegistrationId,
+                    Registration = registration,
+                    PaidAmount = registration.TotalAmount,
+                    PaymentStatus = "Pending",
+                    PaymentMethod = "SSLCommerz",
+                    TransactionId = null,
+                    PaymentDate = null,
+                    SessionKey = null
+                };
+
+                _context.Payments.Add(payment);
+                await _context.SaveChangesAsync();
+            }
+
+            return View(payment);
         }
 
-        return RedirectToAction("MyQRPass", "Participant");
+        // ==============================
+        // STUDENT: START PAYMENT
+        // ==============================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> StartPayment(int registrationId)
+        {
+            if (!IsStudentLoggedIn())
+                return RedirectToAction("Login", "Account");
+
+            var participant = await GetLoggedInParticipantAsync();
+            if (participant == null)
+            {
+                TempData["Error"] = "Student profile not found.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            var registration = await _context.Registrations
+                .Include(r => r.Event)
+                .FirstOrDefaultAsync(r =>
+                    r.RegistrationId == registrationId &&
+                    r.ParticipantId == participant.ParticipantId);
+
+            if (registration == null)
+            {
+                TempData["Error"] = "Invalid registration for payment.";
+                return RedirectToAction("MyRegistration", "Participant");
+            }
+
+            var payment = await _context.Payments
+                .FirstOrDefaultAsync(p => p.RegistrationId == registration.RegistrationId);
+
+            if (payment == null)
+            {
+                payment = new Payment
+                {
+                    Registration = registration,
+                    RegistrationId = registration.RegistrationId,
+                    PaidAmount = registration.TotalAmount,
+                    PaymentStatus = "Pending",
+                    PaymentMethod = "SSLCommerz",
+                    TransactionId = null,
+                    PaymentDate = null,
+                    SessionKey = null
+                };
+
+                _context.Payments.Add(payment);
+            }
+            else
+            {
+                payment.PaidAmount = registration.TotalAmount;
+                payment.PaymentMethod = "SSLCommerz";
+
+                if (string.IsNullOrWhiteSpace(payment.PaymentStatus))
+                    payment.PaymentStatus = "Pending";
+            }
+
+            await _context.SaveChangesAsync();
+
+            // TEMPORARY FLOW:
+            // Later replace this with SSLCommerz Session creation and redirect URL
+            return RedirectToAction(nameof(Checkout), new { registrationId = registration.RegistrationId });
+        }
+
+        // ==============================
+        // STUDENT: TEMP CHECKOUT PAGE
+        // ==============================
+        public async Task<IActionResult> Checkout(int registrationId)
+        {
+            if (!IsStudentLoggedIn())
+                return RedirectToAction("Login", "Account");
+
+            var participant = await GetLoggedInParticipantAsync();
+            if (participant == null)
+            {
+                TempData["Error"] = "Student profile not found.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            var payment = await _context.Payments
+                .Include(p => p.Registration)
+                    .ThenInclude(r => r.Event)
+                .FirstOrDefaultAsync(p =>
+                    p.RegistrationId == registrationId &&
+                    p.Registration != null &&
+                    p.Registration.ParticipantId == participant.ParticipantId);
+
+            if (payment == null)
+            {
+                TempData["Error"] = "Payment record not found.";
+                return RedirectToAction("MyPayment", "Participant");
+            }
+
+            return View(payment);
+        }
+
+        // ==============================
+        // TEMP SUCCESS FOR DEMO / TESTING
+        // Replace with SSLCommerz callback later
+        // ==============================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkPaid(int registrationId)
+        {
+            if (!IsStudentLoggedIn())
+                return RedirectToAction("Login", "Account");
+
+            var participant = await GetLoggedInParticipantAsync();
+            if (participant == null)
+            {
+                TempData["Error"] = "Student profile not found.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            var payment = await _context.Payments
+                .Include(p => p.Registration)
+                .FirstOrDefaultAsync(p =>
+                    p.RegistrationId == registrationId &&
+                    p.Registration != null &&
+                    p.Registration.ParticipantId == participant.ParticipantId);
+
+            if (payment == null)
+            {
+                TempData["Error"] = "Payment record not found.";
+                return RedirectToAction("MyPayment", "Participant");
+            }
+
+            payment.PaymentStatus = "Paid";
+            payment.PaymentDate = DateTime.Now;
+
+            if (string.IsNullOrWhiteSpace(payment.TransactionId))
+            {
+                payment.TransactionId = "TXN-" + DateTime.Now.ToString("yyyyMMddHHmmss");
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Payment completed successfully.";
+            return RedirectToAction("MyPayment", "Participant");
+        }
+
+        // ==============================
+        // OPTIONAL ADMIN STATUS UPDATE
+        // ==============================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateStatus(int paymentId, string status)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Login", "Account");
+
+            var payment = await _context.Payments.FindAsync(paymentId);
+            if (payment == null)
+                return NotFound();
+
+            payment.PaymentStatus = status;
+
+            if (status == "Paid" && payment.PaymentDate == null)
+                payment.PaymentDate = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Payment status updated.";
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

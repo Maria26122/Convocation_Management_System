@@ -1,51 +1,89 @@
 ﻿@model Convocation.Entities.Payment
 
 @{
-    ViewData["Title"] = "My Payment";
     Layout = "~/Views/Shared/_ParticipantLayout.cshtml";
+    ViewData["Title"] = "My Payment";
 }
 
-<div class="content-card">
-    <h4 class="mb-4">My Payment</h4>
-
-    @if (Model == null)
-    {
-        <div class="alert alert-warning">No payment found.</div>
-    }
-    else
-    {
-        <div class="row g-4">
-
-            <div class="col-md-6">
-                <label class="text-muted">Payment ID</label>
-                <div class="fw-bold">@Model.PaymentId</div>
-            </div>
-
-            <div class="col-md-6">
-                <label class="text-muted">Registration ID</label>
-                <div class="fw-bold">@Model.RegistrationId</div>
-            </div>
-
-            <div class="col-md-6">
-                <label class="text-muted">Amount</label>
-                <div class="fw-bold">৳@(Model?.PaidAmount.ToString() ?? "0")</div>
-            </div>
-
-            <div class="col-md-6">
-                <label class="text-muted">Status</label>
-                <div class="fw-bold">@(Model?.PaymentStatus ?? "N/A")</div>
-            </div>
-
-            <div class="col-md-6">
-                <label class="text-muted">Payment Date</label>
-                <div class="fw-bold">@(Model?.PaymentDate?.ToString("dd MMM yyyy") ?? "N/A")</div>
-            </div>
-
-            <div class="col-md-6">
-                <label class="text-muted">Transaction ID</label>
-                <div class="fw-bold">@(!string.IsNullOrWhiteSpace(Model?.TransactionId) ? Model.TransactionId : "N/A")</div>
-            </div>
-
+<div class="container-fluid">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white">
+            <h4 class="mb-0">My Payment</h4>
         </div>
-    }
+        <div class="card-body">
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">@TempData["Success"]</div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger">@TempData["Error"]</div>
+            }
+
+            @if (Model == null)
+            {
+                <div class="alert alert-warning">
+                    No registration/payment record found yet.
+                </div>
+            }
+            else
+            {
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Registration ID</label>
+                        <div class="form-control bg-light">@Model.RegistrationId</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Amount</label>
+                        <div class="form-control bg-light">@Model.PaidAmount</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Payment Method</label>
+                        <div class="form-control bg-light">@Model.PaymentMethod</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Status</label>
+                        <div class="form-control bg-light">@Model.PaymentStatus</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Transaction ID</label>
+                        <div class="form-control bg-light">
+                            @(string.IsNullOrWhiteSpace(Model.TransactionId) ? "Not generated yet" : Model.TransactionId)
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Payment Date</label>
+                        <div class="form-control bg-light">
+                            @(Model.PaymentDate.HasValue? Model.PaymentDate.Value.ToString("dd MMM yyyy hh:mm tt") : "Not paid yet")
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    @if (Model.PaymentStatus == "Paid")
+                    {
+                        <button class="btn btn-success" disabled>
+                            Payment Completed
+                        </button>
+                    }
+                    else
+                    {
+                        <a asp-controller="Payment"
+                               asp-action="PayNow"
+                               asp-route-registrationId="@Model.RegistrationId"
+                               class="btn btn-primary">
+                            Proceed to Payment
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
 </div>

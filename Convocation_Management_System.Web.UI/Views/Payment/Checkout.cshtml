@@ -1,0 +1,51 @@
+﻿@model Convocation.Entities.Payment
+
+@{
+    Layout = "~/Views/Shared/_ParticipantLayout.cshtml";
+    ViewData["Title"] = "Checkout";
+}
+
+<div class="container-fluid">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white">
+            <h4 class="mb-0">Payment Checkout</h4>
+        </div>
+        <div class="card-body">
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger">@TempData["Error"]</div>
+            }
+
+            @if (Model == null)
+            {
+                <div class="alert alert-warning">Payment information not found.</div>
+            }
+            else
+            {
+                <div class="mb-3">
+                    <p><strong>Registration ID:</strong> @Model.RegistrationId</p>
+                    <p><strong>Amount:</strong> @Model.PaidAmount</p>
+                    <p><strong>Method:</strong> @Model.PaymentMethod</p>
+                    <p><strong>Status:</strong> @Model.PaymentStatus</p>
+                </div>
+
+                <div class="alert alert-info">
+                    This is the temporary internal payment step.
+                    Later this action will redirect to SSLCommerz.
+                </div>
+
+                <form asp-controller="Payment" asp-action="MarkPaid" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="registrationId" value="@Model.RegistrationId" />
+                    <button type="submit" class="btn btn-success">
+                        Confirm Payment
+                    </button>
+                    <a asp-controller="Participant" asp-action="MyPayment" class="btn btn-secondary ms-2">
+                        Back
+                    </a>
+                </form>
+            }
+        </div>
+    </div>
+</div>

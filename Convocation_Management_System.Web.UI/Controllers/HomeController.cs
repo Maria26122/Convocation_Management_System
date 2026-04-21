@@ -17,7 +17,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         {
             var events = await _context.Events
                 .Where(e => e.IsActive)
-                .OrderByDescending(e => e.EventDate)
+                .OrderBy(e => e.EventDate)
                 .ToListAsync();
 
             return View(events);

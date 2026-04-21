@@ -16,16 +16,30 @@ namespace Convocation_Management_System.Web.UI.Controllers
             _context = context;
         }
 
+        private string CurrentRole()
+        {
+            return (HttpContext.Session.GetString("Role") ?? "").Trim().ToLower();
+        }
+
+        private bool IsAdmin()
+        {
+            return CurrentRole() == "admin";
+        }
+
+        private bool IsStaff()
+        {
+            return CurrentRole() == "staff" || CurrentRole() == "eventmanager";
+        }
+
         public async Task<IActionResult> Index()
         {
-            if (_context.DistributionLogs == null)
-            {
-                return View(new List<DistributionLog>());
-            }
+            if (!IsAdmin() && !IsStaff())
+                return RedirectToAction("Login", "Account");
 
             var logs = await _context.DistributionLogs
-                .Include(d => d.Participant!)           // null-forgiving: navigation can be null in model, but safe here
-                .ThenInclude(p => p!.UserAccount!)      // null-forgiving for nested navigation
+                .Include(d => d.Participant)
+                    .ThenInclude(p => p!.UserAccount)
+                .Include(d => d.Registration)
                 .OrderByDescending(d => d.DistributedAt)
                 .ToListAsync();
 
@@ -34,22 +48,20 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
         public async Task<IActionResult> Create()
         {
-            var vm = new DistributionLogCreateViewModel();
+            if (!IsAdmin() && !IsStaff())
+                return RedirectToAction("Login", "Account");
 
-            if (_context.Participants != null)
+            var vm = new DistributionLogCreateViewModel
             {
-                vm.Participant = await _context.Participants
+                Participant = await _context.Participants
+                    .Include(p => p.UserAccount)
                     .Select(p => new SelectListItem
                     {
                         Value = p.ParticipantId.ToString(),
-                        Text = p.StudentId + " - " + p.Department + " - " + p.Program
+                        Text = p.StudentId + " - " + (p.UserAccount != null ? p.UserAccount.FullName : p.Department)
                     })
-                    .ToListAsync();
-            }
-            else
-            {
-                vm.Participant = new List<SelectListItem>();
-            }
+                    .ToListAsync()
+            };
 
             return View(vm);
         }
@@ -58,41 +70,37 @@ namespace Convocation_Management_System.Web.UI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(DistributionLogCreateViewModel vm)
         {
-            if (vm == null) return BadRequest();
+            if (!IsAdmin() && !IsStaff())
+                return RedirectToAction("Login", "Account");
 
             if (!ModelState.IsValid)
             {
-                if (_context.Participants != null)
-                {
-                    vm.Participant = await _context.Participants
-                        .Select(p => new SelectListItem
-                        {
-                            Value = p.ParticipantId.ToString(),
-                            Text = p.StudentId + " - " + p.Department + " - " + p.Program
-                        })
-                        .ToListAsync();
-                }
-                else
-                {
-                    vm.Participant = new List<SelectListItem>();
-                }
+                vm.Participant = await _context.Participants
+                    .Include(p => p.UserAccount)
+                    .Select(p => new SelectListItem
+                    {
+                        Value = p.ParticipantId.ToString(),
+                        Text = p.StudentId + " - " + (p.UserAccount != null ? p.UserAccount.FullName : p.Department)
+                    })
+                    .ToListAsync();
 
                 return View(vm);
             }
 
+            var latestRegistration = await _context.Registrations
+                .Where(r => r.ParticipantId == vm.ParticipantId)
+                .OrderByDescending(r => r.RegistrationDate)
+                .FirstOrDefaultAsync();
+
             var log = new DistributionLog
             {
                 ParticipantId = vm.ParticipantId,
-                ItemName = vm.ItemName!,      // null-forgiving: model validation ensures ItemName is present
+                RegistrationId = latestRegistration?.RegistrationId,
+                ItemName = vm.ItemName,
                 DistributedAt = DateTime.Now,
                 DistributedBy = vm.DistributedBy,
                 Remarks = vm.Remarks
             };
-
-            if (_context.DistributionLogs == null)
-            {
-                return Problem("Database set for DistributionLogs is not available.");
-            }
 
             _context.DistributionLogs.Add(log);
             await _context.SaveChangesAsync();

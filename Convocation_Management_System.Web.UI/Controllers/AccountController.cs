@@ -18,7 +18,8 @@ namespace Convocation_Management_System.Web.UI.Controllers
         {
             _context = context;
         }
-        //--------- REGISTER PAGE --------//
+
+        // -------- REGISTER PAGE --------
         [HttpGet]
         public IActionResult Register(int? eventId = null, string? returnUrl = null)
         {
@@ -26,6 +27,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             ViewBag.ReturnUrl = returnUrl;
             return View();
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel vm, int? eventId = null, string? returnUrl = null)
@@ -48,7 +50,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             if (participantRole == null)
             {
-                ModelState.AddModelError("", "Participant role not found.");
+                ModelState.AddModelError("", "Student role not found.");
                 return View(vm);
             }
 
@@ -134,23 +136,50 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return View(vm);
             }
 
-            var roleName = (user.Role?.RoleName ?? "").Trim().ToLower();
+            var roleName = (user.Role?.RoleName ?? "").Trim();
 
+            // save session
             HttpContext.Session.SetString("UserId", user.UserAccountId.ToString());
-            HttpContext.Session.SetString("UserEmail", user.Email);
-            HttpContext.Session.SetString("Role", user.Role?.RoleName ?? "");
+            HttpContext.Session.SetString("UserEmail", user.Email ?? "");
+            HttpContext.Session.SetString("Role", roleName);
             HttpContext.Session.SetString("FullName", user.FullName ?? "");
+
+            // create auth cookie
+            var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.NameIdentifier, user.UserAccountId.ToString()),
+        new Claim(ClaimTypes.Name, user.FullName ?? ""),
+        new Claim(ClaimTypes.Email, user.Email ?? ""),
+        new Claim(ClaimTypes.Role, roleName)
+    };
+
+            var identity = new ClaimsIdentity(
+                claims,
+                CookieAuthenticationDefaults.AuthenticationScheme);
+
+            var principal = new ClaimsPrincipal(identity);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                principal,
+                new AuthenticationProperties
+                {
+                    IsPersistent = true,
+                    ExpiresUtc = DateTime.UtcNow.AddDays(7)
+                });
 
             if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);
 
-            if (roleName == "admin")
+            var normalizedRole = roleName.ToLower();
+
+            if (normalizedRole == "admin")
                 return RedirectToAction("Index", "Admin");
 
-            if (roleName == "eventmanager" || roleName == "staff")
+            if (normalizedRole == "eventmanager" || normalizedRole == "staff")
                 return RedirectToAction("Index", "Event");
 
-            if (roleName == "student" || roleName == "participant")
+            if (normalizedRole == "student" || normalizedRole == "participant")
             {
                 var participant = await _context.Participants
                     .FirstOrDefaultAsync(p => p.UserAccountId == user.UserAccountId);
@@ -168,18 +197,15 @@ namespace Convocation_Management_System.Web.UI.Controllers
             return View(vm);
         }
 
-
         // -------- LOGOUT --------
         public async Task<IActionResult> Logout()
         {
             HttpContext.Session.Clear();
-
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
             return RedirectToAction("Index", "Home");
         }
 
-        // -------- TEMPORARY HASH GENERATOR --------
+        // -------- TEMP HASH GENERATOR --------
         public IActionResult GenerateHash()
         {
             string hash = PasswordHelper.HashPassword("admin123");

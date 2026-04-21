@@ -20,6 +20,7 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromHours(2);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+    options.Cookie.Name = "Convocation.Session";
 });
 
 // Authentication
@@ -49,10 +50,10 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseSession();
+
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.UseSession();
 
 // Restore session values from cookie claims if session is empty
 app.Use(async (context, next) =>
@@ -61,10 +62,17 @@ app.Use(async (context, next) =>
     {
         if (string.IsNullOrEmpty(context.Session.GetString("UserId")))
         {
-            context.Session.SetString("UserId", context.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "");
-            context.Session.SetString("UserEmail", context.User.FindFirstValue(ClaimTypes.Email) ?? "");
-            context.Session.SetString("Role", context.User.FindFirstValue(ClaimTypes.Role) ?? "");
-            context.Session.SetString("FullName", context.User.FindFirstValue(ClaimTypes.Name) ?? "");
+            context.Session.SetString("UserId",
+                context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "");
+
+            context.Session.SetString("UserEmail",
+                context.User.FindFirst(ClaimTypes.Email)?.Value ?? "");
+
+            context.Session.SetString("Role",
+                context.User.FindFirst(ClaimTypes.Role)?.Value ?? "");
+
+            context.Session.SetString("FullName",
+                context.User.FindFirst(ClaimTypes.Name)?.Value ?? "");
         }
     }
 

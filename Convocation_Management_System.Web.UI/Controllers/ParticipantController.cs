@@ -1,4 +1,5 @@
 ﻿using Convocation.DataAccess;
+using Convocation.Entities;
 using Convocation_Management_System.Web.UI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,11 +15,25 @@ namespace Convocation_Management_System.Web.UI.Controllers
             _context = context;
         }
 
+        private string CurrentRole()
+        {
+            return (HttpContext.Session.GetString("Role") ?? "").Trim().ToLower();
+        }
+
+        private bool IsAdmin()
+        {
+            return CurrentRole() == "admin";
+        }
+
+        private bool IsStaff()
+        {
+            return CurrentRole() == "staff" || CurrentRole() == "eventmanager";
+        }
+
         private bool IsStudentLoggedIn()
         {
-            var role = HttpContext.Session.GetString("Role");
-            return !string.IsNullOrEmpty(role) &&
-                   (role.Trim().ToLower() == "student" || role.Trim().ToLower() == "participant");
+            var role = CurrentRole();
+            return role == "student" || role == "participant";
         }
 
         private int? GetLoggedInUserId()
@@ -27,9 +42,31 @@ namespace Convocation_Management_System.Web.UI.Controllers
             if (string.IsNullOrEmpty(userId))
                 return null;
 
-            return int.Parse(userId);
+            if (!int.TryParse(userId, out int parsed))
+                return null;
+
+            return parsed;
         }
 
+        // =========================
+        // ADMIN PARTICIPANT LIST
+        // =========================
+        public async Task<IActionResult> Index()
+        {
+            if (!IsAdmin() && !IsStaff())
+                return RedirectToAction("Login", "Account");
+
+            var participants = await _context.Participants
+                .Include(p => p.UserAccount)
+                .OrderByDescending(p => p.ParticipantId)
+                .ToListAsync();
+
+            return View(participants);
+        }
+
+        // =========================
+        // STUDENT DASHBOARD
+        // =========================
         public async Task<IActionResult> Dashboard()
         {
             if (!IsStudentLoggedIn())
@@ -62,7 +99,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 : await _context.QrPasses.FirstOrDefaultAsync(q => q.RegistrationId == registration.RegistrationId);
 
             var guests = registration == null
-                ? new List<Convocation.Entities.Guest>()
+                ? new List<Guest>()
                 : await _context.Guests.Where(g => g.RegistrationId == registration.RegistrationId).ToListAsync();
 
             int progress = 20;
@@ -187,37 +224,55 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var registration = await _context.Registrations
-                .FirstOrDefaultAsync(r => r.ParticipantId == participant.ParticipantId);
+            var latestRegistration = await _context.Registrations
+                .Where(r => r.ParticipantId == participant.ParticipantId)
+                .OrderByDescending(r => r.RegistrationDate)
+                .FirstOrDefaultAsync();
 
-            if (registration == null)
+            if (latestRegistration == null)
                 return View(null);
 
             var payment = await _context.Payments
                 .Include(p => p.Registration)
-                .FirstOrDefaultAsync(p => p.RegistrationId == registration.RegistrationId);
+                .FirstOrDefaultAsync(p => p.RegistrationId == latestRegistration.RegistrationId);
+
+            if (payment == null)
+            {
+                payment = new Payment
+                {
+                    RegistrationId = latestRegistration.RegistrationId,
+                    Registration = latestRegistration,
+                    PaidAmount = latestRegistration.TotalAmount,
+                    PaymentStatus = "Pending",
+                    PaymentMethod = "SSLCommerz",
+                    TransactionId = null,
+                    PaymentDate = null,
+                    SessionKey = null
+                };
+            }
 
             return View(payment);
         }
 
-        public IActionResult MyQrPass()
+        public async Task<IActionResult> MyQrPass()
         {
-            var userIdString = HttpContext.Session.GetString("UserId");
-
-            if (string.IsNullOrEmpty(userIdString))
+            if (!IsStudentLoggedIn())
                 return RedirectToAction("Login", "Account");
 
-            int userId = int.Parse(userIdString);
+            var userId = GetLoggedInUserId();
+            if (userId == null)
+                return RedirectToAction("Login", "Account");
 
-            var participant = _context.Participants
-                .FirstOrDefault(p => p.UserAccountId == userId);
+            var participant = await _context.Participants
+                .FirstOrDefaultAsync(p => p.UserAccountId == userId.Value);
 
             if (participant == null)
                 return View(null);
 
-            var qr = _context.QrPasses
+            var qr = await _context.QrPasses
                 .Include(q => q.Registration)
-                .FirstOrDefault(q => q.Registration.ParticipantId == participant.ParticipantId);
+                .FirstOrDefaultAsync(q => q.Registration != null &&
+                                          q.Registration.ParticipantId == participant.ParticipantId);
 
             return View(qr);
         }
@@ -244,7 +299,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 .FirstOrDefaultAsync(r => r.ParticipantId == participant.ParticipantId);
 
             if (registration == null)
-                return View(new List<Convocation.Entities.Guest>());
+                return View(new List<Guest>());
 
             var guests = await _context.Guests
                 .Where(g => g.RegistrationId == registration.RegistrationId)

@@ -100,7 +100,14 @@ namespace Convocation_Management_System.Web.UI.Controllers
             if (role != "student")
                 return RedirectToAction("Login", "Account");
 
-            await LoadDropdownsAsync(_context.Events.Where(e => e.IsActive));
+            var now = DateTime.Now;
+
+            await LoadDropdownsAsync(
+                _context.Events.Where(e =>
+                    e.IsActive &&
+                    e.RegistrationStartDate <= now &&
+                    e.RegistrationEndDate >= now)
+            );
 
             var registration = new Registration
             {
@@ -121,8 +128,14 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             if (eventId.HasValue)
             {
+                var now2 = DateTime.Now;
+
                 var selectedEvent = await _context.Events
-                    .FirstOrDefaultAsync(e => e.EventId == eventId.Value && e.IsActive);
+                    .FirstOrDefaultAsync(e =>
+                        e.EventId == eventId.Value &&
+                        e.IsActive &&
+                        e.RegistrationStartDate <= now2 &&
+                        e.RegistrationEndDate >= now2);
 
                 if (selectedEvent != null)
                 {
@@ -211,8 +224,8 @@ namespace Convocation_Management_System.Web.UI.Controllers
             _context.Registrations.Add(registration);
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Registration saved successfully.";
-            return RedirectToAction(nameof(Index));
+            TempData["SuccessMessage"] = "Registration saved successfully. Please complete payment.";
+            return RedirectToAction("Pay", "Payment", new { registrationId = registration.RegistrationId });
         }
 
         public async Task<IActionResult> Edit(int? id)
