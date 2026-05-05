@@ -31,12 +31,14 @@ namespace Convocation.Entities
         // OTP for 2FA
         public string? OtpCode { get; set; }
         public DateTime? OtpExpiryTime { get; set; }
-        public bool IsTwoFactorEnabled { get; set; } = true;
+        public bool IsTwoFactorEnabled { get; set; } = false;
 
         // Navigation properties
         public virtual Role? Role { get; set; }
         public virtual Participant? Participant { get; set; }
 
         public virtual ICollection<UserPermission>? UserPermissions { get; set; }
+
+        public virtual ICollection<DistributionLog>? DistributionLogs { get; set; }
     }
 }

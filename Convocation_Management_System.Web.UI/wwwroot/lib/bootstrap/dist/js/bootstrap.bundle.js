@@ -452,8 +452,8 @@
       }
       const [isDelegated, callable, typeEvent] = normalizeParameters(originalTypeEvent, handler, delegationFunction);
       const inNamespace = typeEvent !== originalTypeEvent;
-      const events = getElementEvents(element);
-      const storeElementEvent = events[typeEvent] || {};
+      const event = getElementEvents(element);
+      const storeElementEvent = event[typeEvent] || {};
       const isNamespace = originalTypeEvent.startsWith('.');
       if (typeof callable !== 'undefined') {
         // Simplest case: handler is passed, remove that listener ONLY.

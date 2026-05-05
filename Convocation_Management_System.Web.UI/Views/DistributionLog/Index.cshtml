@@ -2,41 +2,81 @@
 
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-    ViewData["Title"] = "Distribution Log";
+    ViewData["Title"] = "Distribution Logs";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Distribution Log</h2>
-    <a asp-action="Create" class="btn btn-primary">Add Distribution</a>
-</div>
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Distribution Logs</h4>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i> Add Distribution Log
+        </a>
+    </div>
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
-
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>Participant</th>
-            <th>Student ID</th>
-            <th>Item Name</th>
-            <th>Distributed At</th>
-            <th>Distributed By</th>
-            <th>Remarks</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
+    <div class="card-body">
+        @if (TempData["Success"] != null)
         {
-            <tr>
-                <td>@item.Participant?.UserAccount?.FullName</td>
-                <td>@item.Participant?.StudentId</td>
-                <td>@item.ItemName</td>
-                <td>@item.DistributedAt.ToString("dd MMM yyyy hh:mm tt")</td>
-                <td>@item.DistributedBy</td>
-                <td>@item.Remarks</td>
-            </tr>
+            <div class="alert alert-success">@TempData["Success"]</div>
         }
-    </tbody>
-</table>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">@TempData["Error"]</div>
+        }
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Registration</th>
+                        <th>Participant</th>
+                        <th>Event</th>
+                        <th>Action Type</th>
+                        <th>Action Date</th>
+                        <th>Handled By</th>
+                        <th>Note</th>
+                        <th>Remarks</th>
+                        <th style="width: 180px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.DistributionLogId</td>
+                                <td>@item.RegistrationId</td>
+                                <td>@item.Registration?.Participant?.UserAccount?.FullName</td>
+                                <td>@item.Registration?.Event?.EventTitle</td>
+                                <td>@item.ActionType</td>
+                                <td>@item.ActionDate.ToString("dd MMM yyyy hh:mm tt")</td>
+                                <td>@item.UserAccount?.FullName</td>
+                                <td>@item.Note</td>
+                                <td>@item.Remarks</td>
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@item.DistributionLogId" class="btn btn-info btn-sm">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@item.DistributionLogId" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.DistributionLogId" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="10" class="text-center text-muted">No distribution logs found.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

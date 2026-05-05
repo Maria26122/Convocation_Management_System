@@ -1,0 +1,95 @@
+﻿@model IEnumerable<Convocation.Entities.StaffTask>
+
+@{
+    ViewData["Title"] = "Staff Tasks";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    var role = (Context.Session.GetString("Role") ?? "").Trim().ToLower();
+}
+
+<div class="page-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="section-title">Staff Tasks</h4>
+
+        @if (role == "admin" || role == "eventmanager")
+        {
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Assign Task
+            </a>
+        }
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <table class="table table-bordered table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Event</th>
+                <th>Staff</th>
+                <th>Task</th>
+                <th>Description</th>
+                <th>Assigned At</th>
+                <th>Completed At</th>
+                <th>Status</th>
+                <th style="width:220px;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Event?.EventTitle</td>
+                    <td>@item.StaffUserAccount?.FullName</td>
+                    <td>@item.TaskName</td>
+                    <td>@item.Description</td>
+                    <td>@item.AssignedAt.ToString("dd MMM yyyy hh:mm tt")</td>
+                    <td>
+                        @(item.CompletedAt.HasValue? item.CompletedAt.Value.ToString("dd MMM yyyy hh:mm tt") : "-")
+                    </td>
+                    <td>
+                        @if (item.Status == "Completed")
+                        {
+                            <span class="badge bg-success">Completed</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark">Assigned</span>
+                        }
+                    </td>
+                    <td>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a asp-action="Details" asp-route-id="@item.StaffTaskId" class="btn btn-sm btn-info">
+                                Details
+                            </a>
+
+                            @if (item.Status != "Completed")
+                            {
+                                <form asp-action="MarkCompleted" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.StaffTaskId" />
+                                    <button type="submit" class="btn btn-sm btn-success">
+                                        Complete
+                                    </button>
+                                </form>
+                            }
+
+                            @if (role == "admin" || role == "eventmanager")
+                            {
+                                <a asp-action="Edit" asp-route-id="@item.StaffTaskId" class="btn btn-sm btn-warning">
+                                    Edit
+                                </a>
+
+                                <a asp-action="Delete" asp-route-id="@item.StaffTaskId" class="btn btn-sm btn-danger">
+                                    Delete
+                                </a>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

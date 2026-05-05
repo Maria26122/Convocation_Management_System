@@ -98,7 +98,7 @@ namespace Convocation.DataAccess.Migrations
 
                     b.HasKey("EventId");
 
-                    b.ToTable("Events");
+                    b.ToTable("Event");
                 });
 
             modelBuilder.Entity("Convocation.Entities.Guest", b =>
@@ -125,7 +125,7 @@ namespace Convocation.DataAccess.Migrations
 
                     b.HasIndex("RegistrationId");
 
-                    b.ToTable("Guests");
+                    b.ToTable("Guest");
                 });
 
             modelBuilder.Entity("Convocation.Entities.Participant", b =>
@@ -176,7 +176,7 @@ namespace Convocation.DataAccess.Migrations
                     b.HasIndex("UserAccountId")
                         .IsUnique();
 
-                    b.ToTable("Participants");
+                    b.ToTable("Participant");
                 });
 
             modelBuilder.Entity("Convocation.Entities.Payment", b =>
@@ -213,7 +213,7 @@ namespace Convocation.DataAccess.Migrations
 
                     b.HasIndex("RegistrationId");
 
-                    b.ToTable("Payments");
+                    b.ToTable("Payment");
                 });
 
             modelBuilder.Entity("Convocation.Entities.Permission", b =>
@@ -234,7 +234,7 @@ namespace Convocation.DataAccess.Migrations
                     b.HasIndex("PermissionName")
                         .IsUnique();
 
-                    b.ToTable("Permissions");
+                    b.ToTable("Permission");
                 });
 
             modelBuilder.Entity("Convocation.Entities.QrPass", b =>
@@ -270,7 +270,7 @@ namespace Convocation.DataAccess.Migrations
                     b.HasIndex("RegistrationId")
                         .IsUnique();
 
-                    b.ToTable("QrPasses");
+                    b.ToTable("QrPass");
                 });
 
             modelBuilder.Entity("Convocation.Entities.Registration", b =>
@@ -308,7 +308,7 @@ namespace Convocation.DataAccess.Migrations
                     b.HasIndex("ParticipantId", "EventId")
                         .IsUnique();
 
-                    b.ToTable("Registrations");
+                    b.ToTable("Registration");
                 });
 
             modelBuilder.Entity("Convocation.Entities.Role", b =>
@@ -329,7 +329,7 @@ namespace Convocation.DataAccess.Migrations
                     b.HasIndex("RoleName")
                         .IsUnique();
 
-                    b.ToTable("Roles");
+                    b.ToTable("Role");
                 });
 
             modelBuilder.Entity("Convocation.Entities.RolePermission", b =>
@@ -353,7 +353,7 @@ namespace Convocation.DataAccess.Migrations
                     b.HasIndex("RoleId", "PermissionId")
                         .IsUnique();
 
-                    b.ToTable("RolePermissions");
+                    b.ToTable("RolePermission");
                 });
 
             modelBuilder.Entity("Convocation.Entities.UserAccount", b =>
@@ -407,7 +407,7 @@ namespace Convocation.DataAccess.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("UserAccounts");
+                    b.ToTable("UserAccount");
                 });
 
             modelBuilder.Entity("Convocation.Entities.UserPermission", b =>
@@ -431,7 +431,7 @@ namespace Convocation.DataAccess.Migrations
                     b.HasIndex("UserAccountId", "PermissionId")
                         .IsUnique();
 
-                    b.ToTable("UserPermissions");
+                    b.ToTable("UserPermission");
                 });
 
             modelBuilder.Entity("Convocation.Entities.DistributionLog", b =>
@@ -500,7 +500,7 @@ namespace Convocation.DataAccess.Migrations
             modelBuilder.Entity("Convocation.Entities.Registration", b =>
                 {
                     b.HasOne("Convocation.Entities.Event", "Event")
-                        .WithMany("Registrations")
+                        .WithMany("Registration")
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -519,13 +519,13 @@ namespace Convocation.DataAccess.Migrations
             modelBuilder.Entity("Convocation.Entities.RolePermission", b =>
                 {
                     b.HasOne("Convocation.Entities.Permission", "Permission")
-                        .WithMany("RolePermissions")
+                        .WithMany("RolePermission")
                         .HasForeignKey("PermissionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Convocation.Entities.Role", "Role")
-                        .WithMany("RolePermissions")
+                        .WithMany("RolePermission")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -538,7 +538,7 @@ namespace Convocation.DataAccess.Migrations
             modelBuilder.Entity("Convocation.Entities.UserAccount", b =>
                 {
                     b.HasOne("Convocation.Entities.Role", "Role")
-                        .WithMany("UserAccounts")
+                        .WithMany("UserAccount")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -549,13 +549,13 @@ namespace Convocation.DataAccess.Migrations
             modelBuilder.Entity("Convocation.Entities.UserPermission", b =>
                 {
                     b.HasOne("Convocation.Entities.Permission", "Permission")
-                        .WithMany("UserPermissions")
+                        .WithMany("UserPermission")
                         .HasForeignKey("PermissionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Convocation.Entities.UserAccount", "UserAccount")
-                        .WithMany("UserPermissions")
+                        .WithMany("UserPermission")
                         .HasForeignKey("UserAccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -567,28 +567,28 @@ namespace Convocation.DataAccess.Migrations
 
             modelBuilder.Entity("Convocation.Entities.Event", b =>
                 {
-                    b.Navigation("Registrations");
+                    b.Navigation("Registration");
                 });
 
             modelBuilder.Entity("Convocation.Entities.Permission", b =>
                 {
-                    b.Navigation("RolePermissions");
+                    b.Navigation("RolePermission");
 
-                    b.Navigation("UserPermissions");
+                    b.Navigation("UserPermission");
                 });
 
             modelBuilder.Entity("Convocation.Entities.Role", b =>
                 {
-                    b.Navigation("RolePermissions");
+                    b.Navigation("RolePermission");
 
-                    b.Navigation("UserAccounts");
+                    b.Navigation("UserAccount");
                 });
 
             modelBuilder.Entity("Convocation.Entities.UserAccount", b =>
                 {
                     b.Navigation("Participant");
 
-                    b.Navigation("UserPermissions");
+                    b.Navigation("UserPermission");
                 });
 #pragma warning restore 612, 618
         }

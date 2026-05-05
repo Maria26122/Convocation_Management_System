@@ -17,7 +17,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
         private async Task LoadRolesAsync(object? selectedRole = null)
         {
-            ViewBag.RoleId = new SelectList(await _context.Roles.OrderBy(r => r.RoleName).ToListAsync(), "RoleId", "RoleName", selectedRole);
+            ViewBag.RoleId = new SelectList(await _context.Role.OrderBy(r => r.RoleName).ToListAsync(), "RoleId", "RoleName", selectedRole);
         }
 
         public async Task<IActionResult> Index()
@@ -26,7 +26,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             {
                 return RedirectToAction("Login", "Account");
             }
-            var users = await _context.UserAccounts
+            var users = await _context.UserAccount
                 .Include(u => u.Role)
                 .OrderByDescending(u => u.UserAccountId)
                 .ToListAsync();
@@ -38,7 +38,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         {
             if (id == null) return NotFound();
 
-            var user = await _context.UserAccounts
+            var user = await _context.UserAccount
                 .Include(u => u.Role)
                 .Include(u => u.Participant)
                 .Include(u => u.UserPermissions)
@@ -60,7 +60,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(UserAccount userAccount)
         {
-            if (await _context.UserAccounts.AnyAsync(u => u.Email == userAccount.Email))
+            if (await _context.UserAccount.AnyAsync(u => u.Email == userAccount.Email))
             {
                 ModelState.AddModelError("Email", "This email already exists.");
             }
@@ -77,7 +77,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             }
 
             userAccount.CreatedAt = DateTime.Now;
-            _context.UserAccounts.Add(userAccount);
+            _context.UserAccount.Add(userAccount);
             await _context.SaveChangesAsync();
             TempData["SuccessMessage"] = "User created successfully.";
             return RedirectToAction(nameof(Index));
@@ -87,7 +87,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         {
             if (id == null) return NotFound();
 
-            var user = await _context.UserAccounts.FindAsync(id);
+            var user = await _context.UserAccount.FindAsync(id);
             if (user == null) return NotFound();
 
             await LoadRolesAsync(user.RoleId);
@@ -100,7 +100,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         {
             if (id != userAccount.UserAccountId) return NotFound();
 
-            if (await _context.UserAccounts.AnyAsync(u => u.Email == userAccount.Email && u.UserAccountId != userAccount.UserAccountId))
+            if (await _context.UserAccount.AnyAsync(u => u.Email == userAccount.Email && u.UserAccountId != userAccount.UserAccountId))
             {
                 ModelState.AddModelError("Email", "This email already exists.");
             }
@@ -120,7 +120,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!await _context.UserAccounts.AnyAsync(u => u.UserAccountId == id))
+                if (!await _context.UserAccount.AnyAsync(u => u.UserAccountId == id))
                     return NotFound();
                 throw;
             }
@@ -130,7 +130,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         {
             if (id == null) return NotFound();
 
-            var user = await _context.UserAccounts
+            var user = await _context.UserAccount
                 .Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.UserAccountId == id);
 
@@ -143,15 +143,15 @@ namespace Convocation_Management_System.Web.UI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var user = await _context.UserAccounts.FindAsync(id);
+            var user = await _context.UserAccount.FindAsync(id);
             if (user == null) return RedirectToAction(nameof(Index));
 
-            bool hasParticipant = await _context.Participants.AnyAsync(p => p.UserAccountId == id);
+            bool hasParticipant = await _context.Participant.AnyAsync(p => p.UserAccountId == id);
             // DistributionLog does not have UserAccountId; check via Participant's UserAccountId
-            bool hasDistributionLog = await _context.DistributionLogs
-                .Include(d => d.Participant)
-                .AnyAsync(d => d.Participant != null && d.Participant.UserAccountId == id);
-            bool hasUserPermission = await _context.UserPermissions.AnyAsync(up => up.UserAccountId == id);
+            bool hasDistributionLog = await _context.DistributionLog
+                .Include(d => d.UserAccount)
+                .AnyAsync(d => d.UserAccountId == id);
+            bool hasUserPermission = await _context.UserPermission.AnyAsync(up => up.UserAccountId == id);
 
             if (hasParticipant || hasDistributionLog || hasUserPermission)
             {
@@ -159,7 +159,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            _context.UserAccounts.Remove(user);
+            _context.UserAccount.Remove(user);
             await _context.SaveChangesAsync();
             TempData["SuccessMessage"] = "User deleted successfully.";
             return RedirectToAction(nameof(Index));

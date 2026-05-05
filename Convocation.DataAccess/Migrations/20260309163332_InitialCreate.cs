@@ -12,7 +12,7 @@ namespace Convocation.DataAccess.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Events",
+                name: "Event",
                 columns: table => new
                 {
                     EventId = table.Column<int>(type: "int", nullable: false)
@@ -29,11 +29,11 @@ namespace Convocation.DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Events", x => x.EventId);
+                    table.PrimaryKey("PK_Event", x => x.EventId);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Permissions",
+                name: "Permission",
                 columns: table => new
                 {
                     PermissionId = table.Column<int>(type: "int", nullable: false)
@@ -43,11 +43,11 @@ namespace Convocation.DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Permissions", x => x.PermissionId);
+                    table.PrimaryKey("PK_Permission", x => x.PermissionId);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Roles",
+                name: "Role",
                 columns: table => new
                 {
                     RoleId = table.Column<int>(type: "int", nullable: false)
@@ -56,11 +56,11 @@ namespace Convocation.DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Roles", x => x.RoleId);
+                    table.PrimaryKey("PK_Role", x => x.RoleId);
                 });
 
             migrationBuilder.CreateTable(
-                name: "RolePermissions",
+                name: "RolePermission",
                 columns: table => new
                 {
                     RolePermissionId = table.Column<int>(type: "int", nullable: false)
@@ -70,23 +70,23 @@ namespace Convocation.DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RolePermissions", x => x.RolePermissionId);
+                    table.PrimaryKey("PK_RolePermission", x => x.RolePermissionId);
                     table.ForeignKey(
-                        name: "FK_RolePermissions_Permissions_PermissionId",
+                        name: "FK_RolePermission_Permission_PermissionId",
                         column: x => x.PermissionId,
-                        principalTable: "Permissions",
+                        principalTable: "Permission",
                         principalColumn: "PermissionId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_RolePermissions_Roles_RoleId",
+                        name: "FK_RolePermission_Role_RoleId",
                         column: x => x.RoleId,
-                        principalTable: "Roles",
+                        principalTable: "Role",
                         principalColumn: "RoleId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserAccounts",
+                name: "UserAccount",
                 columns: table => new
                 {
                     UserAccountId = table.Column<int>(type: "int", nullable: false)
@@ -111,7 +111,7 @@ namespace Convocation.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Participants",
+                name: "Participant",
                 columns: table => new
                 {
                     ParticipantId = table.Column<int>(type: "int", nullable: false)
@@ -127,17 +127,17 @@ namespace Convocation.DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Participants", x => x.ParticipantId);
+                    table.PrimaryKey("PK_Participant", x => x.ParticipantId);
                     table.ForeignKey(
-                        name: "FK_Participants_UserAccounts_UserAccountId",
+                        name: "FK_Participant_UserAccount_UserAccountId",
                         column: x => x.UserAccountId,
-                        principalTable: "UserAccounts",
+                        principalTable: "UserAccount",
                         principalColumn: "UserAccountId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserPermissions",
+                name: "UserPermission",
                 columns: table => new
                 {
                     UserPermissionId = table.Column<int>(type: "int", nullable: false)
@@ -148,23 +148,23 @@ namespace Convocation.DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserPermissions", x => x.UserPermissionId);
+                    table.PrimaryKey("PK_UserPermission", x => x.UserPermissionId);
                     table.ForeignKey(
-                        name: "FK_UserPermissions_Permissions_PermissionId",
+                        name: "FK_UserPermission_Permission_PermissionId",
                         column: x => x.PermissionId,
-                        principalTable: "Permissions",
+                        principalTable: "Permission",
                         principalColumn: "PermissionId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserPermissions_UserAccounts_UserAccountId",
+                        name: "FK_UserPermission_UserAccount_UserAccountId",
                         column: x => x.UserAccountId,
-                        principalTable: "UserAccounts",
+                        principalTable: "UserAccount",
                         principalColumn: "UserAccountId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Registrations",
+                name: "Registration",
                 columns: table => new
                 {
                     RegistrationId = table.Column<int>(type: "int", nullable: false)
@@ -178,23 +178,23 @@ namespace Convocation.DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Registrations", x => x.RegistrationId);
+                    table.PrimaryKey("PK_Registration", x => x.RegistrationId);
                     table.ForeignKey(
-                        name: "FK_Registrations_Events_EventId",
+                        name: "FK_Registration_Event_EventId",
                         column: x => x.EventId,
-                        principalTable: "Events",
+                        principalTable: "Event",
                         principalColumn: "EventId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Registrations_Participants_ParticipantId",
+                        name: "FK_Registration_Participant_ParticipantId",
                         column: x => x.ParticipantId,
-                        principalTable: "Participants",
+                        principalTable: "Participant",
                         principalColumn: "ParticipantId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "DistributionLogs",
+                name: "DistributionLog",
                 columns: table => new
                 {
                     DistributionLogId = table.Column<int>(type: "int", nullable: false)
@@ -207,23 +207,23 @@ namespace Convocation.DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DistributionLogs", x => x.DistributionLogId);
+                    table.PrimaryKey("PK_DistributionLog", x => x.DistributionLogId);
                     table.ForeignKey(
-                        name: "FK_DistributionLogs_Registrations_RegistrationId",
+                        name: "FK_DistributionLog_Registration_RegistrationId",
                         column: x => x.RegistrationId,
-                        principalTable: "Registrations",
+                        principalTable: "Registration",
                         principalColumn: "RegistrationId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_DistributionLogs_UserAccounts_StaffUserAccountId",
+                        name: "FK_DistributionLog_UserAccount_UserAccountId",
                         column: x => x.UserAccountId,
-                        principalTable: "UserAccounts",
+                        principalTable: "UserAccount",
                         principalColumn: "UserAccountId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Guests",
+                name: "Guest",
                 columns: table => new
                 {
                     GuestId = table.Column<int>(type: "int", nullable: false)
@@ -234,17 +234,17 @@ namespace Convocation.DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Guests", x => x.GuestId);
+                    table.PrimaryKey("PK_Guest", x => x.GuestId);
                     table.ForeignKey(
-                        name: "FK_Guests_Registrations_RegistrationId",
+                        name: "FK_Guest_Registration_RegistrationId",
                         column: x => x.RegistrationId,
-                        principalTable: "Registrations",
+                        principalTable: "Registration",
                         principalColumn: "RegistrationId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Payments",
+                name: "Payment",
                 columns: table => new
                 {
                     PaymentId = table.Column<int>(type: "int", nullable: false)
@@ -258,17 +258,17 @@ namespace Convocation.DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Payments", x => x.PaymentId);
+                    table.PrimaryKey("PK_Payment", x => x.PaymentId);
                     table.ForeignKey(
-                        name: "FK_Payments_Registrations_RegistrationId",
+                        name: "FK_Payment_Registration_RegistrationId",
                         column: x => x.RegistrationId,
-                        principalTable: "Registrations",
+                        principalTable: "Registration",
                         principalColumn: "RegistrationId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "QrPasses",
+                name: "QrPass",
                 columns: table => new
                 {
                     QrPassId = table.Column<int>(type: "int", nullable: false)
@@ -280,112 +280,112 @@ namespace Convocation.DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_QrPasses", x => x.QrPassId);
+                    table.PrimaryKey("PK_QrPass", x => x.QrPassId);
                     table.ForeignKey(
-                        name: "FK_QrPasses_Registrations_RegistrationId",
+                        name: "FK_QrPass_Registration_RegistrationId",
                         column: x => x.RegistrationId,
-                        principalTable: "Registrations",
+                        principalTable: "Registration",
                         principalColumn: "RegistrationId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_DistributionLogs_RegistrationId",
-                table: "DistributionLogs",
+                name: "IX_DistributionLog_RegistrationId",
+                table: "DistributionLog",
                 column: "RegistrationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DistributionLogs_StaffUserAccountId",
-                table: "DistributionLogs",
+                name: "IX_DistributionLog_StaffUserAccountId",
+                table: "DistributionLog",
                 column: "StaffUserAccountId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Guests_RegistrationId",
-                table: "Guests",
+                table: "Guest",
                 column: "RegistrationId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Participants_StudentId",
-                table: "Participants",
+                table: "Participant",
                 column: "StudentId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Participants_UserAccountId",
-                table: "Participants",
+                table: "Participant",
                 column: "UserAccountId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Payments_RegistrationId",
-                table: "Payments",
+                name: "IX_Payment_RegistrationId",
+                table: "Payment",
                 column: "RegistrationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Permissions_PermissionName",
-                table: "Permissions",
+                name: "IX_Permission_PermissionName",
+                table: "Permission",
                 column: "PermissionName",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_QrPasses_QrCode",
-                table: "QrPasses",
+                name: "IX_QrPass_QrCode",
+                table: "QrPass",
                 column: "QrCodeText",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_QrPasses_RegistrationId",
-                table: "QrPasses",
+                name: "IX_QrPass_RegistrationId",
+                table: "QrPass",
                 column: "RegistrationId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Registrations_EventId",
-                table: "Registrations",
+                name: "IX_Registration_EventId",
+                table: "Registration",
                 column: "EventId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Registrations_ParticipantId_EventId",
-                table: "Registrations",
+                name: "IX_Registration_ParticipantId_EventId",
+                table: "Registration",
                 columns: new[] { "ParticipantId", "EventId" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_RolePermissions_PermissionId",
-                table: "RolePermissions",
+                name: "IX_RolePermission_PermissionId",
+                table: "RolePermission",
                 column: "PermissionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RolePermissions_RoleId_PermissionId",
-                table: "RolePermissions",
+                name: "IX_RolePermission_RoleId_PermissionId",
+                table: "RolePermission",
                 columns: new[] { "RoleId", "PermissionId" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Roles_RoleName",
-                table: "Roles",
+                name: "IX_Role_RoleName",
+                table: "Role",
                 column: "RoleName",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserAccounts_Email",
-                table: "UserAccounts",
+                name: "IX_UserAccount_Email",
+                table: "UserAccount",
                 column: "Email",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserAccounts_RoleId",
-                table: "UserAccounts",
+                name: "IX_UserAccount_RoleId",
+                table: "UserAccount",
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserPermissions_PermissionId",
-                table: "UserPermissions",
+                name: "IX_UserPermission_PermissionId",
+                table: "UserPermission",
                 column: "PermissionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserPermissions_UserAccountId_PermissionId",
-                table: "UserPermissions",
+                name: "IX_UserPermission_UserAccountId_PermissionId",
+                table: "UserPermission",
                 columns: new[] { "UserAccountId", "PermissionId" },
                 unique: true);
         }
@@ -394,40 +394,40 @@ namespace Convocation.DataAccess.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "DistributionLogs");
+                name: "DistributionLog");
 
             migrationBuilder.DropTable(
-                name: "Guests");
+                name: "Guest");
 
             migrationBuilder.DropTable(
-                name: "Payments");
+                name: "Payment");
 
             migrationBuilder.DropTable(
-                name: "QrPasses");
+                name: "QrPass");
 
             migrationBuilder.DropTable(
-                name: "RolePermissions");
+                name: "RolePermission");
 
             migrationBuilder.DropTable(
-                name: "UserPermissions");
+                name: "UserPermission");
 
             migrationBuilder.DropTable(
-                name: "Registrations");
+                name: "Registration");
 
             migrationBuilder.DropTable(
-                name: "Permissions");
+                name: "Permission");
 
             migrationBuilder.DropTable(
-                name: "Events");
+                name: "Event");
 
             migrationBuilder.DropTable(
-                name: "Participants");
+                name: "Participant");
 
             migrationBuilder.DropTable(
-                name: "UserAccounts");
+                name: "UserAccount");
 
             migrationBuilder.DropTable(
-                name: "Roles");
+                name: "Role");
         }
     }
 }

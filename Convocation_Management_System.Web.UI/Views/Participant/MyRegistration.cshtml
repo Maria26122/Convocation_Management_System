@@ -3,6 +3,9 @@
 @{
     ViewData["Title"] = "My Registration";
     Layout = "~/Views/Shared/_ParticipantLayout.cshtml";
+
+    var status = (Model?.RegistrationStatus ?? "").Trim().ToLower();
+    var isPaid = status == "paid" || status == "confirmed";
 }
 
 <div class="content-card">
@@ -11,10 +14,10 @@
 
         @if (Model != null && Model.RegistrationId > 0)
         {
-            @if ((Model.RegistrationStatus ?? "").Trim().ToLower() != "confirmed")
+            if (!isPaid)
             {
                 <a asp-controller="Payment"
-                       asp-action="Pay"
+                       asp-action="PayNow"
                        asp-route-registrationId="@Model.RegistrationId"
                        class="btn btn-success">
                     <i class="fas fa-credit-card me-2"></i>Proceed to Payment
@@ -22,7 +25,11 @@
             }
             else
             {
-                <span class="badge bg-success px-3 py-2">Registration Confirmed</span>
+                <a asp-controller="Participant"
+                       asp-action="MyQrPass"
+                       class="btn btn-primary">
+                    <i class="fas fa-qrcode me-2"></i>View QR Pass
+                </a>
             }
         }
     </div>
@@ -42,7 +49,16 @@
 
             <div class="col-md-6">
                 <label class="text-muted">Status</label>
-                <div class="fw-bold">@Model.RegistrationStatus</div>
+                <div class="fw-bold">
+                    @if (isPaid)
+                    {
+                        <span class="badge bg-success px-3 py-2">@Model.RegistrationStatus</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning text-dark px-3 py-2">@Model.RegistrationStatus</span>
+                    }
+                </div>
             </div>
 
             <div class="col-md-6">
@@ -75,6 +91,40 @@
                 <div class="fw-bold">৳@Model.TotalAmount</div>
             </div>
 
+        </div>
+
+        <hr class="my-4" />
+
+        <div class="d-flex gap-2 flex-wrap">
+            @if (!isPaid)
+            {
+                <a asp-controller="Payment"
+                       asp-action="PayNow"
+                       asp-route-registrationId="@Model.RegistrationId"
+                       class="btn btn-success">
+                    <i class="fas fa-credit-card me-2"></i>Pay Now
+                </a>
+            }
+            else
+            {
+                <a asp-controller="Participant"
+                       asp-action="MyPayment"
+                       class="btn btn-outline-success">
+                    <i class="fas fa-receipt me-2"></i>View Payment
+                </a>
+
+                <a asp-controller="Participant"
+                       asp-action="MyQrPass"
+                       class="btn btn-outline-primary">
+                    <i class="fas fa-qrcode me-2"></i>View QR Pass
+                </a>
+            }
+
+            <a asp-controller="Guest"
+                   asp-action="Index"
+                   class="btn btn-outline-secondary">
+                <i class="fas fa-users me-2"></i>My Guests
+            </a>
         </div>
     }
 </div>

@@ -24,7 +24,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             {
                 return RedirectToAction("Login", "Account");
             }
-            var roles = await _context.Roles
+            var roles = await _context.Role
                 .OrderBy(r => r.RoleName)
                 .ToListAsync();
 
@@ -40,14 +40,14 @@ namespace Convocation_Management_System.Web.UI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Role role)
         {
-            if (await _context.Roles.AnyAsync(r => r.RoleName == role.RoleName))
+            if (await _context.Role.AnyAsync(r => r.RoleName == role.RoleName))
             {
                 ModelState.AddModelError("RoleName", "This role already exists.");
             }
 
             if (ModelState.IsValid)
             {
-                _context.Roles.Add(role);
+                _context.Role.Add(role);
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Role created successfully.";
                 return RedirectToAction(nameof(Index));
@@ -60,7 +60,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         {
             if (id == null) return NotFound();
 
-            var role = await _context.Roles.FindAsync(id);
+            var role = await _context.Role.FindAsync(id);
             if (role == null) return NotFound();
 
             return View(role);
@@ -72,7 +72,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         {
             if (id != role.RoleId) return NotFound();
 
-            if (await _context.Roles.AnyAsync(r => r.RoleName == role.RoleName && r.RoleId != role.RoleId))
+            if (await _context.Role.AnyAsync(r => r.RoleName == role.RoleName && r.RoleId != role.RoleId))
             {
                 ModelState.AddModelError("RoleName", "This role already exists.");
             }
@@ -92,7 +92,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         {
             if (id == null) return NotFound();
 
-            var role = await _context.Roles.FirstOrDefaultAsync(r => r.RoleId == id);
+            var role = await _context.Role.FirstOrDefaultAsync(r => r.RoleId == id);
             if (role == null) return NotFound();
 
             return View(role);
@@ -102,10 +102,10 @@ namespace Convocation_Management_System.Web.UI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var role = await _context.Roles.FindAsync(id);
+            var role = await _context.Role.FindAsync(id);
             if (role != null)
             {
-                _context.Roles.Remove(role);
+                _context.Role.Remove(role);
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Role deleted successfully.";
             }
@@ -117,7 +117,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         {
             if (id == null) return NotFound();
 
-            var role = await _context.Roles
+            var role = await _context.Role
                 .Include(r => r.UserAccounts)
                 .Include(r => r.RolePermissions)
                 .FirstOrDefaultAsync(r => r.RoleId == id);

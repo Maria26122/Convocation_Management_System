@@ -1,47 +1,54 @@
-﻿@model Convocation_Management_System.Web.UI.Models.DistributionLogCreateViewModel
+﻿@model Convocation.Entities.DistributionLog
 
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-    ViewData["Title"] = "Add Distribution";
+    ViewData["Title"] = "Create Distribution Log";
 }
 
-<h2 class="mb-4">Add Distribution</h2>
-
-<div class="card shadow-sm">
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white">
+        <h4 class="mb-0">Create Distribution Log</h4>
+    </div>
     <div class="card-body">
         <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
             <div class="mb-3">
-                <label asp-for="ParticipantId" class="form-label"></label>
-                <select asp-for="ParticipantId"
-                        asp-items="Model.Participant"
-                        class="form-select">
-                    <option value="">-- Select Participant --</option>
+                <label asp-for="RegistrationId" class="form-label"></label>
+                <select asp-for="RegistrationId" class="form-select" asp-items="ViewBag.RegistrationId">
+                    <option value="">-- Select Registration --</option>
                 </select>
-                <span asp-validation-for="ParticipantId" class="text-danger"></span>
+                <span asp-validation-for="RegistrationId" class="text-danger"></span>
             </div>
 
             <div class="mb-3">
-                <label asp-for="ItemName" class="form-label"></label>
-                <input asp-for="ItemName" class="form-control" />
-                <span asp-validation-for="ItemName" class="text-danger"></span>
+                <label asp-for="ActionType" class="form-label"></label>
+                <input asp-for="ActionType" class="form-control" placeholder="Gown / Certificate / Kit" />
+                <span asp-validation-for="ActionType" class="text-danger"></span>
             </div>
 
             <div class="mb-3">
-                <label asp-for="DistributedBy" class="form-label"></label>
-                <input asp-for="DistributedBy" class="form-control" />
+                <label asp-for="Note" class="form-label"></label>
+                <input asp-for="Note" class="form-control" />
+                <span asp-validation-for="Note" class="text-danger"></span>
             </div>
 
             <div class="mb-3">
                 <label asp-for="Remarks" class="form-label"></label>
-                <textarea asp-for="Remarks" class="form-control" rows="3"></textarea>
+                <input asp-for="Remarks" class="form-control" />
+                <span asp-validation-for="Remarks" class="text-danger"></span>
             </div>
 
-            <button type="submit" class="btn btn-success">Save</button>
-            <a asp-action="Index" class="btn btn-secondary">Back</a>
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a asp-action="Index" class="btn btn-secondary ms-2">Back</a>
         </form>
     </div>
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

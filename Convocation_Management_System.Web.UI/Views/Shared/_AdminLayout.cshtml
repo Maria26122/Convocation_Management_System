@@ -133,45 +133,47 @@
                 <span>QR Passes</span>
             </span>
         </a>
-
-        <a asp-controller="QrPass" asp-action="Verify"
-           class="sidebar-link @(currentController == "QrPass" && currentAction == "Verify" ? "active-menu" : "")">
-            <span class="menu-left">
-                <i class="fas fa-check-circle menu-icon"></i>
-                <span>Verify QR Pass</span>
-            </span>
-        </a>
                   
                 </div>
             </div>
         </div>
 
         <!-- OPERATION -->
+        <!-- OPERATION -->
         <div class="menu-group">
-            <a class="sidebar-link menu-toggle section-toggle"
+            <a class="sidebar-link menu-toggle section-toggle @(isOperationOpen ? "open-menu" : "")"
                    data-bs-toggle="collapse"
-                   href="#operationMenu">
-
+                   href="#operationMenu"
+                   role="button"
+                   aria-expanded="@(isOperationOpen.ToString().ToLower())"
+                   aria-controls="operationMenu">
                 <span class="menu-left">
-                    <span class="section-text">Operation</span>
+                    <span class="section-text">OPERATION</span>
                 </span>
+                <i class="fas fa-chevron-right toggle-icon @(isOperationOpen ? "rotate" : "")"></i>
             </a>
 
-            <div class="collapse submenu-wrap show" id="operationMenu">
+            <div class="collapse submenu-wrap @(isOperationOpen ? "show" : "")" id="operationMenu">
                 <div class="submenu">
 
-                    <!-- EXISTING -->
+                    <a asp-controller="StaffTask" asp-action="Index"
+                           class="sidebar-link @(currentController == "StaffTask" ? "active-menu" : "")">
+                        <span class="menu-left">
+                            <i class="fas fa-list-check menu-icon"></i>
+                            <span>Staff Tasks</span>
+                        </span>
+                    </a>
+
                     <a asp-controller="DistributionLog" asp-action="Index"
-                           class="sidebar-link">
+                           class="sidebar-link @(currentController == "DistributionLog" ? "active-menu" : "")">
                         <span class="menu-left">
                             <i class="fas fa-box-open menu-icon"></i>
                             <span>Distribution</span>
                         </span>
                     </a>
 
-                    <!-- ADD THIS -->
                     <a asp-controller="QrPass" asp-action="Verify"
-                           class="sidebar-link">
+                           class="sidebar-link @(currentController == "QrPass" && currentAction == "Verify" ? "active-menu" : "")">
                         <span class="menu-left">
                             <i class="fas fa-qrcode menu-icon"></i>
                             <span>Verify QR Pass</span>
@@ -321,6 +323,6 @@
         });
     </script>
 
-    @RenderSection("Scripts", required: false)
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

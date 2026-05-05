@@ -21,21 +21,20 @@ namespace Convocation_Management_System.Web.UI.Controllers
             }
             var model = new AdminDashboardViewModel
             {
-                TotalParticipants = _context.Participants.Count(),
-                TotalEvents = _context.Events.Count(),
-                TotalRegistrations = _context.Registrations.Count(),
-                TotalGuests = _context.Guests.Count(),
-                TotalPayments = _context.Payments.Count(),
-                TotalQrPasses = _context.QrPasses.Count(),
-                TotalDistributionLogs = _context.DistributionLogs.Count(),
+                TotalParticipants = _context.Participant.Count(),
+                TotalEvents = _context.Event.Count(),
+                TotalRegistrations = _context.Registration.Count(),
+                TotalGuests = _context.Guest.Count(),
+                TotalPayments = _context.Payment.Count(),
+                TotalQrPasses = _context.QrPass.Count(),
+                TotalDistributionLogs = _context.DistributionLog.Count(),
+                ApprovedRegistrations = _context.Registration.Count(r => r.RegistrationStatus == "Approved" || r.RegistrationStatus == "Confirmed"),
+                PendingRegistrations = _context.Registration.Count(r => r.RegistrationStatus == "Pending"),
+                RejectedRegistrations = _context.Registration.Count(r => r.RegistrationStatus == "Rejected"),
 
-                ApprovedRegistrations = _context.Registrations.Count(r => r.RegistrationStatus == "Approved" || r.RegistrationStatus == "Confirmed"),
-                PendingRegistrations = _context.Registrations.Count(r => r.RegistrationStatus == "Pending"),
-                RejectedRegistrations = _context.Registrations.Count(r => r.RegistrationStatus == "Rejected"),
-
-                PaidPayments = _context.Payments.Count(p => p.PaymentStatus == "Paid"),
-                PendingPayments = _context.Payments.Count(p => p.PaymentStatus == "Pending"),
-                FailedPayments = _context.Payments.Count(p => p.PaymentStatus == "Failed")
+                PaidPayments = _context.Payment.Count(p => p.PaymentStatus == "Paid"),
+                PendingPayments = _context.Payment.Count(p => p.PaymentStatus == "Pending"),
+                FailedPayments = _context.Payment.Count(p => p.PaymentStatus == "Failed")
             };
 
             return View(model);

@@ -1,31 +1,425 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Http
+@{
+    var role = Context.Session.GetString("Role") ?? "";
+    var fullName = Context.Session.GetString("FullName") ?? "User";
+    var userEmail = Context.Session.GetString("UserEmail") ?? "";
+    var isLoggedIn = !string.IsNullOrWhiteSpace(Context.Session.GetString("UserId"));
+
+    string initials = "U";
+    if (!string.IsNullOrWhiteSpace(fullName))
+    {
+        var parts = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 1)
+        {
+            initials = parts[0].Substring(0, 1).ToUpper();
+        }
+        else
+        {
+            initials = (parts[0][0].ToString() + parts[1][0].ToString()).ToUpper();
+        }
+    }
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Convocation_Management_System.Web.UI</title>
-    <script type="importmap"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - Convocation Management System</title>
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Convocation_Management_System.Web.UI.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <style>
+            body {
+                margin: 0;
+                background: #f6f8fc;
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                color: #1f2937;
+            }
+
+            .page-wrap {
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .main-content {
+                flex: 1;
+            }
+
+            .navbar-custom {
+                background: rgba(255, 255, 255, 0.96);
+                backdrop-filter: blur(10px);
+                border-bottom: 1px solid #e5e7eb;
+                padding: 14px 0;
+                box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+                z-index: 1030;
+            }
+
+            .brand-wrap {
+                display: flex;
+                align-items: center;
+                padding: 0;
+                margin-right: 18px;
+                text-decoration: none;
+            }
+
+            .brand-logo-round {
+                width: 86px;
+                height: 86px;
+                border-radius: 50%;
+                object-fit: cover;
+                background: #ffffff;
+                border: 3px solid #eef2f7;
+                padding: 6px;
+                box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+
+                .brand-logo-round:hover {
+                    transform: scale(1.04);
+                    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
+                }
+
+            .custom-toggler {
+                border: 1px solid #dbe2ea;
+                border-radius: 12px;
+                padding: 8px 10px;
+                box-shadow: none;
+            }
+
+                .custom-toggler:focus {
+                    box-shadow: none;
+                    border-color: #c7d2fe;
+                }
+
+            .navbar-nav {
+                gap: 6px;
+            }
+
+            .nav-link-custom {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                color: #475569 !important;
+                font-weight: 600;
+                font-size: 15px;
+                padding: 10px 14px !important;
+                border-radius: 12px;
+                transition: all 0.2s ease;
+                text-decoration: none;
+            }
+
+                .nav-link-custom:hover {
+                    color: #4338ca !important;
+                    background: #eef2ff;
+                }
+
+            .nav-icon {
+                color: #6366f1;
+                font-size: 14px;
+                width: 16px;
+                text-align: center;
+            }
+
+            .nav-action-wrap {
+                margin-left: 18px;
+            }
+
+            .nav-btn {
+                border-radius: 12px;
+                padding: 10px 18px;
+                font-weight: 700;
+                font-size: 14px;
+            }
+
+            .nav-btn-fill {
+                box-shadow: 0 8px 18px rgba(79, 70, 229, 0.18);
+            }
+
+            .user-menu {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                background: #ffffff;
+                border: 1px solid #e5e7eb;
+                border-radius: 14px;
+                padding: 6px 10px 6px 8px;
+                box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+            }
+
+            .user-avatar {
+                width: 42px;
+                height: 42px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #4f46e5, #7c3aed);
+                color: #fff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 800;
+                font-size: 14px;
+                box-shadow: 0 8px 18px rgba(79, 70, 229, 0.18);
+            }
+
+            .user-meta {
+                line-height: 1.1;
+            }
+
+            .user-name {
+                font-size: 14px;
+                font-weight: 700;
+                color: #111827;
+                margin: 0;
+            }
+
+            .user-role {
+                font-size: 12px;
+                color: #6b7280;
+                margin: 0;
+                text-transform: capitalize;
+            }
+
+            .dropdown-menu-custom {
+                border-radius: 16px;
+                border: 1px solid #e5e7eb;
+                box-shadow: 0 18px 40px rgba(15, 23, 42, 0.10);
+                padding: 10px;
+                min-width: 230px;
+            }
+
+            .dropdown-item-custom {
+                border-radius: 10px;
+                padding: 10px 12px;
+                font-weight: 600;
+            }
+
+                .dropdown-item-custom:hover {
+                    background: #eef2ff;
+                    color: #4338ca;
+                }
+
+            .footer-custom {
+                background: #ffffff;
+                border-top: 1px solid #e5e7eb;
+                padding: 18px 0;
+                text-align: center;
+                color: #6b7280;
+                font-size: 14px;
+                margin-top: 30px;
+            }
+
+            @@media (max-width: 991.98px) {
+                .navbar-custom {
+                    padding: 10px 0;
+                }
+
+                .brand-logo-round {
+                    width: 72px;
+                    height: 72px;
+                }
+
+                .navbar-collapse {
+                    margin-top: 14px;
+                    background: #ffffff;
+                    border: 1px solid #eef2f7;
+                    border-radius: 18px;
+                    padding: 16px;
+                    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+                }
+
+                .navbar-nav {
+                    align-items: stretch !important;
+                    gap: 4px;
+                }
+
+                .nav-link-custom {
+                    justify-content: flex-start;
+                    padding: 12px 14px !important;
+                }
+
+                .nav-action-wrap {
+                    margin-left: 0;
+                    margin-top: 14px;
+                    width: 100%;
+                    flex-direction: column;
+                    align-items: stretch !important;
+                }
+
+                    .nav-action-wrap .btn,
+                    .nav-action-wrap .dropdown,
+                    .nav-action-wrap .user-menu {
+                        width: 100%;
+                    }
+
+                .user-menu {
+                    justify-content: space-between;
+                }
+            }
+
+            @@media (max-width: 575.98px) {
+                .brand-logo-round {
+                    width: 62px;
+                    height: 62px;
+                }
+
+                .user-meta {
+                    display: none;
+                }
+            }
+    </style>
 </head>
 <body>
-   
-    <div class="container">
-        <main role="main" class="pb-3">
+    <div class="page-wrap">
+
+        <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+            <div class="container">
+                <a class="navbar-brand brand-wrap" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/logo.png" alt="Logo" class="brand-logo-round" />
+                </a>
+
+                <button class="navbar-toggler custom-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+                        aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="mainNavbar">
+                    <ul class="navbar-nav mx-auto align-items-lg-center">
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom" asp-controller="Home" asp-action="Index">
+                                <i class="fas fa-house nav-icon"></i>
+                                <span>Home</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom" asp-controller="Home" asp-action="Index" asp-fragment="features">
+                                <i class="fas fa-layer-group nav-icon"></i>
+                                <span>Features</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom" asp-controller="Home" asp-action="Index" asp-fragment="events">
+                                <i class="fas fa-calendar-check nav-icon"></i>
+                                <span>Events</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom" asp-controller="Home" asp-action="Index" asp-fragment="howitworks">
+                                <i class="fas fa-list-check nav-icon"></i>
+                                <span>How It Works</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom" asp-controller="Home" asp-action="Index" asp-fragment="contact">
+                                <i class="fas fa-envelope nav-icon"></i>
+                                <span>Contact</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="nav-action-wrap d-flex align-items-center gap-2">
+                        @if (!isLoggedIn)
+                        {
+                            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary nav-btn">
+                                <i class="fas fa-right-to-bracket me-2"></i>Login
+                            </a>
+
+                            <a asp-controller="Account" asp-action="Register" class="btn btn-primary nav-btn nav-btn-fill">
+                                <i class="fas fa-user-plus me-2"></i>Register
+                            </a>
+                        }
+                        else
+                        {
+                            <div class="dropdown">
+                                <a class="text-decoration-none dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <div class="user-menu">
+                                        <div class="user-avatar">@initials</div>
+                                        <div class="user-meta">
+                                            <p class="user-name">@fullName</p>
+                                            <p class="user-role">@role</p>
+                                        </div>
+                                    </div>
+                                </a>
+
+                                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-custom">
+                                    <li class="px-2 pb-2">
+                                        <div class="small text-muted">@userEmail</div>
+                                    </li>
+
+                                    @if (role.ToLower() == "admin")
+                                    {
+                                        <li>
+                                            <a class="dropdown-item dropdown-item-custom" asp-controller="Admin" asp-action="Index">
+                                                <i class="fas fa-chart-line me-2"></i>Dashboard
+                                            </a>
+                                        </li>
+                                    }
+                                    else if (role.ToLower() == "student" || role.ToLower() == "participant")
+                                    {
+                                        <li>
+                                            <a class="dropdown-item dropdown-item-custom" asp-controller="Participant" asp-action="Dashboard">
+                                                <i class="fas fa-user-graduate me-2"></i>My Dashboard
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item dropdown-item-custom" asp-controller="Participant" asp-action="MyProfile">
+                                                <i class="fas fa-id-card me-2"></i>My Profile
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item dropdown-item-custom" asp-controller="Participant" asp-action="MyRegistration">
+                                                <i class="fas fa-file-signature me-2"></i>My Registration
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item dropdown-item-custom" asp-controller="Participant" asp-action="MyPayment">
+                                                <i class="fas fa-credit-card me-2"></i>My Payment
+                                            </a>
+                                        </li>
+                                    }
+
+                                    <li>
+                                        <a class="dropdown-item dropdown-item-custom" asp-controller="Account" asp-action="ChangePassword">
+                                            <i class="fas fa-key me-2"></i>Change Password
+                                        </a>
+                                    </li>
+
+                                    <li><hr class="dropdown-divider" /></li>
+
+                                    <li>
+                                        <a class="dropdown-item dropdown-item-custom text-danger" asp-controller="Account" asp-action="Logout">
+                                            <i class="fas fa-right-from-bracket me-2"></i>Logout
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="main-content">
             @RenderBody()
         </main>
+
+        <footer class="footer-custom">
+            <div class="container">
+                © 2026 Convocation Management System
+            </div>
+        </footer>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - Convocation_Management_System.Web.UI - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
-

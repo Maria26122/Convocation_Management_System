@@ -28,7 +28,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             if (!IsAdmin() && !IsEventManager())
                 return RedirectToAction("Login", "Account");
 
-            var events = await _context.Events
+            var events = await _context.Event
                 .OrderByDescending(e => e.EventDate)
                 .ToListAsync();
 
@@ -42,7 +42,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return NotFound();
             }
 
-            var eventItem = await _context.Events
+            var eventItem = await _context.Event
                 .FirstOrDefaultAsync(e => e.EventId == id);
 
             if (eventItem == null)
@@ -77,7 +77,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             if (ModelState.IsValid)
             {
-                _context.Events.Add(model);
+                _context.Event.Add(model);
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
@@ -93,7 +93,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             if (role != "admin" && role != "eventmanager")
                 return RedirectToAction("Login", "Account");
 
-            var eventItem = await _context.Events.FindAsync(id);
+            var eventItem = await _context.Event.FindAsync(id);
 
             if (eventItem == null)
                 return NotFound();
@@ -116,7 +116,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             if (ModelState.IsValid)
             {
-                _context.Events.Update(model);
+                _context.Event.Update(model);
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
@@ -132,7 +132,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             if (role != "admin" && role != "eventmanager")
                 return RedirectToAction("Login", "Account");
 
-            var eventItem = await _context.Events.FindAsync(id);
+            var eventItem = await _context.Event.FindAsync(id);
 
             if (eventItem == null)
                 return NotFound();
@@ -149,11 +149,11 @@ namespace Convocation_Management_System.Web.UI.Controllers
             if (role != "admin" && role != "eventmanager")
                 return RedirectToAction("Login", "Account");
 
-            var eventItem = await _context.Events.FindAsync(id);
+            var eventItem = await _context.Event.FindAsync(id);
 
             if (eventItem != null)
             {
-                _context.Events.Remove(eventItem);
+                _context.Event .Remove(eventItem);
                 await _context.SaveChangesAsync();
             }
 
@@ -162,7 +162,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
         private bool EventExists(int id)
         {
-            return _context.Events.Any(e => e.EventId == id);
+            return _context.Event.Any(e => e.EventId == id);
         }
     }
 }

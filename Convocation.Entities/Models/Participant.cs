@@ -35,6 +35,8 @@ namespace Convocation.Entities
 
         [ForeignKey("UserAccountId")]
         public virtual UserAccount? UserAccount { get; set; }
+
+        public ICollection<Registration>? Registrations { get; set; }
         public virtual ICollection<DistributionLog> DistributionLogs { get; set; } = new List<DistributionLog>();
     }
 }

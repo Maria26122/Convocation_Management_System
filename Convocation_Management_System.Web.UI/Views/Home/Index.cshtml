@@ -2,660 +2,664 @@
 
 @{
     ViewData["Title"] = "Convocation Management System";
-    Layout = null;
     var now = DateTime.Now;
 }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Convocation Management System</title>
+<style>
+    .banner-section {
+        padding: 28px 0 10px;
+    }
 
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    .banner-card {
+        background: linear-gradient(135deg, #eef2ff 0%, #ffffff 60%, #f5f3ff 100%);
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+    }
 
-    <style>
-            body {
-                margin: 0;
-                background: #f6f8fc;
-                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-                color: #1f2937;
-            }
+    .banner-content {
+        padding: 60px 50px;
+    }
 
-            .navbar-custom {
-                background: rgba(255, 255, 255, 0.96);
-                backdrop-filter: blur(10px);
-                border-bottom: 1px solid #e5e7eb;
-                padding: 14px 0;
-                box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
-                z-index: 1030;
-            }
+    .mini-badge {
+        display: inline-block;
+        padding: 8px 14px;
+        background: rgba(79, 70, 229, 0.10);
+        color: #4f46e5;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 13px;
+        margin-bottom: 18px;
+    }
 
-            .brand-wrap {
-                display: flex;
-                align-items: center;
-                padding: 0;
-                margin-right: 18px;
-            }
+    .banner-title {
+        font-size: 44px;
+        font-weight: 800;
+        color: #111827;
+        line-height: 1.2;
+        margin-bottom: 16px;
+    }
 
-            .brand-logo-round {
-                width: 96px;
-                height: 96px;
-                border-radius: 50%;
-                object-fit: cover;
-                background: #ffffff;
-                border: 3px solid #eef2f7;
-                padding: 6px;
-                box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
-                transition: transform 0.2s ease, box-shadow 0.2s ease;
-            }
+    .banner-text {
+        font-size: 16px;
+        line-height: 1.8;
+        color: #6b7280;
+        margin-bottom: 28px;
+        max-width: 650px;
+    }
 
-                .brand-logo-round:hover {
-                    transform: scale(1.04);
-                    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
-                }
+    .banner-buttons .btn {
+        min-width: 160px;
+        border-radius: 14px;
+        padding: 12px 20px;
+        font-weight: 700;
+    }
 
-            .custom-toggler {
-                border: 1px solid #dbe2ea;
-                border-radius: 12px;
-                padding: 8px 10px;
-                box-shadow: none;
-            }
+    .banner-side {
+        background: linear-gradient(180deg, #4f46e5, #7c3aed);
+        height: 100%;
+        min-height: 320px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        text-align: center;
+        padding: 30px;
+    }
 
-                .custom-toggler:focus {
-                    box-shadow: none;
-                    border-color: #c7d2fe;
-                }
+    .banner-side-box i {
+        font-size: 54px;
+        margin-bottom: 18px;
+    }
 
-            .navbar-nav {
-                gap: 6px;
-            }
+    .banner-side-box h3 {
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
 
-            .nav-link-custom {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                color: #475569 !important;
-                font-weight: 600;
-                font-size: 15px;
-                padding: 10px 14px !important;
-                border-radius: 12px;
-                transition: all 0.2s ease;
-            }
+    .banner-side-box p {
+        color: rgba(255,255,255,0.88);
+        font-size: 15px;
+    }
 
-                .nav-link-custom:hover {
-                    color: #4338ca !important;
-                    background: #eef2ff;
-                }
+    .section-wrap {
+        padding: 60px 0 70px;
+    }
 
-            .nav-icon {
-                color: #6366f1;
-                font-size: 14px;
-                width: 16px;
-                text-align: center;
-            }
+    .section-title {
+        font-size: 32px;
+        font-weight: 800;
+        text-align: center;
+        color: #111827;
+        margin-bottom: 10px;
+    }
 
-            .nav-action-wrap {
-                margin-left: 18px;
-            }
+    .section-subtitle {
+        text-align: center;
+        color: #6b7280;
+        margin-bottom: 36px;
+        font-size: 15px;
+    }
 
-            .nav-btn {
-                border-radius: 12px;
-                padding: 10px 18px;
-                font-weight: 700;
-                font-size: 14px;
-                box-shadow: none;
-            }
+    .feature-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 22px;
+        padding: 28px 24px;
+        height: 100%;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+        transition: 0.25s ease;
+    }
 
-            .nav-btn-outline {
-                border-width: 1.5px;
-            }
+        .feature-card:hover {
+            transform: translateY(-4px);
+        }
 
-            .nav-btn-fill {
-                box-shadow: 0 8px 18px rgba(79, 70, 229, 0.18);
-            }
+    .feature-icon {
+        width: 58px;
+        height: 58px;
+        border-radius: 16px;
+        background: #eef2ff;
+        color: #4f46e5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 16px;
+    }
 
-            .banner-section {
-                padding: 28px 0 10px;
-            }
+    .feature-title {
+        font-size: 20px;
+        font-weight: 800;
+        color: #1f2937;
+        margin-bottom: 12px;
+    }
 
-            .banner-card {
-                background: linear-gradient(135deg, #eef2ff 0%, #ffffff 60%, #f5f3ff 100%);
-                border-radius: 30px;
-                overflow: hidden;
-                box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
-            }
+    .feature-text {
+        color: #6b7280;
+        line-height: 1.7;
+        margin-bottom: 0;
+    }
 
-            .banner-content {
-                padding: 60px 50px;
-            }
+    .event-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 22px;
+        padding: 24px;
+        height: 100%;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+        transition: 0.25s ease;
+    }
 
-            .mini-badge {
-                display: inline-block;
-                padding: 8px 14px;
-                background: rgba(79, 70, 229, 0.10);
-                color: #4f46e5;
-                border-radius: 999px;
-                font-weight: 700;
-                font-size: 13px;
-                margin-bottom: 18px;
-            }
+        .event-card:hover {
+            transform: translateY(-4px);
+        }
 
-            .banner-title {
-                font-size: 44px;
-                font-weight: 800;
-                color: #111827;
-                line-height: 1.2;
-                margin-bottom: 16px;
-            }
+    .event-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        background: #eef2ff;
+        color: #4f46e5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 16px;
+    }
 
-            .banner-text {
-                font-size: 16px;
-                line-height: 1.8;
-                color: #6b7280;
-                margin-bottom: 28px;
-                max-width: 650px;
-            }
+    .event-title {
+        font-size: 22px;
+        font-weight: 800;
+        color: #1f2937;
+        margin-bottom: 14px;
+    }
 
-            .banner-buttons .btn {
-                min-width: 160px;
-                border-radius: 14px;
-                padding: 12px 20px;
-                font-weight: 700;
-            }
+    .event-line {
+        color: #4b5563;
+        margin-bottom: 10px;
+        font-size: 15px;
+    }
 
-            .banner-side {
-                background: linear-gradient(180deg, #4f46e5, #7c3aed);
-                height: 100%;
-                min-height: 320px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                text-align: center;
-                padding: 30px;
-            }
+        .event-line i {
+            width: 20px;
+            color: #6366f1;
+        }
 
-            .banner-side-box i {
-                font-size: 54px;
-                margin-bottom: 18px;
-            }
+    .event-status {
+        display: inline-block;
+        padding: 7px 14px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        margin-top: 8px;
+    }
 
-            .banner-side-box h3 {
-                font-weight: 800;
-                margin-bottom: 10px;
-            }
+    .status-open {
+        background: #dcfce7;
+        color: #166534;
+    }
 
-            .section-wrap {
-                padding: 60px 0 70px;
-            }
+    .status-closed {
+        background: #fee2e2;
+        color: #991b1b;
+    }
 
-            .section-title {
-                font-size: 32px;
-                font-weight: 800;
-                text-align: center;
-                color: #111827;
-                margin-bottom: 10px;
-            }
+    .status-upcoming {
+        background: #ede9fe;
+        color: #5b21b6;
+    }
 
-            .section-subtitle {
-                text-align: center;
-                color: #6b7280;
-                margin-bottom: 36px;
-            }
+    .event-actions {
+        margin-top: 18px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
 
-            .event-card {
-                background: #ffffff;
-                border: 1px solid #e5e7eb;
-                border-radius: 22px;
-                padding: 24px;
-                height: 100%;
-                box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
-                transition: 0.25s ease;
-            }
+        .event-actions .btn {
+            border-radius: 12px;
+            font-weight: 700;
+        }
 
-                .event-card:hover {
-                    transform: translateY(-4px);
-                }
+    .step-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 24px;
+        padding: 28px 22px;
+        text-align: center;
+        height: 100%;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+    }
 
-            .event-icon {
-                width: 56px;
-                height: 56px;
-                border-radius: 16px;
-                background: #eef2ff;
-                color: #4f46e5;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 24px;
-                margin-bottom: 16px;
-            }
+    .step-number {
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 16px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 20px;
+        box-shadow: 0 10px 20px rgba(79, 70, 229, 0.18);
+    }
 
-            .event-title {
-                font-size: 22px;
-                font-weight: 800;
-                color: #1f2937;
-                margin-bottom: 14px;
-            }
+    .step-title {
+        font-size: 20px;
+        font-weight: 800;
+        color: #111827;
+        margin-bottom: 12px;
+    }
 
-            .event-line {
-                color: #4b5563;
-                margin-bottom: 10px;
-                font-size: 15px;
-            }
+    .step-text {
+        color: #6b7280;
+        line-height: 1.7;
+        margin-bottom: 0;
+    }
 
-                .event-line i {
-                    width: 20px;
-                    color: #6366f1;
-                }
+    .contact-box {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border: 1px solid #e5e7eb;
+        border-radius: 26px;
+        padding: 36px 30px;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+    }
 
-            .event-actions {
-                margin-top: 18px;
-                display: flex;
-                flex-wrap: wrap;
-                gap: 10px;
-            }
+    .contact-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        margin-bottom: 18px;
+    }
 
-                .event-actions .btn {
-                    border-radius: 12px;
-                    font-weight: 700;
-                }
+        .contact-item:last-child {
+            margin-bottom: 0;
+        }
 
-            .empty-box {
-                background: #ffffff;
-                border: 1px dashed #d1d5db;
-                border-radius: 22px;
-                padding: 36px;
-                text-align: center;
-                color: #6b7280;
-            }
+    .contact-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        background: #eef2ff;
+        color: #4f46e5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
 
-            .footer {
-                background: #ffffff;
-                border-top: 1px solid #e5e7eb;
-                padding: 18px 0;
-                text-align: center;
-                color: #6b7280;
-                font-size: 14px;
-                margin-top: 20px;
-            }
+    .contact-label {
+        font-weight: 800;
+        color: #111827;
+        margin-bottom: 4px;
+    }
 
-            @@media (max-width: 991.98px) {
-                .navbar-custom {
-                    padding: 10px 0;
-                }
+    .contact-text {
+        color: #6b7280;
+        margin-bottom: 0;
+    }
 
-                .brand-logo-round {
-                    width: 74px;
-                    height: 74px;
-                }
+    .empty-box {
+        background: #ffffff;
+        border: 1px dashed #d1d5db;
+        border-radius: 22px;
+        padding: 36px;
+        text-align: center;
+        color: #6b7280;
+    }
 
-                .navbar-collapse {
-                    margin-top: 14px;
-                    background: #ffffff;
-                    border: 1px solid #eef2f7;
-                    border-radius: 18px;
-                    padding: 16px;
-                    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
-                }
+    @@media (max-width: 991.98px) {
+        .banner-content {
+            padding: 40px 24px;
+        }
 
-                .navbar-nav {
-                    align-items: stretch !important;
-                    gap: 4px;
-                }
+        .banner-title {
+            font-size: 34px;
+        }
 
-                .nav-link-custom {
-                    justify-content: flex-start;
-                    padding: 12px 14px !important;
-                }
+        .banner-side {
+            min-height: 220px;
+        }
+    }
 
-                .nav-action-wrap {
-                    margin-left: 0;
-                    margin-top: 14px;
-                    width: 100%;
-                    flex-direction: column;
-                    align-items: stretch !important;
-                }
+    @@media (max-width: 575.98px) {
+        .banner-title {
+            font-size: 28px;
+        }
 
-                    .nav-action-wrap .btn {
-                        width: 100%;
-                    }
+        .section-title {
+            font-size: 26px;
+        }
 
-                .banner-content {
-                    padding: 40px 24px;
-                }
+        .banner-buttons .btn {
+            width: 100%;
+        }
+    }
+</style>
 
-                .banner-title {
-                    font-size: 34px;
-                }
+<section class="banner-section" id="home">
+    <div class="container">
+        <div class="banner-card">
+            <div class="row g-0 align-items-center">
+                <div class="col-lg-8">
+                    <div class="banner-content">
+                        <span class="mini-badge">Digital Convocation Registration Portal</span>
+                        <h1 class="banner-title">Complete your convocation registration, payment, and QR pass in one place</h1>
+                        <p class="banner-text">
+                            This platform helps students view active convocation events, register online,
+                            complete fee payment, and receive a QR pass for smooth entry on event day.
+                            Fast, professional, and paperless.
+                        </p>
 
-                .banner-side {
-                    min-height: 220px;
-                }
-            }
-
-            @@media (max-width: 575.98px) {
-                .brand-logo-round {
-                    width: 64px;
-                    height: 64px;
-                }
-            }
-    </style>
-</head>
-<body>
-
-    <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
-        <div class="container">
-
-            <a class="navbar-brand brand-wrap" asp-controller="Home" asp-action="Index">
-                <img src="~/images/logo.png" alt="Logo" class="brand-logo-round" />
-            </a>
-
-            <button class="navbar-toggler custom-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="mainNavbar">
-                <ul class="navbar-nav mx-auto align-items-lg-center">
-                    <li class="nav-item">
-                        <a class="nav-link nav-link-custom" href="#home">
-                            <i class="fas fa-house nav-icon"></i>
-                            <span>Home</span>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link nav-link-custom" href="#features">
-                            <i class="fas fa-layer-group nav-icon"></i>
-                            <span>Features</span>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link nav-link-custom" href="#events">
-                            <i class="fas fa-calendar-check nav-icon"></i>
-                            <span>Events</span>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link nav-link-custom" href="#howitworks">
-                            <i class="fas fa-list-check nav-icon"></i>
-                            <span>How It Works</span>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link nav-link-custom" href="#contact">
-                            <i class="fas fa-envelope nav-icon"></i>
-                            <span>Contact</span>
-                        </a>
-                    </li>
-                </ul>
-
-                <div class="nav-action-wrap d-flex align-items-center gap-2">
-                    <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary nav-btn nav-btn-outline">
-                        <i class="fas fa-right-to-bracket me-2"></i>Login
-                    </a>
-
-                    <a asp-controller="Account" asp-action="Register" class="btn btn-primary nav-btn nav-btn-fill">
-                        <i class="fas fa-user-plus me-2"></i>Register
-                    </a>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <section class="banner-section" id="home">
-        <div class="container">
-            <div class="banner-card">
-                <div class="row g-0 align-items-center">
-                    <div class="col-lg-8">
-                        <div class="banner-content">
-                            <span class="mini-badge">Digital Convocation Registration Portal</span>
-                            <h1 class="banner-title">Complete your convocation registration, payment, and QR pass in one place</h1>
-                            <p class="banner-text">
-                                This platform helps students view active convocation events, register online,
-                                complete fee payment, and receive a QR pass for smooth event-day entry.
-                                Fast, paperless, and easy to use.
-                            </p>
-
-                            <div class="d-flex gap-3 flex-wrap banner-buttons">
-                                <a asp-controller="Account" asp-action="Register" class="btn btn-primary">Register Now</a>
-                                <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary">Login</a>
-                            </div>
+                        <div class="d-flex gap-3 flex-wrap banner-buttons">
+                            <a asp-controller="Account" asp-action="Register" class="btn btn-primary">
+                                <i class="fas fa-user-plus me-2"></i>Register Now
+                            </a>
+                            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary">
+                                <i class="fas fa-right-to-bracket me-2"></i>Login
+                            </a>
                         </div>
                     </div>
+                </div>
 
-                    <div class="col-lg-4">
-                        <div class="banner-side">
-                            <div class="banner-side-box">
-                                <i class="fas fa-qrcode"></i>
-                                <h3>Paperless Entry</h3>
-                                <p class="mb-0">Register, pay, and access your event pass digitally.</p>
-                            </div>
+                <div class="col-lg-4">
+                    <div class="banner-side">
+                        <div class="banner-side-box">
+                            <i class="fas fa-qrcode"></i>
+                            <h3>Paperless Entry</h3>
+                            <p class="mb-0">Register, pay, and access your event pass digitally with QR verification.</p>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <section class="section-wrap" id="features">
-        <div class="container">
-            <h2 class="section-title">Key Features</h2>
-            <p class="section-subtitle">Core features designed for a smooth digital convocation experience.</p>
-
-            <div class="row g-4">
-                <div class="col-md-3">
-                    <div class="event-card text-center">
-                        <div class="event-icon mx-auto"><i class="fas fa-user-plus"></i></div>
-                        <div class="event-title fs-5">Online Registration</div>
-                        <p class="mb-0 text-muted">Students can create accounts and register for available convocation events online.</p>
-                    </div>
-                </div>
-
-                <div class="col-md-3">
-                    <div class="event-card text-center">
-                        <div class="event-icon mx-auto"><i class="fas fa-credit-card"></i></div>
-                        <div class="event-title fs-5">Secure Payment</div>
-                        <p class="mb-0 text-muted">Complete registration payment through the payment gateway with a simple flow.</p>
-                    </div>
-                </div>
-
-                <div class="col-md-3">
-                    <div class="event-card text-center">
-                        <div class="event-icon mx-auto"><i class="fas fa-qrcode"></i></div>
-                        <div class="event-title fs-5">QR Pass Generation</div>
-                        <p class="mb-0 text-muted">A QR pass is generated after successful payment confirmation for event-day use.</p>
-                    </div>
-                </div>
-
-                <div class="col-md-3">
-                    <div class="event-card text-center">
-                        <div class="event-icon mx-auto"><i class="fas fa-check-circle"></i></div>
-                        <div class="event-title fs-5">Verification & Distribution</div>
-                        <p class="mb-0 text-muted">Staff can verify QR passes and manage event-day distribution operations.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="section-wrap" id="events">
-        <div class="container">
-            <h2 class="section-title">Available Convocation Events</h2>
-            <p class="section-subtitle">Choose your event and continue the registration process.</p>
-
-            @if (Model != null && Model.Any())
-            {
-                <div class="row g-4">
-                    @foreach (var item in Model)
-                    {
-                        var registrationOpen = item.IsActive &&
-                                               item.RegistrationStartDate <= now &&
-                                               item.RegistrationEndDate >= now;
-
-                        var registrationClosed = now > item.RegistrationEndDate;
-                        var registrationNotStarted = now < item.RegistrationStartDate;
-
-                        <div class="col-md-6 col-lg-4">
-                            <div class="event-card">
-                                <div class="event-icon">
-                                    <i class="fas fa-calendar-check"></i>
-                                </div>
-
-                                <div class="event-title">@item.EventTitle</div>
-
-                                <div class="event-line">
-                                    <i class="fas fa-calendar-days"></i>
-                                    Event Date: @item.EventDate.ToString("dd MMM yyyy")
-                                </div>
-
-                                <div class="event-line">
-                                    <i class="fas fa-location-dot"></i>
-                                    Venue: @(string.IsNullOrWhiteSpace(item.Venue) ? "TBA" : item.Venue)
-                                </div>
-
-                                <div class="event-line">
-                                    <i class="fas fa-clock"></i>
-                                    Registration: @item.RegistrationStartDate.ToString("dd MMM yyyy") - @item.RegistrationEndDate.ToString("dd MMM yyyy")
-                                </div>
-
-                                <div class="event-line">
-                                    <i class="fas fa-user-group"></i>
-                                    Max Guests: @item.MaxGuestAllowed
-                                </div>
-
-                                <div class="event-line">
-                                    <i class="fas fa-money-bill-wave"></i>
-                                    Base Fee: ৳@item.BaseFee
-                                </div>
-
-                                <div class="mt-3">
-                                    @if (registrationOpen)
-                                    {
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">
-                                            Registration Open
-                                        </span>
-                                    }
-                                    else if (registrationClosed)
-                                    {
-                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 rounded-pill">
-                                            Registration Closed
-                                        </span>
-                                    }
-                                    else if (registrationNotStarted)
-                                    {
-                                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-2 rounded-pill">
-                                            Registration Not Started
-                                        </span>
-                                    }
-                                </div>
-
-                                <div class="event-actions">
-                                    @if (registrationOpen)
-                                    {
-                                        <a asp-controller="Registration"
-                                               asp-action="Create"
-                                               asp-route-eventId="@item.EventId"
-                                               class="btn btn-primary flex-fill">
-                                            Register Event
-                                        </a>
-
-                                        <a asp-controller="Account"
-                                               asp-action="Register"
-                                               asp-route-eventId="@item.EventId"
-                                               class="btn btn-outline-primary flex-fill">
-                                            Create Account
-                                        </a>
-                                    }
-                                    else
-                                    {
-                                        <button type="button" class="btn btn-secondary flex-fill" disabled>
-                                            Unavailable Now
-                                        </button>
-
-                                        <a asp-controller="Account"
-                                               asp-action="Login"
-                                               class="btn btn-outline-secondary flex-fill">
-                                            Login
-                                        </a>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
-            else
-            {
-                <div class="empty-box">
-                    <h5 class="mb-2">No active events available</h5>
-                    <p class="mb-0">Please add active convocation events from the admin panel.</p>
-                </div>
-            }
-        </div>
-    </section>
-
-    <section class="section-wrap pt-0" id="howitworks">
-        <div class="container">
-            <h2 class="section-title">How It Works</h2>
-            <p class="section-subtitle">Simple steps for students to complete the whole process.</p>
-
-            <div class="row g-4">
-                <div class="col-md-3">
-                    <div class="event-card text-center">
-                        <div class="event-icon mx-auto"><i class="fas fa-user-plus"></i></div>
-                        <div class="event-title fs-5">Create Account</div>
-                        <p class="mb-0 text-muted">Create your student account with academic information.</p>
-                    </div>
-                </div>
-
-                <div class="col-md-3">
-                    <div class="event-card text-center">
-                        <div class="event-icon mx-auto"><i class="fas fa-file-signature"></i></div>
-                        <div class="event-title fs-5">Register Event</div>
-                        <p class="mb-0 text-muted">Choose an active convocation event and submit registration.</p>
-                    </div>
-                </div>
-
-                <div class="col-md-3">
-                    <div class="event-card text-center">
-                        <div class="event-icon mx-auto"><i class="fas fa-credit-card"></i></div>
-                        <div class="event-title fs-5">Pay Fee</div>
-                        <p class="mb-0 text-muted">Complete payment securely through SSLCommerz gateway.</p>
-                    </div>
-                </div>
-
-                <div class="col-md-3">
-                    <div class="event-card text-center">
-                        <div class="event-icon mx-auto"><i class="fas fa-qrcode"></i></div>
-                        <div class="event-title fs-5">Get QR Pass</div>
-                        <p class="mb-0 text-muted">Receive your QR pass for easy entry and verification.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="section-wrap pt-0" id="contact">
-        <div class="container">
-            <div class="empty-box">
-                <h4 class="mb-2">Need Help?</h4>
-                <p class="mb-0">For registration, payment, or QR issues, please contact the convocation administration office.</p>
-            </div>
-        </div>
-    </section>
-
-    <div class="footer">
-        <div class="container">
-            © 2026 Convocation Management System
         </div>
     </div>
+</section>
 
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<section class="section-wrap" id="features">
+    <div class="container">
+        <h2 class="section-title">Platform Features</h2>
+        <p class="section-subtitle">Everything needed for a smooth convocation process from registration to entry validation.</p>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-xl-3">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <h4 class="feature-title">Student Registration</h4>
+                    <p class="feature-text">
+                        Students can create accounts, update their profile, and register for active convocation events online.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-xl-3">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <h4 class="feature-title">Digital Payment</h4>
+                    <p class="feature-text">
+                        Manage registration fees digitally and keep payment status recorded in one organized system.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-xl-3">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                    <h4 class="feature-title">QR Pass</h4>
+                    <p class="feature-text">
+                        Generate and verify QR-based passes for faster and safer entry on the convocation day.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-xl-3">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h4 class="feature-title">Admin Monitoring</h4>
+                    <p class="feature-text">
+                        Admin can manage events, participants, payments, passes, and distribution activities centrally.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+     
+<section class="section-wrap pt-0" id="events">
+    <div class="container">
+        <h2 class="section-title">Upcoming Events</h2>
+        <p class="section-subtitle">
+            Check active and upcoming convocation events and register within the valid time.
+        </p>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row g-4">
+
+            @foreach (var item in Model.OrderBy(e => e.EventDate))
+            {
+                var registrationOpen = item.IsActive &&
+                                       item.RegistrationStartDate <= now &&
+                                       item.RegistrationEndDate >= now;
+
+                var eventUpcoming = item.EventDate >= now.Date;
+
+                string statusText;
+                string statusClass;
+
+                if (registrationOpen)
+                {
+                    statusText = "Registration Open";
+                    statusClass = "status-open";
+                }
+                else if (eventUpcoming)
+                {
+                    statusText = "Upcoming";
+                    statusClass = "status-upcoming";
+                }
+                else
+                {
+                    statusText = "Closed";
+                    statusClass = "status-closed";
+                }
+
+                <div class="col-md-6 col-xl-4">
+                    <div class="event-card">
+
+                        <div class="event-icon">
+                            <i class="fas fa-calendar-days"></i>
+                        </div>
+
+                        <h3 class="event-title">@item.EventTitle</h3>
+
+                        <div class="event-line">
+                            <i class="fas fa-calendar"></i>
+                            <strong>Date:</strong> @item.EventDate.ToString("dd MMM yyyy")
+                        </div>
+
+                        <div class="event-line">
+                            <i class="fas fa-clock"></i>
+                            <strong>Registration:</strong>
+                            @item.RegistrationStartDate.ToString("dd MMM yyyy")
+                            -
+                            @item.RegistrationEndDate.ToString("dd MMM yyyy")
+                        </div>
+
+                        <div class="event-line">
+                            <i class="fas fa-location-dot"></i>
+                            <strong>Venue:</strong> @item.Venue
+                        </div>
+
+                        <div class="event-line">
+                            <i class="fas fa-money-bill-wave"></i>
+                            <strong>Base Fee:</strong> ৳@item.BaseFee
+                        </div>
+
+                        <div class="event-line">
+                            <i class="fas fa-user-group"></i>
+                            <strong>Guest Fee:</strong> ৳@item.GuestFee
+                        </div>
+
+                        <span class="event-status @statusClass">@statusText</span>
+
+                        <div class="event-actions">
+                            @{
+                                var isLoggedIn = Context.Session.GetString("UserId") != null;
+                            }
+
+                            @if (registrationOpen)
+                            {
+                                if (isLoggedIn)
+                                {
+                                    <a asp-controller="Registration"
+                                       asp-action="Create"
+                                       asp-route-eventId="@item.EventId"
+                                       class="btn btn-primary">
+                                        <i class="fas fa-file-signature me-2"></i>Enroll
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a asp-controller="Account"
+                                       asp-action="Register"
+                                       asp-route-eventId="@item.EventId"
+                                       class="btn btn-primary">
+                                        <i class="fas fa-file-signature me-2"></i>Enroll
+                                    </a>
+                                }
+                            }
+                            else
+                            {
+                                <button class="btn btn-outline-secondary" disabled>
+                                    <i class="fas fa-ban me-2"></i>Registration Closed
+                                </button>
+                            }
+                        </div>
+
+                    </div>
+                </div>
+            }
+
+        </div>
+    }
+    else
+    {
+        <div class="empty-box">
+            <i class="fas fa-calendar-xmark fa-2x mb-3 text-secondary"></i>
+            <h5 class="fw-bold">No events available right now</h5>
+            <p class="mb-0">
+                Upcoming convocation events will appear here once they are created by the administration.
+            </p>
+        </div>
+    }
+</div>
+
+</section>
+
+<section class="section-wrap pt-0" id="howitworks">
+    <div class="container">
+        <h2 class="section-title">How It Works</h2>
+        <p class="section-subtitle">A simple process for students from account creation to event-day participation.</p>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-xl-3">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h4 class="step-title">Create Account</h4>
+                    <p class="step-text">Register with your student and personal information to access the participant portal.</p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-xl-3">
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h4 class="step-title">Choose Event</h4>
+                    <p class="step-text">View active convocation events and submit your registration during the open period.</p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-xl-3">
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h4 class="step-title">Complete Payment</h4>
+                    <p class="step-text">Pay your registration fee and keep track of your payment status from your account.</p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-xl-3">
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <h4 class="step-title">Use QR Pass</h4>
+                    <p class="step-text">Receive your QR pass and use it for verification and entry during the convocation event.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-wrap pt-0" id="contact">
+    <div class="container">
+        <h2 class="section-title">Contact</h2>
+        <p class="section-subtitle">Need help regarding registration, payment, or event details? Reach out here.</p>
+
+        <div class="contact-box">
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div>
+                            <div class="contact-label">Email</div>
+                            <p class="contact-text">convocation@university.edu</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div>
+                            <div class="contact-label">Phone</div>
+                            <p class="contact-text">+880 1XXXXXXXXX</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-location-dot"></i>
+                        </div>
+                        <div>
+                            <div class="contact-label">Office</div>
+                            <p class="contact-text">Convocation Management Office, Main Campus</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div>
+                            <div class="contact-label">Office Hours</div>
+                            <p class="contact-text">Sunday to Thursday, 9:00 AM - 5:00 PM</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

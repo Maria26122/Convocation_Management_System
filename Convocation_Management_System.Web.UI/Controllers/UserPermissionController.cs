@@ -17,8 +17,8 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
         private async Task LoadDropdownsAsync(object? selectedUser = null, object? selectedPermission = null)
         {
-            ViewBag.UserAccountId = new SelectList(await _context.UserAccounts.OrderBy(u => u.FullName).ToListAsync(), "UserAccountId", "FullName", selectedUser);
-            ViewBag.PermissionId = new SelectList(await _context.Permissions.OrderBy(p => p.PermissionName).ToListAsync(), "PermissionId", "PermissionName", selectedPermission);
+            ViewBag.UserAccountId = new SelectList(await _context.UserAccount.OrderBy(u => u.FullName).ToListAsync(), "UserAccountId", "FullName", selectedUser);
+            ViewBag.PermissionId = new SelectList(await _context.Permission.OrderBy(p => p.PermissionName).ToListAsync(), "PermissionId", "PermissionName", selectedPermission);
         }
 
         public async Task<IActionResult> Index()
@@ -27,7 +27,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             {
                 return RedirectToAction("Login", "Account");
             }
-            var items = await _context.UserPermissions
+            var items = await _context.UserPermission
                 .Include(up => up.UserAccount)
                 .Include(up => up.Permission)
                 .OrderBy(up => up.UserAccount!.FullName)
@@ -40,7 +40,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
-            var item = await _context.UserPermissions
+            var item = await _context.UserPermission
                 .Include(up => up.UserAccount)
                 .Include(up => up.Permission)
                 .FirstOrDefaultAsync(up => up.UserPermissionId == id);
@@ -58,7 +58,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(UserPermission userPermission)
         {
-            if (await _context.UserPermissions.AnyAsync(up => up.UserAccountId == userPermission.UserAccountId && up.PermissionId == userPermission.PermissionId))
+            if (await _context.UserPermission.AnyAsync(up => up.UserAccountId == userPermission.UserAccountId && up.PermissionId == userPermission.PermissionId))
             {
                 ModelState.AddModelError(string.Empty, "This user-permission mapping already exists.");
             }
@@ -69,7 +69,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return View(userPermission);
             }
 
-            _context.UserPermissions.Add(userPermission);
+            _context.UserPermission.Add(userPermission);
             await _context.SaveChangesAsync();
             TempData["SuccessMessage"] = "User permission created successfully.";
             return RedirectToAction(nameof(Index));
@@ -78,7 +78,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
-            var item = await _context.UserPermissions.FindAsync(id);
+            var item = await _context.UserPermission.FindAsync(id);
             if (item == null) return NotFound();
             await LoadDropdownsAsync(item.UserAccountId, item.PermissionId);
             return View(item);
@@ -90,7 +90,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         {
             if (id != userPermission.UserPermissionId) return NotFound();
 
-            if (await _context.UserPermissions.AnyAsync(up => up.UserAccountId == userPermission.UserAccountId && up.PermissionId == userPermission.PermissionId && up.UserPermissionId != userPermission.UserPermissionId))
+            if (await _context.UserPermission.AnyAsync(up => up.UserAccountId == userPermission.UserAccountId && up.PermissionId == userPermission.PermissionId && up.UserPermissionId != userPermission.UserPermissionId))
             {
                 ModelState.AddModelError(string.Empty, "This user-permission mapping already exists.");
             }
@@ -110,7 +110,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
-            var item = await _context.UserPermissions
+            var item = await _context.UserPermission
                 .Include(up => up.UserAccount)
                 .Include(up => up.Permission)
                 .FirstOrDefaultAsync(up => up.UserPermissionId == id);
@@ -122,10 +122,10 @@ namespace Convocation_Management_System.Web.UI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var item = await _context.UserPermissions.FindAsync(id);
+            var item = await _context.UserPermission.FindAsync(id);
             if (item != null)
             {
-                _context.UserPermissions.Remove(item);
+                _context.UserPermission.Remove(item);
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "User permission deleted successfully.";
             }

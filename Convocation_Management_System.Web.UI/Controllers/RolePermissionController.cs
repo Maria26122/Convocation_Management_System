@@ -17,8 +17,8 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
         private async Task LoadDropdownsAsync(object? selectedRole = null, object? selectedPermission = null)
         {
-            ViewBag.RoleId = new SelectList(await _context.Roles.OrderBy(r => r.RoleName).ToListAsync(), "RoleId", "RoleName", selectedRole);
-            ViewBag.PermissionId = new SelectList(await _context.Permissions.OrderBy(p => p.PermissionName).ToListAsync(), "PermissionId", "PermissionName", selectedPermission);
+            ViewBag.RoleId = new SelectList(await _context.Role.OrderBy(r => r.RoleName).ToListAsync(), "RoleId", "RoleName", selectedRole);
+            ViewBag.PermissionId = new SelectList(await _context.Permission.OrderBy(p => p.PermissionName).ToListAsync(), "PermissionId", "PermissionName", selectedPermission);
         }
 
         public async Task<IActionResult> Index()
@@ -31,7 +31,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             {
                 return RedirectToAction("Login", "Account");
             }
-            var items = await _context.RolePermissions
+            var items = await _context.RolePermission
                 .Include(rp => rp.Role)
                 .Include(rp => rp.Permission)
                 .OrderBy(rp => rp.Role!.RoleName)
@@ -44,7 +44,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
-            var item = await _context.RolePermissions
+            var item = await _context.RolePermission
                 .Include(rp => rp.Role)
                 .Include(rp => rp.Permission)
                 .FirstOrDefaultAsync(rp => rp.RolePermissionId == id);
@@ -62,7 +62,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(RolePermission rolePermission)
         {
-            if (await _context.RolePermissions.AnyAsync(rp => rp.RoleId == rolePermission.RoleId && rp.PermissionId == rolePermission.PermissionId))
+            if (await _context.RolePermission.AnyAsync(rp => rp.RoleId == rolePermission.RoleId && rp.PermissionId == rolePermission.PermissionId))
             {
                 ModelState.AddModelError(string.Empty, "This role-permission mapping already exists.");
             }
@@ -73,7 +73,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return View(rolePermission);
             }
 
-            _context.RolePermissions.Add(rolePermission);
+            _context.RolePermission.Add(rolePermission);
             await _context.SaveChangesAsync();
             TempData["SuccessMessage"] = "Role permission created successfully.";
             return RedirectToAction(nameof(Index));
@@ -82,7 +82,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
-            var item = await _context.RolePermissions.FindAsync(id);
+            var item = await _context.RolePermission.FindAsync(id);
             if (item == null) return NotFound();
             await LoadDropdownsAsync(item.RoleId, item.PermissionId);
             return View(item);
@@ -94,7 +94,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         {
             if (id != rolePermission.RolePermissionId) return NotFound();
 
-            if (await _context.RolePermissions.AnyAsync(rp => rp.RoleId == rolePermission.RoleId && rp.PermissionId == rolePermission.PermissionId && rp.RolePermissionId != rolePermission.RolePermissionId))
+            if (await _context.RolePermission.AnyAsync(rp => rp.RoleId == rolePermission.RoleId && rp.PermissionId == rolePermission.PermissionId && rp.RolePermissionId != rolePermission.RolePermissionId))
             {
                 ModelState.AddModelError(string.Empty, "This role-permission mapping already exists.");
             }
@@ -114,7 +114,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
-            var item = await _context.RolePermissions
+            var item = await _context.RolePermission
                 .Include(rp => rp.Role)
                 .Include(rp => rp.Permission)
                 .FirstOrDefaultAsync(rp => rp.RolePermissionId == id);
@@ -126,10 +126,10 @@ namespace Convocation_Management_System.Web.UI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var item = await _context.RolePermissions.FindAsync(id);
+            var item = await _context.RolePermission.FindAsync(id);
             if (item != null)
             {
-                _context.RolePermissions.Remove(item);
+                _context.RolePermission.Remove(item);
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Role permission deleted successfully.";
             }

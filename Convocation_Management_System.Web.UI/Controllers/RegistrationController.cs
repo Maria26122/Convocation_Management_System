@@ -1,6 +1,5 @@
 ﻿using Convocation.DataAccess;
 using Convocation.Entities;
-using Convocation_Management_System.Web.UI.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -18,19 +17,20 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
         public async Task<IActionResult> Index()
         {
-            if (!this.LoggedIn())
+            if (!LoggedIn())
                 return RedirectToAction("Login", "Account");
 
-            IQueryable<Registration> query = _context.Registrations
+            IQueryable<Registration> query = _context.Registration
                 .Include(r => r.Participant)
+                    .ThenInclude(p => p.UserAccount)
                 .Include(r => r.Event);
 
-            if (this.IsParticipant())
+            if (IsParticipant())
             {
-                var participantId = await this.CurrentParticipantId(_context);
+                var participantId = await CurrentParticipantIdAsync();
                 query = query.Where(r => r.ParticipantId == participantId);
             }
-            else if (!this.IsAdmin() && !this.IsStaff())
+            else if (!IsAdmin() && !IsStaff())
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -44,23 +44,25 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
         public async Task<IActionResult> Details(int? id)
         {
-            if (!this.LoggedIn())
+            if (!LoggedIn())
                 return RedirectToAction("Login", "Account");
 
             if (id == null)
                 return NotFound();
 
-            var registration = await _context.Registrations
+            var registration = await _context.Registration
                 .Include(r => r.Participant)
+                    .ThenInclude(p => p.UserAccount)
                 .Include(r => r.Event)
-                .FirstOrDefaultAsync(r => r.RegistrationId == id);
+                .FirstOrDefaultAsync(r => r.RegistrationId == id.Value);
 
             if (registration == null)
                 return NotFound();
 
-            if (this.IsParticipant())
+            if (IsParticipant())
             {
-                var participantId = await this.CurrentParticipantId(_context);
+                var participantId = await CurrentParticipantIdAsync();
+
                 if (registration.ParticipantId != participantId)
                     return RedirectToAction(nameof(Index));
             }
@@ -68,134 +70,215 @@ namespace Convocation_Management_System.Web.UI.Controllers
             return View(registration);
         }
 
-        private async Task<int> CurrentParticipantId(ConvocationDbContext context)
+        [HttpGet]
+        public async Task<IActionResult> Create(int? eventId)
         {
-            var userIdString = HttpContext.Session.GetString("UserId");
-
-            if (string.IsNullOrEmpty(userIdString))
-                return 0;
-
-            if (!int.TryParse(userIdString, out int userId))
-                return 0;
-
-            var participant = await context.Participants
-                .FirstOrDefaultAsync(p => p.UserAccountId == userId);
-
-            return participant?.ParticipantId ?? 0;
-        }
-
-        public async Task<IActionResult> Create(int? eventId, string? returnUrl = null)
-        {
-            var role = (HttpContext.Session.GetString("Role") ?? "").Trim().ToLower();
-            var userIdString = HttpContext.Session.GetString("UserId");
-
-            if (string.IsNullOrEmpty(userIdString))
+            if (!LoggedIn())
             {
-                return RedirectToAction("Login", "Account", new
+                if (eventId.HasValue && eventId.Value > 0)
                 {
-                    returnUrl = Url.Action("Create", "Registration", new { eventId = eventId })
-                });
+                    return RedirectToAction("Register", "Account", new { eventId = eventId.Value });
+                }
+
+                return RedirectToAction("Login", "Account");
             }
 
-            if (role != "student")
+            if (!IsParticipant() && !IsAdmin() && !IsStaff())
                 return RedirectToAction("Login", "Account");
 
-            var now = DateTime.Now;
+            await LoadDropdownsAsync(null, eventId);
 
-            await LoadDropdownsAsync(
-                _context.Events.Where(e =>
-                    e.IsActive &&
-                    e.RegistrationStartDate <= now &&
-                    e.RegistrationEndDate >= now)
-            );
-
-            var registration = new Registration
+            var model = new Registration
             {
+                EventId = eventId ?? 0,
                 RegistrationDate = DateTime.Now,
                 RegistrationStatus = "Pending",
                 GuestCount = 0,
                 TotalAmount = 0
             };
 
-            if (int.TryParse(userIdString, out int userId))
+            if (IsParticipant())
             {
-                var participant = await _context.Participants
-                    .FirstOrDefaultAsync(p => p.UserAccountId == userId);
+                model.ParticipantId = await CurrentParticipantIdAsync();
 
-                if (participant != null)
-                    registration.ParticipantId = participant.ParticipantId;
-            }
-
-            if (eventId.HasValue)
-            {
-                var now2 = DateTime.Now;
-
-                var selectedEvent = await _context.Events
-                    .FirstOrDefaultAsync(e =>
-                        e.EventId == eventId.Value &&
-                        e.IsActive &&
-                        e.RegistrationStartDate <= now2 &&
-                        e.RegistrationEndDate >= now2);
-
-                if (selectedEvent != null)
+                if (model.ParticipantId == 0)
                 {
-                    registration.EventId = selectedEvent.EventId;
-                    registration.TotalAmount = selectedEvent.BaseFee;
-                    ViewBag.SelectedEventId = selectedEvent.EventId;
+                    TempData["Error"] = "Participant profile not found. Please complete your profile first.";
+                    return RedirectToAction("Dashboard", "Participant");
                 }
             }
 
-            return View(registration);
+            ViewBag.SelectedEventId = eventId;
+
+            return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Registration registration)
         {
-            var role = (HttpContext.Session.GetString("Role") ?? "").ToLower();
-
-            if (role != "student")
+            if (!LoggedIn())
                 return RedirectToAction("Login", "Account");
 
-            if (HttpContext.Session.GetString("UserId") == null)
+            if (!IsParticipant() && !IsAdmin() && !IsStaff())
                 return RedirectToAction("Login", "Account");
 
-          
-            var userIdString = HttpContext.Session.GetString("UserId");
-
-            if (!int.TryParse(userIdString, out int userId))
-                return RedirectToAction("Login", "Account");
-
-            // For participant login, auto-assign ParticipantId
-            if ((role ?? "").Trim().ToLower() == "student")
+            if (IsParticipant())
             {
-                var participant = await _context.Participants
-                    .FirstOrDefaultAsync(p => p.UserAccountId == userId);
-
-                if (participant == null)
-                {
-                    ModelState.AddModelError("", "Participant profile not found for this user.");
-                    await LoadDropdownsAsync(registration.ParticipantId, registration.EventId);
-                    return View(registration);
-                }
-
-                registration.ParticipantId = participant.ParticipantId;
-
-                // very important
+                registration.ParticipantId = await CurrentParticipantIdAsync();
                 ModelState.Remove("ParticipantId");
+                ModelState.Remove("Participant");
             }
+
+            ModelState.Remove("Event");
 
             if (registration.GuestCount < 0)
                 ModelState.AddModelError("GuestCount", "Guest count cannot be negative.");
 
-            bool alreadyExists = await _context.Registrations
+            var participantExists = await _context.Participant
+                .AnyAsync(p => p.ParticipantId == registration.ParticipantId);
+
+            if (!participantExists)
+                ModelState.AddModelError("ParticipantId", "Invalid participant.");
+
+            var selectedEvent = await _context.Event
+                .FirstOrDefaultAsync(e => e.EventId == registration.EventId);
+
+            if (selectedEvent == null)
+            {
+                ModelState.AddModelError("EventId", "Selected event is invalid.");
+            }
+            else
+            {
+                if (!selectedEvent.IsActive)
+                    ModelState.AddModelError("EventId", "This event is not active.");
+
+                var now = DateTime.Now;
+
+                if (IsParticipant() &&
+                    !(selectedEvent.RegistrationStartDate <= now &&
+                      selectedEvent.RegistrationEndDate >= now))
+                {
+                    ModelState.AddModelError("EventId", "Registration is closed for this event.");
+                }
+
+                if (registration.GuestCount > selectedEvent.MaxGuestAllowed)
+                    ModelState.AddModelError("GuestCount", $"Maximum allowed guest is {selectedEvent.MaxGuestAllowed}.");
+
+                registration.TotalAmount = selectedEvent.BaseFee + (registration.GuestCount * selectedEvent.GuestFee);
+            }
+
+            bool alreadyExists = await _context.Registration
                 .AnyAsync(r => r.ParticipantId == registration.ParticipantId &&
                                r.EventId == registration.EventId);
 
             if (alreadyExists)
                 ModelState.AddModelError("", "This participant is already registered for the selected event.");
 
-            var selectedEvent = await _context.Events
+            if (!ModelState.IsValid)
+            {
+                await LoadDropdownsAsync(registration.ParticipantId, registration.EventId);
+                ViewBag.SelectedEventId = registration.EventId;
+                return View(registration);
+            }
+
+            registration.RegistrationDate = DateTime.Now;
+
+            if (string.IsNullOrWhiteSpace(registration.RegistrationStatus))
+                registration.RegistrationStatus = "Pending";
+
+            _context.Registration.Add(registration);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Registration saved successfully. Please complete payment.";
+
+            if (IsParticipant())
+            {
+                return RedirectToAction("PayNow", "Payment", new { registrationId = registration.RegistrationId });
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (!LoggedIn())
+                return RedirectToAction("Login", "Account");
+
+            if (id == null)
+                return NotFound();
+
+            var registration = await _context.Registration.FindAsync(id.Value);
+
+            if (registration == null)
+                return NotFound();
+
+            if (IsParticipant())
+            {
+                var participantId = await CurrentParticipantIdAsync();
+
+                if (registration.ParticipantId != participantId)
+                    return RedirectToAction(nameof(Index));
+            }
+            else if (!IsAdmin() && !IsStaff())
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            await LoadDropdownsAsync(registration.ParticipantId, registration.EventId);
+            ViewBag.SelectedEventId = registration.EventId;
+
+            return View(registration);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Registration registration)
+        {
+            if (!LoggedIn())
+                return RedirectToAction("Login", "Account");
+
+            if (id != registration.RegistrationId)
+                return NotFound();
+
+            var existing = await _context.Registration.FindAsync(id);
+
+            if (existing == null)
+                return NotFound();
+
+            if (IsParticipant())
+            {
+                var participantId = await CurrentParticipantIdAsync();
+
+                if (existing.ParticipantId != participantId)
+                    return RedirectToAction(nameof(Index));
+
+                registration.ParticipantId = existing.ParticipantId;
+                registration.RegistrationStatus = existing.RegistrationStatus;
+
+                ModelState.Remove("ParticipantId");
+                ModelState.Remove("Participant");
+            }
+            else if (!IsAdmin() && !IsStaff())
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            ModelState.Remove("Event");
+
+            if (registration.GuestCount < 0)
+                ModelState.AddModelError("GuestCount", "Guest count cannot be negative.");
+
+            bool duplicateExists = await _context.Registration
+                .AnyAsync(r => r.RegistrationId != registration.RegistrationId &&
+                               r.ParticipantId == registration.ParticipantId &&
+                               r.EventId == registration.EventId);
+
+            if (duplicateExists)
+                ModelState.AddModelError("", "This participant is already registered for the selected event.");
+
+            var selectedEvent = await _context.Event
                 .FirstOrDefaultAsync(e => e.EventId == registration.EventId);
 
             if (selectedEvent == null)
@@ -213,152 +296,47 @@ namespace Convocation_Management_System.Web.UI.Controllers
             if (!ModelState.IsValid)
             {
                 await LoadDropdownsAsync(registration.ParticipantId, registration.EventId);
+                ViewBag.SelectedEventId = registration.EventId;
                 return View(registration);
             }
 
-            registration.RegistrationDate = DateTime.Now;
+            existing.ParticipantId = registration.ParticipantId;
+            existing.EventId = registration.EventId;
+            existing.GuestCount = registration.GuestCount;
+            existing.TotalAmount = registration.TotalAmount;
+            existing.RegistrationStatus = registration.RegistrationStatus;
 
-            if (string.IsNullOrWhiteSpace(registration.RegistrationStatus))
-                registration.RegistrationStatus = "Pending";
-
-            _context.Registrations.Add(registration);
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Registration saved successfully. Please complete payment.";
-            return RedirectToAction("Pay", "Payment", new { registrationId = registration.RegistrationId });
+            TempData["SuccessMessage"] = "Registration updated successfully.";
+            return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (!this.LoggedIn())
-                return RedirectToAction("Login", "Account");
-
-            if (id == null)
-                return NotFound();
-
-            var registration = await _context.Registrations.FindAsync(id);
-            if (registration == null)
-                return NotFound();
-
-            if (this.IsParticipant())
-            {
-                var participantId = await this.CurrentParticipantIdAsync(_context);
-                if (registration.ParticipantId != participantId)
-                    return RedirectToAction(nameof(Index));
-            }
-            else if (!this.IsAdmin() && !this.IsStaff())
-            {
-                return RedirectToAction(nameof(Index));
-            }
-
-            await LoadDropdownsAsync(registration.ParticipantId, registration.EventId);
-            return View(registration);
-        }
-
-        private async Task<int> CurrentParticipantIdAsync(ConvocationDbContext context)
-        {
-            return await CurrentParticipantId(context);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Registration registration)
-        {
-            if (!this.LoggedIn())
-                return RedirectToAction("Login", "Account");
-
-            if (id != registration.RegistrationId)
-                return NotFound();
-
-            var existing = await _context.Registrations.FindAsync(id);
-            if (existing == null)
-                return NotFound();
-
-            if (this.IsParticipant())
-            {
-                var participantId = await this.CurrentParticipantIdAsync(_context);
-                if (existing.ParticipantId != participantId)
-                    return RedirectToAction(nameof(Index));
-
-                registration.ParticipantId = existing.ParticipantId;
-                registration.RegistrationStatus = existing.RegistrationStatus;
-            }
-            else if (!this.IsAdmin() && !this.IsStaff())
-            {
-                return RedirectToAction(nameof(Index));
-            }
-
-            if (registration.GuestCount < 0)
-                ModelState.AddModelError("GuestCount", "Guest count cannot be negative.");
-
-            bool duplicateExists = await _context.Registrations
-                .AnyAsync(r => r.RegistrationId != registration.RegistrationId &&
-                               r.ParticipantId == registration.ParticipantId &&
-                               r.EventId == registration.EventId);
-
-            if (duplicateExists)
-                ModelState.AddModelError("", "This participant is already registered for the selected event.");
-
-            var selectedEvent = await _context.Events.FirstOrDefaultAsync(e => e.EventId == registration.EventId);
-            if (selectedEvent == null)
-            {
-                ModelState.AddModelError("EventId", "Selected event is invalid.");
-            }
-            else
-            {
-                if (registration.GuestCount > selectedEvent.MaxGuestAllowed)
-                    ModelState.AddModelError("GuestCount", $"Maximum allowed guest is {selectedEvent.MaxGuestAllowed}.");
-
-                registration.TotalAmount = selectedEvent.BaseFee + (registration.GuestCount * selectedEvent.GuestFee);
-            }
-
-            if (!ModelState.IsValid)
-            {
-                await LoadDropdownsAsync(registration.ParticipantId, registration.EventId);
-                return View(registration);
-            }
-
-            try
-            {
-                registration.RegistrationDate = existing.RegistrationDate;
-                _context.Update(registration);
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = "Registration updated successfully.";
-                return RedirectToAction(nameof(Index));
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Registrations.Any(r => r.RegistrationId == registration.RegistrationId))
-                    return NotFound();
-
-                throw;
-            }
-        }
-
+        [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
-            if (!this.LoggedIn())
+            if (!LoggedIn())
                 return RedirectToAction("Login", "Account");
 
             if (id == null)
                 return NotFound();
 
-            var registration = await _context.Registrations
+            var registration = await _context.Registration
                 .Include(r => r.Participant)
                 .Include(r => r.Event)
-                .FirstOrDefaultAsync(r => r.RegistrationId == id);
+                .FirstOrDefaultAsync(r => r.RegistrationId == id.Value);
 
             if (registration == null)
                 return NotFound();
 
-            if (this.IsParticipant())
+            if (IsParticipant())
             {
-                var participantId = await this.CurrentParticipantIdAsync(_context);
+                var participantId = await CurrentParticipantIdAsync();
+
                 if (registration.ParticipantId != participantId)
                     return RedirectToAction(nameof(Index));
             }
-            else if (!this.IsAdmin())
+            else if (!IsAdmin())
             {
                 return RedirectToAction(nameof(Index));
             }
@@ -370,41 +348,60 @@ namespace Convocation_Management_System.Web.UI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (!this.LoggedIn())
+            if (!LoggedIn())
                 return RedirectToAction("Login", "Account");
 
-            var registration = await _context.Registrations.FindAsync(id);
+            var registration = await _context.Registration.FindAsync(id);
+
             if (registration == null)
                 return RedirectToAction(nameof(Index));
 
-            if (this.IsParticipant())
+            if (IsParticipant())
             {
-                var participantId = await this.CurrentParticipantIdAsync(_context);
+                var participantId = await CurrentParticipantIdAsync();
+
                 if (registration.ParticipantId != participantId)
                     return RedirectToAction(nameof(Index));
             }
-            else if (!this.IsAdmin())
+            else if (!IsAdmin())
             {
                 return RedirectToAction(nameof(Index));
             }
 
-            _context.Registrations.Remove(registration);
+            _context.Registration.Remove(registration);
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Registration deleted successfully.";
             return RedirectToAction(nameof(Index));
         }
 
+        private async Task<int> CurrentParticipantIdAsync()
+        {
+            var userIdString = HttpContext.Session.GetString("UserId");
+
+            if (!int.TryParse(userIdString, out int userId))
+                return 0;
+
+            var participant = await _context.Participant
+                .FirstOrDefaultAsync(p => p.UserAccountId == userId);
+
+            return participant?.ParticipantId ?? 0;
+        }
+
         private async Task LoadDropdownsAsync(object? selectedParticipant = null, object? selectedEvent = null)
         {
-            if (this.IsAdmin() || this.IsStaff())
+            if (IsAdmin() || IsStaff())
             {
                 ViewBag.ParticipantId = new SelectList(
-                    await _context.Participants
+                    await _context.Participant
+                        .Include(p => p.UserAccount)
                         .Select(p => new
                         {
                             p.ParticipantId,
-                            DisplayText = p.StudentId + " - " + p.Department
+                            DisplayText = p.StudentId + " - " +
+                                          (p.UserAccount != null
+                                              ? p.UserAccount.FullName
+                                              : p.Department)
                         })
                         .ToListAsync(),
                     "ParticipantId",
@@ -414,10 +411,10 @@ namespace Convocation_Management_System.Web.UI.Controllers
             }
             else
             {
-                var participantId = await this.CurrentParticipantIdAsync(_context);
+                var participantId = await CurrentParticipantIdAsync();
 
                 ViewBag.ParticipantId = new SelectList(
-                    await _context.Participants
+                    await _context.Participant
                         .Where(p => p.ParticipantId == participantId)
                         .Select(p => new
                         {
@@ -431,7 +428,20 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 );
             }
 
-            ViewBag.Events = await _context.Events
+            var now = DateTime.Now;
+
+            var eventsQuery = _context.Event.AsQueryable();
+
+            if (IsParticipant())
+            {
+                eventsQuery = eventsQuery.Where(e =>
+                    e.IsActive &&
+                    e.RegistrationStartDate <= now &&
+                    e.RegistrationEndDate >= now);
+            }
+
+            ViewBag.Event = await eventsQuery
+                .OrderBy(e => e.EventDate)
                 .Select(e => new
                 {
                     e.EventId,
@@ -441,19 +451,8 @@ namespace Convocation_Management_System.Web.UI.Controllers
                     e.GuestFee
                 })
                 .ToListAsync();
-            ViewBag.EventId = new SelectList(
-                await _context.Events
-                    .Where(e => e.IsActive)
-                    .Select(e => new
-                    {
-                        e.EventId,
-                        DisplayText = e.EventTitle + " - " + e.EventDate.ToString("dd MMM yyyy")
-                    })
-                    .ToListAsync(),
-                "EventId",
-                "DisplayText",
-                selectedEvent
-            );
+
+            ViewBag.SelectedEventId = selectedEvent;
         }
     }
 }

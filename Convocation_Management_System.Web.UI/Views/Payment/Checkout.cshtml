@@ -1,50 +1,58 @@
 ﻿@model Convocation.Entities.Payment
 
 @{
+    ViewData["Title"] = "Payment Checkout";
     Layout = "~/Views/Shared/_ParticipantLayout.cshtml";
-    ViewData["Title"] = "Checkout";
 }
 
-<div class="container-fluid">
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-white">
-            <h4 class="mb-0">Payment Checkout</h4>
-        </div>
+<div class="page-card">
+    <h4 class="section-title">Payment Checkout</h4>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <div class="card border-0 shadow-sm">
         <div class="card-body">
+            <h5>@Model.Registration?.Event?.EventTitle</h5>
 
-            @if (TempData["Error"] != null)
-            {
-                <div class="alert alert-danger">@TempData["Error"]</div>
-            }
+            <p>
+                <strong>Registration ID:</strong> @Model.RegistrationId
+            </p>
 
-            @if (Model == null)
+            <p>
+                <strong>Amount:</strong> @Model.PaidAmount.ToString("0.00") BDT
+            </p>
+
+            <p>
+                <strong>Status:</strong>
+                @if (Model.PaymentStatus == "Paid")
+                {
+                    <span class="badge bg-success">Paid</span>
+                }
+                else
+                {
+                    <span class="badge bg-warning text-dark">Pending</span>
+                }
+            </p>
+
+            @if (Model.PaymentStatus != "Paid")
             {
-                <div class="alert alert-warning">Payment information not found.</div>
+                <form asp-action="MarkPaid" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="registrationId" value="@Model.RegistrationId" />
+
+                    <button type="submit" class="btn btn-success">
+                        Pay Now
+                    </button>
+                </form>
             }
             else
             {
-                <div class="mb-3">
-                    <p><strong>Registration ID:</strong> @Model.RegistrationId</p>
-                    <p><strong>Amount:</strong> @Model.PaidAmount</p>
-                    <p><strong>Method:</strong> @Model.PaymentMethod</p>
-                    <p><strong>Status:</strong> @Model.PaymentStatus</p>
-                </div>
-
-                <div class="alert alert-info">
-                    This is the temporary internal payment step.
-                    Later this action will redirect to SSLCommerz.
-                </div>
-
-                <form asp-controller="Payment" asp-action="MarkPaid" method="post">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="registrationId" value="@Model.RegistrationId" />
-                    <button type="submit" class="btn btn-success">
-                        Confirm Payment
-                    </button>
-                    <a asp-controller="Participant" asp-action="MyPayment" class="btn btn-secondary ms-2">
-                        Back
-                    </a>
-                </form>
+                <a asp-controller="Participant" asp-action="MyQrPass" class="btn btn-primary">
+                    View QR Pass
+                </a>
             }
         </div>
     </div>

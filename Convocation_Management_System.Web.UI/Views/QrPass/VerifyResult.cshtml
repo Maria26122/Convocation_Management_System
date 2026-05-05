@@ -1,10 +1,16 @@
 ﻿@model Convocation.Entities.QrPass
+@using System.Collections.Generic
 
 @{
     ViewData["Title"] = "Verification Result";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-}
 
+    var collectedItems = ViewBag.CollectedItems != null
+        ? (List<string>)ViewBag.CollectedItems
+        : new List<string>();
+
+    var items = new List<string> { "Food", "Kit", "Certificate", "Gown" };
+}
 <style>
     .page-card {
         background: #ffffff;
@@ -74,88 +80,122 @@
 <div class="page-card">
     <h4 class="section-title">QR Verification Result</h4>
 
-    @if (Model == null)
-    {
-        <div class="alert alert-danger">QR pass not found.</div>
-    }
-    else
-    {
-        <div class="info-grid">
-            <div class="info-box">
-                <div class="info-label">QR Pass ID</div>
-                <div class="info-value">@Model.QrPassId</div>
-            </div>
+```
+@if (Model == null)
+{
+    <div class="alert alert-danger">QR pass not found.</div>
+}
+else
+{
 
-            <div class="info-box">
-                <div class="info-label">QR Code Text</div>
-                <div class="info-value">@Model.QrCodeText</div>
-            </div>
 
-            <div class="info-box">
-                <div class="info-label">Student ID</div>
-                <div class="info-value">@Model.Registration?.Participant?.StudentId</div>
-            </div>
+    <div class="info-grid">
+        <div class="info-box">
+            <div class="info-label">QR Pass ID</div>
+            <div class="info-value">@Model.QrPassId</div>
+        </div>
 
-            <div class="info-box">
-                <div class="info-label">Participant ID</div>
-                <div class="info-value">@Model.Registration?.ParticipantId</div>
-            </div>
+        <div class="info-box">
+            <div class="info-label">QR Code Text</div>
+            <div class="info-value">@Model.QrCodeText</div>
+        </div>
 
-            <div class="info-box">
-                <div class="info-label">Event Title</div>
-                <div class="info-value">@Model.Registration?.Event?.EventTitle</div>
-            </div>
+        <div class="info-box">
+            <div class="info-label">Student ID</div>
+            <div class="info-value">@Model.Registration?.Participant?.StudentId</div>
+        </div>
 
-            <div class="info-box">
-                <div class="info-label">Event Date</div>
-                <div class="info-value">@(Model.Registration?.Event?.EventDate.ToString("dd MMM yyyy") ?? "TBA")</div>
-            </div>
+        <div class="info-box">
+            <div class="info-label">Participant ID</div>
+            <div class="info-value">@Model.Registration?.ParticipantId</div>
+        </div>
 
-            <div class="info-box">
-                <div class="info-label">Venue</div>
-                <div class="info-value">@Model.Registration?.Event?.Venue</div>
-            </div>
+        <div class="info-box">
+            <div class="info-label">Event Title</div>
+            <div class="info-value">@Model.Registration?.Event?.EventTitle</div>
+        </div>
 
-            <div class="info-box">
-                <div class="info-label">Registration Status</div>
-                <div class="info-value">
-                    <span class="status-badge @(Model.Registration?.RegistrationStatus == "Paid" ? "status-success" : "status-warning")">
-                        @Model.Registration?.RegistrationStatus
-                    </span>
-                </div>
-            </div>
+        <div class="info-box">
+            <div class="info-label">Event Date</div>
+            <div class="info-value">@(Model.Registration?.Event?.EventDate.ToString("dd MMM yyyy") ?? "TBA")</div>
+        </div>
 
-            <div class="info-box">
-                <div class="info-label">Entry Used</div>
-                <div class="info-value">
-                    <span class="status-badge @(Model.IsUsed ? "status-warning" : "status-success")">
-                        @(Model.IsUsed ? "Already Used" : "Not Used Yet")
-                    </span>
-                </div>
+        <div class="info-box">
+            <div class="info-label">Venue</div>
+            <div class="info-value">@Model.Registration?.Event?.Venue</div>
+        </div>
+
+        <div class="info-box">
+            <div class="info-label">Registration Status</div>
+            <div class="info-value">
+                <span class="status-badge @(Model.Registration?.RegistrationStatus == "Paid" ? "status-success" : "status-warning")">
+                    @Model.Registration?.RegistrationStatus
+                </span>
             </div>
         </div>
+
+        <div class="info-box">
+            <div class="info-label">Entry Used</div>
+            <div class="info-value">
+                <span class="status-badge @(Model.IsUsed ? "status-warning" : "status-success")">
+                    @(Model.IsUsed ? "Already Used" : "Not Used Yet")
+                </span>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Registration?.RegistrationStatus == "Paid")
+    {
+        <hr />
+        <h5>Distribution Items</h5>
 
         <div class="action-row">
-            @if (!Model.IsUsed && Model.Registration?.RegistrationStatus == "Paid")
+            @foreach (var item in items)
             {
-                <form asp-action="ConfirmEntry" method="post">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="qrPassId" value="@Model.QrPassId" />
-                    <button type="submit" class="btn btn-success">
-                        Confirm Entry
+                if (collectedItems.Contains(item))
+                {
+                    <button type="button" class="btn btn-secondary" disabled>
+                        @item Collected
                     </button>
-                </form>
+                }
+                else
+                {
+                    <form asp-action="ConfirmItem" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="qrPassId" value="@Model.QrPassId" />
+                        <input type="hidden" name="itemType" value="@item" />
+                        <button type="submit" class="btn btn-outline-success">
+                            Confirm @item
+                        </button>
+                    </form>
+                }
             }
-            else if (Model.IsUsed)
-            {
-                <button type="button" class="btn btn-secondary" disabled>Already Used</button>
-            }
-            else
-            {
-                <button type="button" class="btn btn-secondary" disabled>Payment Not Completed</button>
-            }
-
-            <a asp-action="Verify" class="btn btn-outline-primary">Back to Scanner</a>
         </div>
     }
+
+    <div class="action-row">
+        @if (!Model.IsUsed && Model.Registration?.RegistrationStatus == "Paid")
+        {
+            <form asp-action="ConfirmEntry" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="qrPassId" value="@Model.QrPassId" />
+                <button type="submit" class="btn btn-success">
+                    Confirm Entry
+                </button>
+            </form>
+        }
+        else if (Model.IsUsed)
+        {
+            <button type="button" class="btn btn-secondary" disabled>Already Used</button>
+        }
+        else
+        {
+            <button type="button" class="btn btn-secondary" disabled>Payment Not Completed</button>
+        }
+
+        <a asp-action="Verify" class="btn btn-outline-primary">Back to Scanner</a>
+    </div>
+}
+```
+
 </div>

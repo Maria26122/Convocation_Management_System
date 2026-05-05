@@ -27,7 +27,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var qrPasses = await _context.QrPasses
+            var qrPasses = await _context.QrPass
                 .Include(q => q.Registration)
                     .ThenInclude(r => r.Participant)
                 .Include(q => q.Registration)
@@ -42,7 +42,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         {
             if (id == null) return NotFound();
 
-            var qrPass = await _context.QrPasses
+            var qrPass = await _context.QrPass
                 .Include(q => q.Registration)
                     .ThenInclude(r => r.Participant)
                 .Include(q => q.Registration)
@@ -71,7 +71,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         {
             ModelState.Remove("QrCodeText");
 
-            bool alreadyExists = await _context.QrPasses
+            bool alreadyExists = await _context.QrPass
                 .AnyAsync(q => q.RegistrationId == qrPass.RegistrationId);
 
             if (alreadyExists)
@@ -88,7 +88,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
                     qrPass.QrCodeText = $"REG-{qrPass.RegistrationId}-PASS-{Guid.NewGuid().ToString().Substring(0, 8)}";
                     qrPass.QrImagePath = GenerateQrImage(qrPass.QrCodeText);
 
-                    _context.QrPasses.Add(qrPass);
+                    _context.QrPass.Add(qrPass);
                     await _context.SaveChangesAsync();
 
                     TempData["SuccessMessage"] = "QR Pass generated successfully.";
@@ -108,7 +108,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         {
             if (id == null) return NotFound();
 
-            var qrPass = await _context.QrPasses.FindAsync(id);
+            var qrPass = await _context.QrPass.FindAsync(id);
             if (qrPass == null) return NotFound();
 
             LoadRegistrationDropdown(qrPass.RegistrationId);
@@ -130,7 +130,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!_context.QrPasses.Any(e => e.QrPassId == qrPass.QrPassId))
+                    if (!_context.QrPass.Any(e => e.QrPassId == qrPass.QrPassId))
                         return NotFound();
 
                     throw;
@@ -147,7 +147,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         {
             if (id == null) return NotFound();
 
-            var qrPass = await _context.QrPasses
+            var qrPass = await _context.QrPass
                 .Include(q => q.Registration)
                     .ThenInclude(r => r.Participant)
                 .Include(q => q.Registration)
@@ -163,10 +163,10 @@ namespace Convocation_Management_System.Web.UI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var qrPass = await _context.QrPasses.FindAsync(id);
+            var qrPass = await _context.QrPass.FindAsync(id);
             if (qrPass != null)
             {
-                _context.QrPasses.Remove(qrPass);
+                _context.QrPass.Remove(qrPass);
                 await _context.SaveChangesAsync();
             }
 
@@ -176,17 +176,10 @@ namespace Convocation_Management_System.Web.UI.Controllers
         // GET: QrPass/Verify
         public IActionResult Verify()
         {
-            if (HttpContext.Session.GetString("UserId") == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
+            var role = (HttpContext.Session.GetString("Role") ?? "").Trim().ToLower();
 
-            var role = HttpContext.Session.GetString("Role");
-
-            if (role != "Admin" && role != "Staff")
-            {
+            if (role != "admin" && role != "staff" && role != "eventmanager")
                 return RedirectToAction("Login", "Account");
-            }
 
             return View();
         }
@@ -196,6 +189,11 @@ namespace Convocation_Management_System.Web.UI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Verify(string qrCodeText)
         {
+            var role = (HttpContext.Session.GetString("Role") ?? "").Trim().ToLower();
+
+            if (role != "admin" && role != "staff" && role != "eventmanager")
+                return RedirectToAction("Login", "Account");
+
             if (string.IsNullOrWhiteSpace(qrCodeText))
             {
                 ModelState.AddModelError("", "Please enter a QR code.");
@@ -204,9 +202,10 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             var trimmed = qrCodeText.Trim();
 
-            var qrPass = await _context.QrPasses
+            var qrPass = await _context.QrPass
                 .Include(q => q.Registration)
                     .ThenInclude(r => r.Participant)
+                        .ThenInclude(p => p.UserAccount)
                 .Include(q => q.Registration)
                     .ThenInclude(r => r.Event)
                 .FirstOrDefaultAsync(q => q.QrCodeText != null && q.QrCodeText.Trim() == trimmed);
@@ -217,6 +216,13 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return View();
             }
 
+            var collectedItems = await _context.DistributionLog
+                .Where(d => d.RegistrationId == qrPass.RegistrationId)
+                .Select(d => d.ActionType)
+                .ToListAsync();
+
+            ViewBag.CollectedItems = collectedItems;
+
             return View("VerifyResult", qrPass);
         }
 
@@ -225,41 +231,32 @@ namespace Convocation_Management_System.Web.UI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmEntry(int qrPassId)
         {
-            var qrPass = await _context.QrPasses
+            var role = (HttpContext.Session.GetString("Role") ?? "").Trim().ToLower();
+
+            if (role != "admin" && role != "staff" && role != "eventmanager")
+                return RedirectToAction("Login", "Account");
+
+            var userIdText = HttpContext.Session.GetString("UserId");
+
+            if (!int.TryParse(userIdText, out int userId))
+                return RedirectToAction("Login", "Account");
+
+            var qrPass = await _context.QrPass
                 .Include(q => q.Registration)
-                    .ThenInclude(r => r.Participant)
-                .Include(q => q.Registration)
-                    .ThenInclude(r => r.Event)
                 .FirstOrDefaultAsync(q => q.QrPassId == qrPassId);
 
-            if (qrPass == null)
-            {
+            if (qrPass == null || qrPass.Registration == null)
                 return NotFound();
+
+            if (qrPass.Registration.RegistrationStatus != "Paid")
+            {
+                TempData["ErrorMessage"] = "Payment is not completed.";
+                return RedirectToAction(nameof(Verify));
             }
 
             if (qrPass.IsUsed)
             {
-                TempData["ErrorMessage"] = "This QR pass has already been used.";
-                return RedirectToAction(nameof(Verify));
-            }
-
-            var userIdString = HttpContext.Session.GetString("UserId");
-
-            if (string.IsNullOrEmpty(userIdString))
-            {
-                TempData["ErrorMessage"] = "Session expired. Please login again.";
-                return RedirectToAction("Login", "Account");
-            }
-
-            if (!int.TryParse(userIdString, out var userId))
-            {
-                TempData["ErrorMessage"] = "Invalid session. Please login again.";
-                return RedirectToAction("Login", "Account");
-            }
-
-            if (qrPass.Registration == null)
-            {
-                TempData["ErrorMessage"] = "Registration not found for this QR pass.";
+                TempData["ErrorMessage"] = "Entry already confirmed.";
                 return RedirectToAction(nameof(Verify));
             }
 
@@ -267,34 +264,87 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             var log = new DistributionLog
             {
-                ParticipantId = qrPass.Registration.ParticipantId,
-                ItemName = "Entry Confirmation",
-                DistributedAt = DateTime.Now,
-                DistributedBy = userId.ToString(),
-                Remarks = "Verified by QR check-in"
+                RegistrationId = qrPass.RegistrationId,
+                UserAccountId = userId,
+                ActionType = "Entry Confirmation",
+                ActionDate = DateTime.Now,
+                Note = "QR Check-In",
+                Remarks = "Entry confirmed by QR scanner."
             };
 
-            _context.Update(qrPass);
-            _context.DistributionLogs.Add(log);
+            _context.QrPass.Update(qrPass);
+            _context.DistributionLog.Add(log);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = "An error occurred while verifying the entry. " +
-                                           (ex.InnerException?.Message ?? ex.Message);
-                return RedirectToAction(nameof(Verify));
-            }
+            await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Entry verified successfully.";
+            TempData["SuccessMessage"] = "Entry confirmed successfully.";
             return RedirectToAction(nameof(Verify));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmItem(int qrPassId, string itemType)
+        {
+            var role = (HttpContext.Session.GetString("Role") ?? "").Trim().ToLower();
+
+            if (role != "admin" && role != "staff" && role != "eventmanager")
+                return RedirectToAction("Login", "Account");
+
+            var userIdText = HttpContext.Session.GetString("UserId");
+
+            if (!int.TryParse(userIdText, out int userId))
+                return RedirectToAction("Login", "Account");
+
+            var allowedItems = new[] { "Food", "Kit", "Certificate", "Gown" };
+
+            if (!allowedItems.Contains(itemType))
+            {
+                TempData["ErrorMessage"] = "Invalid distribution item.";
+                return RedirectToAction(nameof(Verify));
+            }
+
+            var qrPass = await _context.QrPass
+                .Include(q => q.Registration)
+                .FirstOrDefaultAsync(q => q.QrPassId == qrPassId);
+
+            if (qrPass == null || qrPass.Registration == null)
+                return NotFound();
+
+            if (qrPass.Registration.RegistrationStatus != "Paid")
+            {
+                TempData["ErrorMessage"] = "Payment is not completed.";
+                return RedirectToAction(nameof(Verify));
+            }
+
+            bool alreadyDistributed = await _context.DistributionLog
+                .AnyAsync(d => d.RegistrationId == qrPass.RegistrationId &&
+                               d.ActionType == itemType);
+
+            if (alreadyDistributed)
+            {
+                TempData["ErrorMessage"] = itemType + " already distributed.";
+                return RedirectToAction(nameof(Verify));
+            }
+
+            var log = new DistributionLog
+            {
+                RegistrationId = qrPass.RegistrationId,
+                UserAccountId = userId,
+                ActionType = itemType,
+                ActionDate = DateTime.Now,
+                Note = itemType + " Distribution",
+                Remarks = itemType + " distributed successfully."
+            };
+
+            _context.DistributionLog.Add(log);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = itemType + " distributed successfully.";
+            return RedirectToAction(nameof(Verify));
+        }
         private void LoadRegistrationDropdown(object? selectedRegistration = null)
         {
-            var registrations = _context.Registrations
+            var registrations = _context.Registration
                 .Include(r => r.Participant)
                 .Include(r => r.Event)
                 .AsEnumerable()

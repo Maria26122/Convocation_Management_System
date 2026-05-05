@@ -23,13 +23,11 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var role = HttpContext?.Session?.GetString("Role");
-            if (role != "Participant")
+            if (!HasGuestAccess())
             {
                 return RedirectToAction("Login", "Account");
             }
-
-            var guests = await _context.Guests
+            var guests = await _context.Guest   
                 .Include(g => g.Registration)
                 .ThenInclude(r => r.Participant)
                 .Include(g => g.Registration)
@@ -40,13 +38,27 @@ namespace Convocation_Management_System.Web.UI.Controllers
             return View(guests ?? new List<Guest>());
         }
 
+        private new string CurrentRole()
+        {
+            return (HttpContext.Session.GetString("Role") ?? "").Trim().ToLower();
+        }
+
+        private bool HasGuestAccess()
+        {
+            var role = CurrentRole();
+            return role == "admin" || role == "student" || role == "participant";
+        }
         public async Task<IActionResult> Details(int? id)
         {
+            if (!HasGuestAccess())
+            {
+                return RedirectToAction("Login", "Account");
+            }
             if (id == null) return NotFound();
 
             var guestId = id.Value;
 
-            var guest = await _context.Guests
+            var guest = await _context.Guest
                 .Include(g => g.Registration)
                 .ThenInclude(r => r.Participant)
                 .Include(g => g.Registration)
@@ -60,6 +72,11 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
         public IActionResult Create()
         {
+            if (!HasGuestAccess())
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
             LoadRegistrationDropdown();
             return View();
         }
@@ -68,6 +85,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Guest guest)
         {
+
             if (!ModelState.IsValid)
             {
                 LoadRegistrationDropdown(guest?.RegistrationId);
@@ -76,7 +94,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             try
             {
-                _context.Guests.Add(guest);
+                _context.Guest.Add(guest);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -90,10 +108,16 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
         public async Task<IActionResult> Edit(int? id)
         {
+
+            if (!HasGuestAccess())
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
             if (id == null) return NotFound();
 
             var guestId = id.Value;
-            var guest = await _context.Guests.FindAsync(guestId);
+            var guest = await _context.Guest.FindAsync(guestId);
             if (guest == null) return NotFound();
 
             LoadRegistrationDropdown(guest.RegistrationId);
@@ -128,11 +152,16 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
         public async Task<IActionResult> Delete(int? id)
         {
+            if (!HasGuestAccess())
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
             if (id == null) return NotFound();
 
             var guestId = id.Value;
 
-            var guest = await _context.Guests
+            var guest = await _context.Guest
                 .Include(g => g.Registration)
                 .ThenInclude(r => r.Participant)
                 .Include(g => g.Registration)
@@ -148,10 +177,10 @@ namespace Convocation_Management_System.Web.UI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var guest = await _context.Guests.FindAsync(id);
+            var guest = await _context.Guest.FindAsync(id);
             if (guest != null)
             {
-                _context.Guests.Remove(guest);
+                _context.Guest.Remove(guest);
                 await _context.SaveChangesAsync();
             }
 
@@ -160,13 +189,12 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
         private void LoadRegistrationDropdown(object? selectedRegistration = null)
         {
-            var registrations = _context.Registrations
+            var registrations = _context.Registration
                 .Include(r => r.Participant)
                 .Include(r => r.Event)
                 .AsEnumerable()
                 .Select(r => new
                 {
-                    RegistrationId = r.RegistrationId,
                     DisplayText = $"Reg #{r.RegistrationId} - {(r.Participant != null ? r.Participant.StudentId : "No Student")} - {(r.Event != null ? r.Event.EventTitle : "No Event")}"
                 })
                 .ToList();

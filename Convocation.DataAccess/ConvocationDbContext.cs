@@ -11,86 +11,37 @@ namespace Convocation.DataAccess
         {
         }
 
-        public DbSet<Role> Roles { get; set; }
-        public DbSet<UserAccount> UserAccounts { get; set; }
-        public DbSet<Participant> Participants { get; set; }
-        public DbSet<Event> Events { get; set; }
-        public DbSet<Registration> Registrations { get; set; }
-        public DbSet<Guest> Guests { get; set; }
-        public DbSet<Payment> Payments { get; set; }
-        public DbSet<QrPass> QrPasses { get; set; }
-        public DbSet<DistributionLog> DistributionLogs { get; set; }
-        public DbSet<Permission> Permissions { get; set; }
-        public DbSet<RolePermission> RolePermissions { get; set; }
-        public DbSet<UserPermission> UserPermissions { get; set; }
+        public DbSet<Role> Role { get; set; }
+        public DbSet<UserAccount> UserAccount { get; set; }
+        public DbSet<Participant> Participant { get; set; }
+        public DbSet<Event> Event { get; set; }
+        public DbSet<Registration> Registration { get; set; }
+        public DbSet<Guest> Guest { get; set; }
+        public DbSet<Payment> Payment { get; set; }
+        public DbSet<QrPass> QrPass { get; set; }
+        public DbSet<DistributionLog> DistributionLog { get; set; }
+        public DbSet<Permission> Permission { get; set; }
+        public DbSet<RolePermission> RolePermission { get; set; }
+        public DbSet<StaffTask> StaffTask { get; set; }
+        public DbSet<UserPermission> UserPermission { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Role>()
-                .HasIndex(r => r.RoleName)
-                .IsUnique();
-
-            modelBuilder.Entity<UserAccount>()
-                .HasIndex(u => u.Email)
-                .IsUnique();
-
-            modelBuilder.Entity<Participant>()
-                .HasIndex(p => p.StudentId)
-                .IsUnique();
-
-            modelBuilder.Entity<Registration>()
-                .HasIndex(r => new { r.ParticipantId, r.EventId })
-                .IsUnique();
-
-            modelBuilder.Entity<QrPass>()
-                .HasIndex(q => q.RegistrationId)
-                .IsUnique();
-
-            modelBuilder.Entity<QrPass>()
-                .HasIndex(q => q.QrCodeText)
-                .IsUnique();
-
-            modelBuilder.Entity<DistributionLog>()
-              .HasOne(d => d.Participant)
-              .WithMany(p => p.DistributionLogs)
-              .HasForeignKey(d => d.ParticipantId)
-              .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Permission>()
-                .HasIndex(p => p.PermissionName)
-                .IsUnique();
-
-            modelBuilder.Entity<RolePermission>()
-                .HasIndex(rp => new { rp.RoleId, rp.PermissionId })
-                .IsUnique();
-
-            modelBuilder.Entity<UserPermission>()
-                .HasIndex(up => new { up.UserAccountId, up.PermissionId })
-                .IsUnique();
-
-            modelBuilder.Entity<UserAccount>()
-                .HasOne(u => u.Participant)
-                .WithOne(p => p.UserAccount)
-                .HasForeignKey<Participant>(p => p.UserAccountId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Event>()
-                .Property(e => e.BaseFee)
-                .HasColumnType("decimal(10,2)");
-
-            modelBuilder.Entity<Event>()
-                .Property(e => e.GuestFee)
-                .HasColumnType("decimal(10,2)");
-
-            modelBuilder.Entity<Registration>()
-                .Property(r => r.TotalAmount)
-                .HasColumnType("decimal(10,2)");
-
-            modelBuilder.Entity<Payment>()
-                .Property(p => p.PaidAmount)
-                .HasColumnType("decimal(10,2)");
+            modelBuilder.Entity<Role>().ToTable("Role");
+            modelBuilder.Entity<UserAccount>().ToTable("UserAccount");
+            modelBuilder.Entity<Participant>().ToTable("Participant");
+            modelBuilder.Entity<Event>().ToTable("Event");
+            modelBuilder.Entity<Registration>().ToTable("Registration");
+            modelBuilder.Entity<Guest>().ToTable("Guest");
+            modelBuilder.Entity<Payment>().ToTable("Payment");
+            modelBuilder.Entity<QrPass>().ToTable("QrPass");
+            modelBuilder.Entity<DistributionLog>().ToTable("DistributionLog");
+            modelBuilder.Entity<Permission>().ToTable("Permission");
+            modelBuilder.Entity<RolePermission>().ToTable("RolePermission");
+            modelBuilder.Entity<UserPermission>().ToTable("UserPermission");
+            modelBuilder.Entity<StaffTask>().ToTable("StaffTask");
         }
     }
 }

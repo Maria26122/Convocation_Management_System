@@ -1,42 +1,89 @@
 ﻿@model IEnumerable<Convocation.Entities.Participant>
 
 @{
-    ViewData["Title"] = "Participant Dashboard";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Participants";
 }
 
-<h2>Participant Dashboard</h2>
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Participant List</h4>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i> Add Participant
+        </a>
+    </div>
 
-@if (Model == null || !Model.Any())
-{
-    <div class="alert alert-warning">No participant data found.</div>
-}
-else
-{
-    <table class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>Participant ID</th>
-                <th>Student ID</th>
-                <th>Department</th>
-                <th>Program</th>
-                <th>Session</th>
-                <th>Eligible</th>
-                <th>User Email</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>@item.ParticipantId</td>
-                    <td>@item.StudentId</td>
-                    <td>@item.Department</td>
-                    <td>@item.Program</td>
-                    <td>@item.Session</td>
-                    <td>@item.IsEligible</td>
-                    <td>@item.UserAccount?.Email</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+    <div class="card-body">
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">@TempData["Success"]</div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">@TempData["Error"]</div>
+        }
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Participant ID</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Student ID</th>
+                        <th>Department</th>
+                        <th>Program</th>
+                        <th>Session</th>
+                        <th>Eligible</th>
+                        <th style="width: 220px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.ParticipantId</td>
+                                <td>@item.UserAccount?.FullName</td>
+                                <td>@item.UserAccount?.Email</td>
+                                <td>@item.StudentId</td>
+                                <td>@item.Department</td>
+                                <td>@item.Program</td>
+                                <td>@item.Session</td>
+                                <td>
+                                    @if (item.IsEligible)
+                                    {
+                                        <span class="badge bg-success">Yes</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">No</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@item.ParticipantId" class="btn btn-info btn-sm">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@item.ParticipantId" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.ParticipantId" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="9" class="text-center text-muted">No participants found.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

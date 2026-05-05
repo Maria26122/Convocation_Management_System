@@ -5,56 +5,57 @@
     ViewData["Title"] = "Create Participant";
 }
 
-<div class="form-card">
-    <h3 class="form-title mb-4">Create Participant</h3>
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white">
+        <h4 class="mb-0">Create Participant</h4>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
 
-    <form asp-action="Create" method="post">
-        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-        <div class="row g-3">
-            <div class="col-md-6">
+            <div class="mb-3">
                 <label asp-for="UserAccountId" class="form-label"></label>
-                <input asp-for="UserAccountId" class="form-control" />
+                <select asp-for="UserAccountId" class="form-select" asp-items="ViewBag.UserAccountId">
+                    <option value="">-- Select Student Account --</option>
+                </select>
                 <span asp-validation-for="UserAccountId" class="text-danger"></span>
             </div>
 
-            <div class="col-md-6">
+            <div class="mb-3">
                 <label asp-for="StudentId" class="form-label"></label>
                 <input asp-for="StudentId" class="form-control" />
                 <span asp-validation-for="StudentId" class="text-danger"></span>
             </div>
 
-            <div class="col-md-6">
+            <div class="mb-3">
                 <label asp-for="Department" class="form-label"></label>
                 <input asp-for="Department" class="form-control" />
                 <span asp-validation-for="Department" class="text-danger"></span>
             </div>
 
-            <div class="col-md-6">
+            <div class="mb-3">
                 <label asp-for="Program" class="form-label"></label>
                 <input asp-for="Program" class="form-control" />
                 <span asp-validation-for="Program" class="text-danger"></span>
             </div>
 
-            <div class="col-md-6">
+            <div class="mb-3">
                 <label asp-for="Session" class="form-label"></label>
                 <input asp-for="Session" class="form-control" />
                 <span asp-validation-for="Session" class="text-danger"></span>
             </div>
 
-            <div class="col-md-6 d-flex align-items-center">
-                <div class="form-check mt-4">
-                    <input asp-for="IsEligible" class="form-check-input" />
-                    <label asp-for="IsEligible" class="form-check-label"></label>
-                </div>
+            <div class="form-check mb-3">
+                <input asp-for="IsEligible" class="form-check-input" />
+                <label asp-for="IsEligible" class="form-check-label"></label>
             </div>
-        </div>
 
-        <div class="mt-4">
             <button type="submit" class="btn btn-primary">Save</button>
-            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-        </div>
-    </form>
+            <a asp-action="Index" class="btn btn-secondary ms-2">Back</a>
+        </form>
+    </div>
 </div>
 
 @section Scripts {

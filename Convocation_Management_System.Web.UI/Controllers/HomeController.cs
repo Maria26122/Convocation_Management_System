@@ -15,12 +15,14 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var events = await _context.Events
-                .Where(e => e.IsActive)
+            var now = DateTime.Now;
+
+            var upcomingEvents = await _context.Event
+                .Where(e => e.IsActive && e.EventDate >= now)
                 .OrderBy(e => e.EventDate)
                 .ToListAsync();
 
-            return View(events);
+            return View(upcomingEvents);
         }
     }
 }

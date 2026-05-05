@@ -5,45 +5,35 @@
     ViewData["Title"] = "Delete Distribution Log";
 }
 
-<h2 class="mb-4">Delete Distribution Log</h2>
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white">
+        <h4 class="mb-0 text-danger">Delete Distribution Log</h4>
+    </div>
+    <div class="card-body">
+        <h5 class="mb-3">Are you sure you want to delete this distribution log?</h5>
 
-<div class="alert alert-warning">
-    Are you sure you want to delete this distribution record?
+        <dl class="row">
+            <dt class="col-sm-3">Registration ID</dt>
+            <dd class="col-sm-9">@Model.RegistrationId</dd>
+
+            <dt class="col-sm-3">Participant</dt>
+            <dd class="col-sm-9">@Model.Registration?.Participant?.UserAccount?.FullName</dd>
+
+            <dt class="col-sm-3">Event</dt>
+            <dd class="col-sm-9">@Model.Registration?.Event?.EventTitle</dd>
+
+            <dt class="col-sm-3">Action Type</dt>
+            <dd class="col-sm-9">@Model.ActionType</dd>
+
+            <dt class="col-sm-3">Action Date</dt>
+            <dd class="col-sm-9">@Model.ActionDate.ToString("dd MMM yyyy hh:mm tt")</dd>
+        </dl>
+
+        <form asp-action="Delete" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="DistributionLogId" />
+            <button type="submit" class="btn btn-danger">Delete</button>
+            <a asp-action="Index" class="btn btn-secondary ms-2">Back</a>
+        </form>
+    </div>
 </div>
-
-<table class="table table-bordered">
-    <tr>
-        <th>Log Id</th>
-        <td>@Model.DistributionLogId</td>
-    </tr>
-    <tr>
-        <th>Participant Id</th>
-        <td>@Model.ParticipantId</td>
-    </tr>
-    <tr>
-        <th>Student Id</th>
-        <td>@Model.Participant?.StudentId</td>
-    </tr>
-    <tr>
-        <th>Item Name</th>
-        <td>@Model.ItemName</td>
-    </tr>
-    <tr>
-        <th>Distributed At</th>
-        <td>@Model.DistributedAt.ToString("dd MMM yyyy hh:mm tt")</td>
-    </tr>
-    <tr>
-        <th>Distributed By</th>
-        <td>@Model.DistributedBy</td>
-    </tr>
-    <tr>
-        <th>Remarks</th>
-        <td>@Model.Remarks</td>
-    </tr>
-</table>
-
-<form asp-action="Delete" method="post">
-    <input type="hidden" asp-for="DistributionLogId" />
-    <button type="submit" class="btn btn-danger">Delete</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-</form>

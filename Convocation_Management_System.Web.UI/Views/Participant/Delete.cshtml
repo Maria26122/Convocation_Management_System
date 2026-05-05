@@ -5,44 +5,38 @@
     ViewData["Title"] = "Delete Participant";
 }
 
-<div class="delete-card">
-    <h3 class="delete-title mb-2 text-danger">Delete Participant</h3>
-    <p class="text-soft">Are you sure you want to delete this participant?</p>
-
-    <div class="row g-3">
-        <div class="col-md-6">
-            <div class="label-title">Student ID</div>
-            <div class="value-text">@Model.StudentId</div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="label-title">Department</div>
-            <div class="value-text">@Model.Department</div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="label-title">Program</div>
-            <div class="value-text">@Model.Program</div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="label-title">Eligibility</div>
-            <div class="value-text">
-                @if (Model.IsEligible)
-                {
-                    <span class="badge-status badge-success">Eligible</span>
-                }
-                else
-                {
-                    <span class="badge-status badge-danger">Not Eligible</span>
-                }
-            </div>
-        </div>
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white">
+        <h4 class="mb-0 text-danger">Delete Participant</h4>
     </div>
+    <div class="card-body">
+        <h5 class="mb-3">Are you sure you want to delete this participant?</h5>
 
-    <form asp-action="Delete" method="post" class="mt-4">
-        <input type="hidden" asp-for="ParticipantId" />
-        <button type="submit" class="btn btn-danger">Delete</button>
-        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-    </form>
+        <dl class="row">
+            <dt class="col-sm-3">Full Name</dt>
+            <dd class="col-sm-9">@Model.UserAccount?.FullName</dd>
+
+            <dt class="col-sm-3">Email</dt>
+            <dd class="col-sm-9">@Model.UserAccount?.Email</dd>
+
+            <dt class="col-sm-3">Student ID</dt>
+            <dd class="col-sm-9">@Model.StudentId</dd>
+
+            <dt class="col-sm-3">Department</dt>
+            <dd class="col-sm-9">@Model.Department</dd>
+
+            <dt class="col-sm-3">Program</dt>
+            <dd class="col-sm-9">@Model.Program</dd>
+
+            <dt class="col-sm-3">Session</dt>
+            <dd class="col-sm-9">@Model.Session</dd>
+        </dl>
+
+        <form asp-action="Delete" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="ParticipantId" />
+            <button type="submit" class="btn btn-danger">Delete</button>
+            <a asp-action="Index" class="btn btn-secondary ms-2">Back</a>
+        </form>
+    </div>
 </div>

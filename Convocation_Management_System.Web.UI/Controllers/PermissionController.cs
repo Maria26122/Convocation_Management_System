@@ -24,7 +24,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             {
                 return RedirectToAction("Login", "Account");
             }
-            var permissions = await _context.Permissions
+            var permissions = await _context.Permission
                 .OrderBy(p => p.PermissionName)
                 .ToListAsync();
             return View(permissions);
@@ -39,14 +39,14 @@ namespace Convocation_Management_System.Web.UI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Permission permission)
         {
-            if (await _context.Permissions.AnyAsync(p => p.PermissionName == permission.PermissionName))
+            if (await _context.Permission.AnyAsync(p => p.PermissionName == permission.PermissionName))
             {
                 ModelState.AddModelError("PermissionName", "This permission already exists.");
             }
 
             if (!ModelState.IsValid) return View(permission);
 
-            _context.Permissions.Add(permission);
+            _context.Permission.Add(permission);
             await _context.SaveChangesAsync();
             TempData["SuccessMessage"] = "Permission created successfully.";
             return RedirectToAction(nameof(Index));
@@ -56,7 +56,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         {
             if (id == null) return NotFound();
 
-            var permission = await _context.Permissions
+            var permission = await _context.Permission
                 .Include(p => p.RolePermissions)
                     .ThenInclude(rp => rp.Role)
                 .Include(p => p.UserPermissions)
@@ -70,7 +70,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
-            var permission = await _context.Permissions.FindAsync(id);
+            var permission = await _context.Permission.FindAsync(id);
             if (permission == null) return NotFound();
             return View(permission);
         }
@@ -81,7 +81,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         {
             if (id != permission.PermissionId) return NotFound();
 
-            if (await _context.Permissions.AnyAsync(p => p.PermissionName == permission.PermissionName && p.PermissionId != permission.PermissionId))
+            if (await _context.Permission.AnyAsync(p => p.PermissionName == permission.PermissionName && p.PermissionId != permission.PermissionId))
             {
                 ModelState.AddModelError("PermissionName", "This permission already exists.");
             }
@@ -97,7 +97,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
-            var permission = await _context.Permissions.FirstOrDefaultAsync(p => p.PermissionId == id);
+            var permission = await _context.Permission.FirstOrDefaultAsync(p => p.PermissionId == id);
             if (permission == null) return NotFound();
             return View(permission);
         }
@@ -106,18 +106,18 @@ namespace Convocation_Management_System.Web.UI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var permission = await _context.Permissions.FindAsync(id);
+            var permission = await _context.Permission.FindAsync(id);
             if (permission == null) return RedirectToAction(nameof(Index));
 
-            bool inRolePermission = await _context.RolePermissions.AnyAsync(rp => rp.PermissionId == id);
-            bool inUserPermission = await _context.UserPermissions.AnyAsync(up => up.PermissionId == id);
+            bool inRolePermission = await _context.RolePermission.AnyAsync(rp => rp.PermissionId == id);
+            bool inUserPermission = await _context.UserPermission.AnyAsync(up => up.PermissionId == id);
             if (inRolePermission || inUserPermission)
             {
                 TempData["ErrorMessage"] = "This permission cannot be deleted because it is already assigned.";
                 return RedirectToAction(nameof(Index));
             }
 
-            _context.Permissions.Remove(permission);
+            _context.Permission.Remove(permission);
             await _context.SaveChangesAsync();
             TempData["SuccessMessage"] = "Permission deleted successfully.";
             return RedirectToAction(nameof(Index));

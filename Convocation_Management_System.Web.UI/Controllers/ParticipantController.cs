@@ -2,6 +2,7 @@
 using Convocation.Entities;
 using Convocation_Management_System.Web.UI.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace Convocation_Management_System.Web.UI.Controllers
@@ -15,6 +16,9 @@ namespace Convocation_Management_System.Web.UI.Controllers
             _context = context;
         }
 
+        // =========================
+        // HELPERS
+        // =========================
         private string CurrentRole()
         {
             return (HttpContext.Session.GetString("Role") ?? "").Trim().ToLower();
@@ -39,6 +43,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         private int? GetLoggedInUserId()
         {
             var userId = HttpContext.Session.GetString("UserId");
+
             if (string.IsNullOrEmpty(userId))
                 return null;
 
@@ -46,6 +51,24 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return null;
 
             return parsed;
+        }
+
+        private async Task LoadUserDropdownAsync(object? selectedUserId = null)
+        {
+            var studentUsers = await _context.UserAccount
+                .Include(u => u.Role)
+                .Where(u => u.Role != null &&
+                            (u.Role.RoleName.ToLower() == "student" ||
+                             u.Role.RoleName.ToLower() == "participant"))
+                .OrderBy(u => u.FullName)
+                .Select(u => new
+                {
+                    u.UserAccountId,
+                    DisplayText = u.FullName + " (" + u.Email + ")"
+                })
+                .ToListAsync();
+
+            ViewBag.UserAccountId = new SelectList(studentUsers, "UserAccountId", "DisplayText", selectedUserId);
         }
 
         // =========================
@@ -56,7 +79,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             if (!IsAdmin() && !IsStaff())
                 return RedirectToAction("Login", "Account");
 
-            var participants = await _context.Participants
+            var participants = await _context.Participant
                 .Include(p => p.UserAccount)
                 .OrderByDescending(p => p.ParticipantId)
                 .ToListAsync();
@@ -65,8 +88,254 @@ namespace Convocation_Management_System.Web.UI.Controllers
         }
 
         // =========================
+        // ADMIN DETAILS
+        // =========================
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (!IsAdmin() && !IsStaff())
+                return RedirectToAction("Login", "Account");
+
+            if (id == null)
+                return NotFound();
+
+            var participant = await _context.Participant
+                .Include(p => p.UserAccount)
+                .FirstOrDefaultAsync(p => p.ParticipantId == id.Value);
+
+            if (participant == null)
+                return NotFound();
+
+            return View(participant);
+        }
+
+        // =========================
+        // ADMIN CREATE
+        // =========================
+        [HttpGet]
+        public async Task<IActionResult> Create()
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Login", "Account");
+
+            await LoadUserDropdownAsync();
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Participant participant)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Login", "Account");
+
+            if (participant.UserAccountId <= 0)
+            {
+                ModelState.AddModelError("UserAccountId", "Please select a student account.");
+            }
+
+            bool userAlreadyAssigned = await _context.Participant
+                .AnyAsync(p => p.UserAccountId == participant.UserAccountId);
+
+            if (userAlreadyAssigned)
+            {
+                ModelState.AddModelError("UserAccountId", "This user already has a participant profile.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                await LoadUserDropdownAsync(participant.UserAccountId);
+                return View(participant);
+            }
+
+            participant.CreatedAt = DateTime.Now;
+
+            _context.Participant.Add(participant);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Participant created successfully.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // =========================
+        // ADMIN EDIT
+        // =========================
+        [HttpGet]
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Login", "Account");
+
+            if (id == null)
+                return NotFound();
+
+            var participant = await _context.Participant.FindAsync(id.Value);
+            if (participant == null)
+                return NotFound();
+
+            await LoadUserDropdownAsync(participant.UserAccountId);
+            return View(participant);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Participant participant)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Login", "Account");
+
+            if (id != participant.ParticipantId)
+                return NotFound();
+
+            bool userAlreadyAssignedToAnother = await _context.Participant
+                .AnyAsync(p => p.UserAccountId == participant.UserAccountId &&
+                               p.ParticipantId != participant.ParticipantId);
+
+            if (userAlreadyAssignedToAnother)
+            {
+                ModelState.AddModelError("UserAccountId", "This user is already linked to another participant profile.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                await LoadUserDropdownAsync(participant.UserAccountId);
+                return View(participant);
+            }
+
+            try
+            {
+                var existingParticipant = await _context.Participant
+                    .FirstOrDefaultAsync(p => p.ParticipantId == id);
+
+                if (existingParticipant == null)
+                    return NotFound();
+
+                existingParticipant.UserAccountId = participant.UserAccountId;
+                existingParticipant.StudentId = participant.StudentId;
+                existingParticipant.Department = participant.Department;
+                existingParticipant.Program = participant.Program;
+                existingParticipant.Session = participant.Session;
+                existingParticipant.IsEligible = participant.IsEligible;
+
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = "Participant updated successfully.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError("", "Unable to update participant.");
+                await LoadUserDropdownAsync(participant.UserAccountId);
+                return View(participant);
+            }
+        }
+
+        // =========================
+        // ADMIN DELETE
+        // =========================
+        [HttpGet]
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Login", "Account");
+
+            if (id == null)
+                return NotFound();
+
+            var participant = await _context.Participant
+                .Include(p => p.UserAccount)
+                .FirstOrDefaultAsync(p => p.ParticipantId == id.Value);
+
+            if (participant == null)
+                return NotFound();
+
+            return View(participant);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var role = (HttpContext.Session.GetString("Role") ?? "").Trim().ToLower();
+
+            if (role != "admin")
+                return RedirectToAction("Login", "Account");
+
+            var participant = await _context.Participant
+                .Include(p => p.UserAccount)
+                .FirstOrDefaultAsync(p => p.ParticipantId == id);
+
+            if (participant == null)
+                return NotFound();
+
+            var registrations = await _context.Registration
+                .Where(r => r.ParticipantId == id)
+                .ToListAsync();
+
+            foreach (var registration in registrations)
+            {
+                var payments = await _context.Payment
+                    .Where(p => p.RegistrationId == registration.RegistrationId)
+                    .ToListAsync();
+
+                var qrPasses = await _context.QrPass
+                    .Where(q => q.RegistrationId == registration.RegistrationId)
+                    .ToListAsync();
+
+                var guests = await _context.Guest
+                    .Where(g => g.RegistrationId == registration.RegistrationId)
+                    .ToListAsync();
+
+                var distributionLogs = await _context.DistributionLog
+                    .Where(d => d.RegistrationId == registration.RegistrationId)
+                    .ToListAsync();
+
+                _context.Payment.RemoveRange(payments);
+                _context.QrPass.RemoveRange(qrPasses);
+                _context.Guest.RemoveRange(guests);
+                _context.DistributionLog.RemoveRange(distributionLogs);
+            }
+
+            _context.Registration.RemoveRange(registrations);
+
+            _context.Participant.Remove(participant);
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Participant and related records deleted successfully.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // =========================
         // STUDENT DASHBOARD
         // =========================
+
+        [HttpPost]
+        public async Task<IActionResult> RegisterEvent(int eventId)
+        {
+            var userId = HttpContext.Session.GetString("UserId");
+
+            if (string.IsNullOrEmpty(userId))
+                return RedirectToAction("Login", "Account");
+
+            var participant = await _context.Participant
+                .FirstOrDefaultAsync(p => p.UserAccountId == int.Parse(userId));
+
+            if (participant == null)
+                return RedirectToAction("Dashboard");
+
+            var registration = new Registration
+            {
+                EventId = eventId,
+                ParticipantId = participant.ParticipantId,
+                RegistrationDate = DateTime.Now,
+                RegistrationStatus = "Pending"
+            };
+
+            _context.Registration.Add(registration);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("MyRegistration");
+        }
         public async Task<IActionResult> Dashboard()
         {
             if (!IsStudentLoggedIn())
@@ -76,7 +345,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             if (userId == null)
                 return RedirectToAction("Login", "Account");
 
-            var participant = await _context.Participants
+            var participant = await _context.Participant
                 .Include(p => p.UserAccount)
                 .FirstOrDefaultAsync(p => p.UserAccountId == userId.Value);
 
@@ -86,21 +355,22 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var registration = await _context.Registrations
+            var registration = await _context.Registration
                 .Include(r => r.Event)
-                .FirstOrDefaultAsync(r => r.ParticipantId == participant.ParticipantId);
+                .Where(r => r.ParticipantId == participant.ParticipantId)
+                .OrderByDescending(r => r.RegistrationDate)
+                .FirstOrDefaultAsync();
 
             var payment = registration == null
                 ? null
-                : await _context.Payments.FirstOrDefaultAsync(p => p.RegistrationId == registration.RegistrationId);
+                : await _context.Payment.FirstOrDefaultAsync(p => p.RegistrationId == registration.RegistrationId);
 
             var qrPass = registration == null
                 ? null
-                : await _context.QrPasses.FirstOrDefaultAsync(q => q.RegistrationId == registration.RegistrationId);
-
+                : await _context.QrPass.FirstOrDefaultAsync(q => q.RegistrationId == registration.RegistrationId);
             var guests = registration == null
                 ? new List<Guest>()
-                : await _context.Guests.Where(g => g.RegistrationId == registration.RegistrationId).ToListAsync();
+                : await _context.Guest.Where(g => g.RegistrationId == registration.RegistrationId).ToListAsync();
 
             int progress = 20;
 
@@ -168,7 +438,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             if (userId == null)
                 return RedirectToAction("Login", "Account");
 
-            var participant = await _context.Participants
+            var participant = await _context.Participant
                 .Include(p => p.UserAccount)
                 .FirstOrDefaultAsync(p => p.UserAccountId == userId.Value);
 
@@ -190,7 +460,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             if (userId == null)
                 return RedirectToAction("Login", "Account");
 
-            var participant = await _context.Participants
+            var participant = await _context.Participant
                 .FirstOrDefaultAsync(p => p.UserAccountId == userId.Value);
 
             if (participant == null)
@@ -199,9 +469,11 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var registration = await _context.Registrations
+            var registration = await _context.Registration
                 .Include(r => r.Event)
-                .FirstOrDefaultAsync(r => r.ParticipantId == participant.ParticipantId);
+                .Where(r => r.ParticipantId == participant.ParticipantId)
+                .OrderByDescending(r => r.RegistrationDate)
+                .FirstOrDefaultAsync();
 
             return View(registration);
         }
@@ -215,7 +487,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             if (userId == null)
                 return RedirectToAction("Login", "Account");
 
-            var participant = await _context.Participants
+            var participant = await _context.Participant
                 .FirstOrDefaultAsync(p => p.UserAccountId == userId.Value);
 
             if (participant == null)
@@ -224,7 +496,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var latestRegistration = await _context.Registrations
+            var latestRegistration = await _context.Registration
                 .Where(r => r.ParticipantId == participant.ParticipantId)
                 .OrderByDescending(r => r.RegistrationDate)
                 .FirstOrDefaultAsync();
@@ -232,7 +504,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             if (latestRegistration == null)
                 return View(null);
 
-            var payment = await _context.Payments
+            var payment = await _context.Payment
                 .Include(p => p.Registration)
                 .FirstOrDefaultAsync(p => p.RegistrationId == latestRegistration.RegistrationId);
 
@@ -263,13 +535,13 @@ namespace Convocation_Management_System.Web.UI.Controllers
             if (userId == null)
                 return RedirectToAction("Login", "Account");
 
-            var participant = await _context.Participants
+            var participant = await _context.Participant
                 .FirstOrDefaultAsync(p => p.UserAccountId == userId.Value);
 
             if (participant == null)
                 return View(null);
 
-            var qr = await _context.QrPasses
+            var qr = await _context.QrPass
                 .Include(q => q.Registration)
                 .FirstOrDefaultAsync(q => q.Registration != null &&
                                           q.Registration.ParticipantId == participant.ParticipantId);
@@ -286,7 +558,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             if (userId == null)
                 return RedirectToAction("Login", "Account");
 
-            var participant = await _context.Participants
+            var participant = await _context.Participant
                 .FirstOrDefaultAsync(p => p.UserAccountId == userId.Value);
 
             if (participant == null)
@@ -295,13 +567,15 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var registration = await _context.Registrations
-                .FirstOrDefaultAsync(r => r.ParticipantId == participant.ParticipantId);
+            var registration = await _context.Registration
+                .Where(r => r.ParticipantId == participant.ParticipantId)
+                .OrderByDescending(r => r.RegistrationDate)
+                .FirstOrDefaultAsync();
 
             if (registration == null)
                 return View(new List<Guest>());
 
-            var guests = await _context.Guests
+            var guests = await _context.Guest
                 .Where(g => g.RegistrationId == registration.RegistrationId)
                 .ToListAsync();
 

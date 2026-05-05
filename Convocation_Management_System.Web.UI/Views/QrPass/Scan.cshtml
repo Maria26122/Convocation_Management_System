@@ -86,12 +86,18 @@
         }
 
         <div class="manual-box">
-            <form asp-controller="QrPass" asp-action="VerifyScan" method="post">
+            <form asp-controller="QrPass" asp-action="Verify" method="post">
+                @Html.AntiForgeryToken()
                 <label class="form-label fw-semibold">Manual QR Text Entry</label>
                 <div class="input-group">
                     <input type="text" name="qrCodeText" class="form-control" placeholder="Paste QR code text here" />
                     <button type="submit" class="btn btn-primary">Verify</button>
                 </div>
+            </form>
+
+            <form id="scanForm" asp-controller="QrPass" asp-action="Verify" method="post" style="display:none;">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="qrCodeText" name="qrCodeText" />
             </form>
         </div>
     </div>

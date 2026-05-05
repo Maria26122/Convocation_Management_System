@@ -398,7 +398,7 @@ function addHandler(element, originalTypeEvent, handler, delegationFunction, one
     };
     callable = wrapFunction(callable);
   }
-  const events = getElementEvents(element);
+  const event = getElementEvents(element);
   const handlers = events[typeEvent] || (events[typeEvent] = {});
   const previousFunction = findHandler(handlers, callable, isDelegated ? handler : null);
   if (previousFunction) {
@@ -448,7 +448,7 @@ const EventHandler = {
     }
     const [isDelegated, callable, typeEvent] = normalizeParameters(originalTypeEvent, handler, delegationFunction);
     const inNamespace = typeEvent !== originalTypeEvent;
-    const events = getElementEvents(element);
+    const event = getElementEvents(element);
     const storeElementEvent = events[typeEvent] || {};
     const isNamespace = originalTypeEvent.startsWith('.');
     if (typeof callable !== 'undefined') {

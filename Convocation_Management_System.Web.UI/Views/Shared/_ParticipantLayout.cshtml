@@ -330,9 +330,9 @@
                         </a>
 
                         <a asp-controller="Participant" asp-action="MyGuests"
-                               class="sidebar-link @(isMyGuests ? "active-menu" : "")">
+                               class="sidebar-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "MyGuests" ? "active-menu" : "")">
                             <span class="menu-left">
-                                <i class="fas fa-user-group menu-icon"></i>
+                                <i class="fas fa-user-friends menu-icon"></i>
                                 <span>My Guests</span>
                             </span>
                         </a>
@@ -426,6 +426,10 @@
         </main>
     </div>
 
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

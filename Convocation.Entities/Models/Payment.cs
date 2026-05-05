@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Convocation.Entities
@@ -9,26 +8,28 @@ namespace Convocation.Entities
         [Key]
         public int PaymentId { get; set; }
 
-       [Required]
+        [Required]
         public int RegistrationId { get; set; }
 
-        [StringLength(50)]
-        public string? PaymentMethod { get; set; } = null;  
-
-        [StringLength(120)]
-        public string? TransactionId { get; set; }
+        [ForeignKey("RegistrationId")]
+        public Registration? Registration { get; set; }
 
         [Required]
+        [Column(TypeName = "decimal(18,2)")]
         public decimal PaidAmount { get; set; }
 
-        [Required]
-        [StringLength(30)]
-        public required string PaymentStatus { get; set; }
+        [StringLength(50)]
+        public string? PaymentMethod { get; set; }
+
+        [StringLength(100)]
+        public string? TransactionId { get; set; }
+
+        [StringLength(50)]
+        public string PaymentStatus { get; set; } = "Pending";
 
         public DateTime? PaymentDate { get; set; }
 
-        [ForeignKey("RegistrationId")]
-        public virtual required Registration Registration { get; set; }
+        [StringLength(200)]
         public string? SessionKey { get; set; }
     }
 }

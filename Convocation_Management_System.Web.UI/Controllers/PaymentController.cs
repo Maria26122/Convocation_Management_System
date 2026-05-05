@@ -1,6 +1,7 @@
 ﻿using Convocation.DataAccess;
 using Convocation.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace Convocation_Management_System.Web.UI.Controllers
@@ -14,9 +15,6 @@ namespace Convocation_Management_System.Web.UI.Controllers
             _context = context;
         }
 
-        // ==============================
-        // COMMON HELPERS
-        // ==============================
         private string CurrentRole()
         {
             return (HttpContext.Session.GetString("Role") ?? "").Trim().ToLower();
@@ -25,6 +23,11 @@ namespace Convocation_Management_System.Web.UI.Controllers
         private bool IsAdmin()
         {
             return CurrentRole() == "admin";
+        }
+
+        private bool IsStaff()
+        {
+            return CurrentRole() == "staff" || CurrentRole() == "eventmanager";
         }
 
         private bool IsStudentLoggedIn()
@@ -52,20 +55,63 @@ namespace Convocation_Management_System.Web.UI.Controllers
             if (userId == null)
                 return null;
 
-            return await _context.Participants
+            return await _context.Participant
                 .Include(p => p.UserAccount)
                 .FirstOrDefaultAsync(p => p.UserAccountId == userId.Value);
         }
 
+        private async Task LoadRegistrationDropdownAsync(object? selectedId = null)
+        {
+            var registrations = await _context.Registration
+                .Include(r => r.Participant)
+                    .ThenInclude(p => p.UserAccount)
+                .Include(r => r.Event)
+                .OrderByDescending(r => r.RegistrationId)
+                .Select(r => new
+                {
+                    r.RegistrationId,
+                    DisplayText = "Reg#" + r.RegistrationId
+                                  + " - "
+                                  + (r.Participant != null && r.Participant.UserAccount != null
+                                        ? r.Participant.UserAccount.FullName
+                                        : "Unknown Participant")
+                                  + " - "
+                                  + (r.Event != null ? r.Event.EventTitle : "No Event")
+                })
+                .ToListAsync();
+
+            ViewBag.RegistrationId = new SelectList(registrations, "RegistrationId", "DisplayText", selectedId);
+        }
+
+        private async Task GenerateQrIfNotExistsAsync(int registrationId)
+        {
+            var existingQr = await _context.QrPass
+                .FirstOrDefaultAsync(q => q.RegistrationId == registrationId);
+
+            if (existingQr != null)
+                return;
+
+            var qrPass = new QrPass
+            {
+                RegistrationId = registrationId,
+                QrCodeText = "CONVO-" + registrationId + "-" + Guid.NewGuid().ToString("N"),
+                QrImagePath = null,
+                IssuedAt = DateTime.Now,
+                IsUsed = false
+            };
+
+            _context.QrPass.Add(qrPass);
+        }
+
         // ==============================
-        // ADMIN PAYMENT LIST
+        // ADMIN LIST
         // ==============================
         public async Task<IActionResult> Index()
         {
             if (!IsAdmin())
                 return RedirectToAction("Login", "Account");
 
-            var payments = await _context.Payments
+            var payments = await _context.Payment
                 .Include(p => p.Registration)
                     .ThenInclude(r => r.Participant)
                         .ThenInclude(p => p.UserAccount)
@@ -79,7 +125,198 @@ namespace Convocation_Management_System.Web.UI.Controllers
         }
 
         // ==============================
-        // STUDENT: OPEN OWN PAYMENT PAGE
+        // ADMIN DETAILS
+        // ==============================
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Login", "Account");
+
+            if (id == null)
+                return NotFound();
+
+            var payment = await _context.Payment
+                .Include(p => p.Registration)
+                    .ThenInclude(r => r.Participant)
+                        .ThenInclude(p => p.UserAccount)
+                .Include(p => p.Registration)
+                    .ThenInclude(r => r.Event)
+                .FirstOrDefaultAsync(p => p.PaymentId == id.Value);
+
+            if (payment == null)
+                return NotFound();
+
+            return View(payment);
+        }
+
+        // ==============================
+        // ADMIN CREATE
+        // ==============================
+
+        [HttpGet]
+        public async Task<IActionResult> Create()
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Login", "Account");
+
+            await LoadRegistrationDropdownAsync();
+
+            var model = new Payment
+            {
+                RegistrationId = 0,
+                Registration = null!, // temporary for view loading
+                PaymentStatus = "Pending",
+                PaymentDate = DateTime.Now,
+                PaymentMethod = "",
+                TransactionId = null,
+                PaidAmount = 0,
+                SessionKey = null
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Payment payment)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Login", "Account");
+
+            ModelState.Remove("Registration");
+
+            var registration = await _context.Registration
+                .FirstOrDefaultAsync(r => r.RegistrationId == payment.RegistrationId);
+
+            if (registration == null)
+            {
+                ModelState.AddModelError("RegistrationId", "Invalid registration.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                payment.Registration = registration ?? null!;
+                await LoadRegistrationDropdownAsync(payment.RegistrationId);
+                return View(payment);
+            }
+
+            payment.Registration = registration!;
+
+            _context.Payment.Add(payment);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Payment created successfully.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // ==============================
+        // ADMIN EDIT
+        // ==============================
+        [HttpGet]
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Login", "Account");
+
+            if (id == null)
+                return NotFound();
+
+            var payment = await _context.Payment.FindAsync(id.Value);
+            if (payment == null)
+                return NotFound();
+
+            await LoadRegistrationDropdownAsync(payment.RegistrationId);
+            return View(payment);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Payment payment)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Login", "Account");
+
+            if (id != payment.PaymentId)
+                return NotFound();
+
+            ModelState.Remove("Registration");
+
+            var existing = await _context.Payment.FindAsync(id);
+            if (existing == null)
+                return NotFound();
+
+            bool validRegistration = await _context.Registration
+                .AnyAsync(r => r.RegistrationId == payment.RegistrationId);
+
+            if (!validRegistration)
+                ModelState.AddModelError("RegistrationId", "Invalid registration.");
+
+            if (!ModelState.IsValid)
+            {
+                await LoadRegistrationDropdownAsync(payment.RegistrationId);
+                return View(payment);
+            }
+
+            existing.RegistrationId = payment.RegistrationId;
+            existing.PaymentMethod = payment.PaymentMethod;
+            existing.TransactionId = payment.TransactionId;
+            existing.PaidAmount = payment.PaidAmount;
+            existing.PaymentStatus = payment.PaymentStatus;
+            existing.PaymentDate = payment.PaymentDate;
+            existing.SessionKey = payment.SessionKey;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Payment updated successfully.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // ==============================
+        // ADMIN DELETE
+        // ==============================
+        [HttpGet]
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Login", "Account");
+
+            if (id == null)
+                return NotFound();
+
+            var payment = await _context.Payment
+                .Include(p => p.Registration)
+                    .ThenInclude(r => r.Participant)
+                        .ThenInclude(p => p.UserAccount)
+                .Include(p => p.Registration)
+                    .ThenInclude(r => r.Event)
+                .FirstOrDefaultAsync(p => p.PaymentId == id.Value);
+
+            if (payment == null)
+                return NotFound();
+
+            return View(payment);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Login", "Account");
+
+            var payment = await _context.Payment.FindAsync(id);
+            if (payment == null)
+                return NotFound();
+
+            _context.Payment.Remove(payment);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Payment deleted successfully.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // ==============================
+        // STUDENT PAYMENT FLOW
         // ==============================
         public async Task<IActionResult> PayNow(int? registrationId = null)
         {
@@ -87,6 +324,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return RedirectToAction("Login", "Account");
 
             var participant = await GetLoggedInParticipantAsync();
+
             if (participant == null)
             {
                 TempData["Error"] = "Student profile not found.";
@@ -97,7 +335,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             if (registrationId.HasValue)
             {
-                registration = await _context.Registrations
+                registration = await _context.Registration
                     .Include(r => r.Event)
                     .FirstOrDefaultAsync(r =>
                         r.RegistrationId == registrationId.Value &&
@@ -105,7 +343,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             }
             else
             {
-                registration = await _context.Registrations
+                registration = await _context.Registration
                     .Include(r => r.Event)
                     .Where(r => r.ParticipantId == participant.ParticipantId)
                     .OrderByDescending(r => r.RegistrationDate)
@@ -118,9 +356,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return RedirectToAction("MyRegistration", "Participant");
             }
 
-            var payment = await _context.Payments
-                .Include(p => p.Registration)
-                .ThenInclude(r => r.Event)
+            var payment = await _context.Payment
                 .FirstOrDefaultAsync(p => p.RegistrationId == registration.RegistrationId);
 
             if (payment == null)
@@ -131,22 +367,19 @@ namespace Convocation_Management_System.Web.UI.Controllers
                     Registration = registration,
                     PaidAmount = registration.TotalAmount,
                     PaymentStatus = "Pending",
-                    PaymentMethod = "SSLCommerz",
+                    PaymentMethod = "Manual/Sandbox",
                     TransactionId = null,
                     PaymentDate = null,
-                    SessionKey = null
+                    SessionKey = Guid.NewGuid().ToString("N")
                 };
 
-                _context.Payments.Add(payment);
+                _context.Payment.Add(payment);
                 await _context.SaveChangesAsync();
             }
 
-            return View(payment);
+            return RedirectToAction(nameof(Checkout), new { registrationId = registration.RegistrationId });
         }
 
-        // ==============================
-        // STUDENT: START PAYMENT
-        // ==============================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> StartPayment(int registrationId)
@@ -161,7 +394,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var registration = await _context.Registrations
+            var registration = await _context.Registration
                 .Include(r => r.Event)
                 .FirstOrDefaultAsync(r =>
                     r.RegistrationId == registrationId &&
@@ -173,7 +406,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return RedirectToAction("MyRegistration", "Participant");
             }
 
-            var payment = await _context.Payments
+            var payment = await _context.Payment
                 .FirstOrDefaultAsync(p => p.RegistrationId == registration.RegistrationId);
 
             if (payment == null)
@@ -190,7 +423,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
                     SessionKey = null
                 };
 
-                _context.Payments.Add(payment);
+                _context.Payment.Add(payment);
             }
             else
             {
@@ -203,29 +436,27 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             await _context.SaveChangesAsync();
 
-            // TEMPORARY FLOW:
-            // Later replace this with SSLCommerz Session creation and redirect URL
             return RedirectToAction(nameof(Checkout), new { registrationId = registration.RegistrationId });
         }
 
-        // ==============================
-        // STUDENT: TEMP CHECKOUT PAGE
-        // ==============================
         public async Task<IActionResult> Checkout(int registrationId)
         {
             if (!IsStudentLoggedIn())
                 return RedirectToAction("Login", "Account");
 
             var participant = await GetLoggedInParticipantAsync();
+
             if (participant == null)
             {
                 TempData["Error"] = "Student profile not found.";
                 return RedirectToAction("Login", "Account");
             }
 
-            var payment = await _context.Payments
+            var payment = await _context.Payment
                 .Include(p => p.Registration)
                     .ThenInclude(r => r.Event)
+                .Include(p => p.Registration)
+                    .ThenInclude(r => r.Participant)
                 .FirstOrDefaultAsync(p =>
                     p.RegistrationId == registrationId &&
                     p.Registration != null &&
@@ -234,16 +465,11 @@ namespace Convocation_Management_System.Web.UI.Controllers
             if (payment == null)
             {
                 TempData["Error"] = "Payment record not found.";
-                return RedirectToAction("MyPayment", "Participant");
+                return RedirectToAction("MyRegistration", "Participant");
             }
 
             return View(payment);
         }
-
-        // ==============================
-        // TEMP SUCCESS FOR DEMO / TESTING
-        // Replace with SSLCommerz callback later
-        // ==============================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MarkPaid(int registrationId)
@@ -252,13 +478,14 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return RedirectToAction("Login", "Account");
 
             var participant = await GetLoggedInParticipantAsync();
+
             if (participant == null)
             {
                 TempData["Error"] = "Student profile not found.";
                 return RedirectToAction("Login", "Account");
             }
 
-            var payment = await _context.Payments
+            var payment = await _context.Payment
                 .Include(p => p.Registration)
                 .FirstOrDefaultAsync(p =>
                     p.RegistrationId == registrationId &&
@@ -272,30 +499,35 @@ namespace Convocation_Management_System.Web.UI.Controllers
             }
 
             payment.PaymentStatus = "Paid";
+            payment.PaymentMethod = "Manual/Sandbox";
             payment.PaymentDate = DateTime.Now;
 
             if (string.IsNullOrWhiteSpace(payment.TransactionId))
-            {
                 payment.TransactionId = "TXN-" + DateTime.Now.ToString("yyyyMMddHHmmss");
+
+            if (payment.Registration != null)
+            {
+                payment.Registration.RegistrationStatus = "Paid";
+                await GenerateQrIfNotExistsAsync(payment.RegistrationId);
             }
 
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Payment completed successfully.";
-            return RedirectToAction("MyPayment", "Participant");
+            TempData["Success"] = "Payment completed successfully. QR pass generated.";
+            return RedirectToAction("MyQrPass", "Participant");
         }
 
         // ==============================
-        // OPTIONAL ADMIN STATUS UPDATE
+        // ADMIN PAYMENT STATUS UPDATE
         // ==============================
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateStatus(int paymentId, string status)
+        public async Task<IActionResult> PaymentStatus(int paymentId, string status)
         {
             if (!IsAdmin())
                 return RedirectToAction("Login", "Account");
 
-            var payment = await _context.Payments.FindAsync(paymentId);
+            var payment = await _context.Payment.FindAsync(paymentId);
             if (payment == null)
                 return NotFound();
 
@@ -311,3 +543,5 @@ namespace Convocation_Management_System.Web.UI.Controllers
         }
     }
 }
+        
+    
