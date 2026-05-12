@@ -10,7 +10,7 @@ namespace Convocation.DataAccess.Migrations
         {
             migrationBuilder.AddColumn<string>(
                 name: "QrImagePath",
-                table: "QrPasses",
+                table: "QrPass",
                 type: "nvarchar(max)",
                 nullable: true);
         }
@@ -19,7 +19,9 @@ namespace Convocation.DataAccess.Migrations
         {
             migrationBuilder.DropColumn(
                 name: "QrImagePath",
-                table: "QrPasses");
+                table: "QrPass");
         }
+
+      
     }
 }

@@ -4,6 +4,7 @@ using Convocation_Management_System.Web.UI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Convocation_Management_System.Web.UI.Controllers
 {

@@ -76,10 +76,10 @@
                     else
                     {
                         <a asp-controller="Payment"
-                               asp-action="PayNow"
-                               asp-route-registrationId="@Model.RegistrationId"
-                               class="btn btn-primary">
-                            Proceed to Payment
+                               asp-action="Pay"
+                               asp-route-id="@Model.RegistrationId"
+                               class="btn btn-success">
+                            Pay Now
                         </a>
                     }
                 </div>

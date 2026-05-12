@@ -156,6 +156,46 @@ namespace Convocation_Management_System.Web.UI.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var log = await _context.DistributionLog.FindAsync(id);
+
+            if (log == null)
+                return NotFound();
+
+            await LoadRegistrationDropdownAsync(log.RegistrationId);
+
+            return View(log);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, DistributionLog model)
+        {
+            if (id != model.DistributionLogId)
+                return NotFound();
+
+            ModelState.Remove("Registration");
+            ModelState.Remove("UserAccount");
+
+            if (!ModelState.IsValid)
+            {
+                await LoadRegistrationDropdownAsync(model.RegistrationId);
+                return View(model);
+            }
+
+            _context.Update(model);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Distribution updated successfully.";
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
             if (!HasAccess())

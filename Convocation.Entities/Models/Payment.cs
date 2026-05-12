@@ -31,5 +31,7 @@ namespace Convocation.Entities
 
         [StringLength(200)]
         public string? SessionKey { get; set; }
+
+        public string? QrPass { get; set; }
     }
 }

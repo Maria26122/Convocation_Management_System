@@ -1,4 +1,6 @@
 using Convocation.DataAccess;
+using Convocation_Management_System.Web.UI;
+using Convocation_Management_System.Web.UI.Helpers;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -6,7 +8,8 @@ using System.Security.Claims;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
-builder.Services.AddControllersWithViews();
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<SSLCommercePayment>();
 
 // Database
 builder.Services.AddDbContext<ConvocationDbContext>(options =>
@@ -35,6 +38,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.HttpOnly = true;
         options.Cookie.IsEssential = true;
     });
+builder.Services.AddAuthorization();
+builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
@@ -53,7 +58,7 @@ app.UseRouting();
 app.UseSession();
 
 app.UseAuthentication();
-app.UseAuthorization();
+
 
 // Restore session values from cookie claims if session is empty
 app.Use(async (context, next) =>

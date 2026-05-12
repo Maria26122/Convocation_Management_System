@@ -41,7 +41,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             var user = await _context.UserAccount
                 .Include(u => u.Role)
                 .Include(u => u.Participant)
-                .Include(u => u.UserPermissions)
+                .Include(u => u.UserPermission)
                     .ThenInclude(up => up.Permission)
                 .FirstOrDefaultAsync(u => u.UserAccountId == id);
 

@@ -16,12 +16,19 @@
         {
             if (!isPaid)
             {
-                <a asp-controller="Payment"
-                       asp-action="PayNow"
-                       asp-route-registrationId="@Model.RegistrationId"
-                       class="btn btn-success">
-                    <i class="fas fa-credit-card me-2"></i>Proceed to Payment
-                </a>
+                <form asp-controller="Payment"
+                      asp-action="Pay"
+                      method="post">
+
+                    <input type="hidden"
+                           name="registrationId"
+                           value="@Model.RegistrationId" />
+
+                    <button type="submit"
+                            class="btn btn-success">
+                        Pay With SSLCommerz
+                    </button>
+                </form>
             }
             else
             {

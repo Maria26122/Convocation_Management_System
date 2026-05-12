@@ -33,5 +33,8 @@ namespace Convocation.Entities
         public Event? Event { get; set; }
 
         public virtual ICollection<DistributionLog> DistributionLogs { get; set; } = new List<DistributionLog>();
+
+        [StringLength(100)]
+        public string? TransactionId { get; set; }
     }
 }

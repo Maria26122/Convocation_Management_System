@@ -1,4 +1,5 @@
 ﻿using Convocation.Entities;
+using Convocation.Entities.Models;
 using Convocation_Management_System.Web.UI.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,6 +25,10 @@ namespace Convocation.DataAccess
         public DbSet<RolePermission> RolePermission { get; set; }
         public DbSet<StaffTask> StaffTask { get; set; }
         public DbSet<UserPermission> UserPermission { get; set; }
+        public DbSet<DistributionItem> DistributionItem { get; set; }
+        public DbSet<FoodMenu> FoodMenu { get; set; }
+        public DbSet<StudentDistributionQr> StudentDistributionQr { get; set; }
+       
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

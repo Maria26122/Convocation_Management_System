@@ -1,0 +1,45 @@
+﻿@model Convocation.Entities.FoodMenu
+
+@{
+    ViewData["Title"] = "Create Food Menu";
+}
+
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            Create Food Menu
+        </div>
+
+        <div class="card-body">
+            <form asp-action="Create" method="post">
+
+                <div class="mb-3">
+                    <label class="form-label">Menu Name</label>
+                    <input asp-for="MenuName" class="form-control" />
+                    <span asp-validation-for="MenuName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Menu Items</label>
+                    <textarea asp-for="MenuItems"
+                              rows="5"
+                              class="form-control"></textarea>
+                    <span asp-validation-for="MenuItems" class="text-danger"></span>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input asp-for="IsActive" class="form-check-input" />
+                    <label asp-for="IsActive" class="form-check-label"></label>
+                </div>
+
+                <button type="submit" class="btn btn-success">
+                    Save Menu
+                </button>
+
+                <a asp-action="Index" class="btn btn-secondary">
+                    Back
+                </a>
+            </form>
+        </div>
+    </div>
+</div>

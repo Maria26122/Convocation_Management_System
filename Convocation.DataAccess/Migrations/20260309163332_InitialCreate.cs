@@ -101,11 +101,11 @@ namespace Convocation.DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserAccounts", x => x.UserAccountId);
+                    table.PrimaryKey("PK_UserAccount", x => x.UserAccountId);
                     table.ForeignKey(
                         name: "FK_UserAccounts_Roles_RoleId",
                         column: x => x.RoleId,
-                        principalTable: "Roles",
+                        principalTable: "Role",
                         principalColumn: "RoleId",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -271,8 +271,7 @@ namespace Convocation.DataAccess.Migrations
                 name: "QrPass",
                 columns: table => new
                 {
-                    QrPassId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    
                     RegistrationId = table.Column<int>(type: "int", nullable: false),
                     QrCodeText = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
@@ -280,7 +279,7 @@ namespace Convocation.DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_QrPass", x => x.QrPassId);
+                  
                     table.ForeignKey(
                         name: "FK_QrPass_Registration_RegistrationId",
                         column: x => x.RegistrationId,

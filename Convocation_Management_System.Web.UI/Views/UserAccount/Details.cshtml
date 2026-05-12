@@ -22,11 +22,11 @@
         <dd class="col-sm-9">@(Model.Participant != null ? "Yes" : "No")</dd>
     </dl>
 
-    @if (Model.UserPermissions != null && Model.UserPermissions.Any())
+    @if (Model.UserPermission != null && Model.UserPermission.Any())
     {
         <h5 class="mt-4">Assigned Permissions</h5>
         <ul>
-            @foreach (var item in Model.UserPermissions)
+            @foreach (var item in Model.UserPermission)
             {
                 <li>@item.Permission?.PermissionName</li>
             }

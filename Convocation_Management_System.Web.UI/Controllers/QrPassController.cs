@@ -187,43 +187,24 @@ namespace Convocation_Management_System.Web.UI.Controllers
         // POST: QrPass/Verify
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Verify(string qrCodeText)
+        public async Task<IActionResult> Verify(string code)
         {
-            var role = (HttpContext.Session.GetString("Role") ?? "").Trim().ToLower();
-
-            if (role != "admin" && role != "staff" && role != "eventmanager")
-                return RedirectToAction("Login", "Account");
-
-            if (string.IsNullOrWhiteSpace(qrCodeText))
+            if (string.IsNullOrEmpty(code))
             {
-                ModelState.AddModelError("", "Please enter a QR code.");
                 return View();
             }
 
-            var trimmed = qrCodeText.Trim();
+            var qr = await _context.QrPass
+                .Include(x => x.Registration)
+                .FirstOrDefaultAsync(x => x.QrCodeText == code);
 
-            var qrPass = await _context.QrPass
-                .Include(q => q.Registration)
-                    .ThenInclude(r => r.Participant)
-                        .ThenInclude(p => p.UserAccount)
-                .Include(q => q.Registration)
-                    .ThenInclude(r => r.Event)
-                .FirstOrDefaultAsync(q => q.QrCodeText != null && q.QrCodeText.Trim() == trimmed);
-
-            if (qrPass == null)
+            if (qr == null)
             {
-                ModelState.AddModelError("", "QR code not found.");
+                TempData["ErrorMessage"] = "Invalid QR Code";
                 return View();
             }
 
-            var collectedItems = await _context.DistributionLog
-                .Where(d => d.RegistrationId == qrPass.RegistrationId)
-                .Select(d => d.ActionType)
-                .ToListAsync();
-
-            ViewBag.CollectedItems = collectedItems;
-
-            return View("VerifyResult", qrPass);
+            return View("VerifyResult", qr.Registration);
         }
 
         // POST: QrPass/ConfirmEntry
@@ -336,6 +317,33 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 Remarks = itemType + " distributed successfully."
             };
 
+            if (itemType == "Food")
+            {
+                var menu = await _context.FoodMenu.FirstOrDefaultAsync(x => x.IsActive);
+
+                log.FoodMenuId = menu?.FoodMenuId;
+
+                log.Remarks = menu != null
+                    ? "Food menu issued: " + menu.MenuName
+                    : "Food distributed.";
+            }
+
+            var distributionQr = await _context.StudentDistributionQr
+                .FirstOrDefaultAsync(x => x.QrToken == qrPass.QrCodeText
+                                       && x.DistributionType == itemType);
+
+            if (distributionQr == null)
+            {
+                TempData["ErrorMessage"] = "Invalid distribution QR.";
+                return RedirectToAction(nameof(Verify));
+            }
+
+            if (distributionQr.IsUsed)
+            {
+                TempData["ErrorMessage"] = itemType + " already collected.";
+                return RedirectToAction(nameof(Verify));
+            }
+
             _context.DistributionLog.Add(log);
             await _context.SaveChangesAsync();
 
@@ -380,6 +388,42 @@ namespace Convocation_Management_System.Web.UI.Controllers
             }
 
             return "/qrcodes/" + fileName;
+        }
+
+        private async Task GenerateDistributionQrs(int registrationId)
+        {
+            string[] distributionTypes =
+            {
+        "Food",
+        "Kit",
+        "Gown",
+        "Certificate"
+    };
+
+            foreach (var type in distributionTypes)
+            {
+                bool exists = await _context.StudentDistributionQr
+                    .AnyAsync(x => x.RegistrationId == registrationId
+                                && x.DistributionType == type);
+
+                if (exists)
+                    continue;
+
+                var token = $"DIST-{registrationId}-{type}-{Guid.NewGuid().ToString()[..8]}";
+
+                var qr = new StudentDistributionQr
+                {
+                    RegistrationId = registrationId,
+                    DistributionType = type,
+                    QrToken = token,
+                    QrImagePath = GenerateQrImage(token),
+                    CreatedAt = DateTime.Now
+                };
+
+                _context.StudentDistributionQr.Add(qr);
+            }
+
+            await _context.SaveChangesAsync();
         }
     }
 }

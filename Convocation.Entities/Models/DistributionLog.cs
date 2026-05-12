@@ -30,5 +30,19 @@ namespace Convocation.Entities
 
         [StringLength(200)]
         public string? Remarks { get; set; }
+
+        public int? FoodMenuId { get; set; }
+
+        [ForeignKey(nameof(FoodMenuId))]
+        public FoodMenu? FoodMenu { get; set; }
+
+        [StringLength(100)]
+        public string DistributionStatus { get; set; } = "Completed";
+
+        [StringLength(100)]
+        public string? VerificationMethod { get; set; }
+
+        [StringLength(300)]
+        public string? DistributionQrToken { get; set; }
     }
 }

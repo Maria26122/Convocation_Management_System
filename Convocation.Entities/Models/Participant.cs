@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -12,31 +13,30 @@ namespace Convocation.Entities
         [Required]
         public int UserAccountId { get; set; }
 
-        [Required]
-        [StringLength(50)]
+        [Required, StringLength(50)]
         public string StudentId { get; set; } = string.Empty;
 
-        [Required]
-        [StringLength(100)]
+        [Required, StringLength(100)]
         public string Department { get; set; } = string.Empty;
 
-        [Required]
-        [StringLength(100)]
+        [Required, StringLength(100)]
         public string Program { get; set; } = string.Empty;
 
-        [Required]
-        [StringLength(50)]
+        [Required, StringLength(50)]
         public string Session { get; set; } = string.Empty;
 
         public bool IsEligible { get; set; } = true;
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
 
-        [ForeignKey("UserAccountId")]
+        [ForeignKey(nameof(UserAccountId))]
         public virtual UserAccount? UserAccount { get; set; }
 
-        public ICollection<Registration>? Registrations { get; set; }
-        public virtual ICollection<DistributionLog> DistributionLogs { get; set; } = new List<DistributionLog>();
+        public virtual ICollection<Registration> Registrations { get; set; }
+            = new List<Registration>();
+
+        public virtual ICollection<DistributionLog> DistributionLogs { get; set; }
+            = new List<DistributionLog>();
     }
 }

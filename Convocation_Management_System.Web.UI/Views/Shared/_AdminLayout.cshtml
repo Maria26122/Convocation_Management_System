@@ -138,7 +138,7 @@
             </div>
         </div>
 
-        <!-- OPERATION -->
+        
         <!-- OPERATION -->
         <div class="menu-group">
             <a class="sidebar-link menu-toggle section-toggle @(isOperationOpen ? "open-menu" : "")"
@@ -164,11 +164,24 @@
                         </span>
                     </a>
 
-                    <a asp-controller="DistributionLog" asp-action="Index"
-                           class="sidebar-link @(currentController == "DistributionLog" ? "active-menu" : "")">
+                    <a asp-controller="FoodMenu"
+                           asp-action="Index"
+                           class="sidebar-link @(currentController == "FoodMenu" ? "active-menu" : "")">
+
                         <span class="menu-left">
-                            <i class="fas fa-box-open menu-icon"></i>
-                            <span>Distribution</span>
+                            <i class="fas fa-utensils menu-icon"></i>
+                            <span>Food Menu</span>
+                        </span>
+
+                    </a>
+
+                    <a asp-controller="DistributionLog"
+                           asp-action="Create"
+                           class="sidebar-link">
+
+                        <span class="menu-left">
+                            <i class="fas fa-plus-circle menu-icon"></i>
+                            <span>Create Distribution</span>
                         </span>
                     </a>
 

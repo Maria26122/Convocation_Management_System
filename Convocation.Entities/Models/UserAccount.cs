@@ -37,7 +37,7 @@ namespace Convocation.Entities
         public virtual Role? Role { get; set; }
         public virtual Participant? Participant { get; set; }
 
-        public virtual ICollection<UserPermission>? UserPermissions { get; set; }
+        public virtual ICollection<UserPermission>? UserPermission { get; set; }
 
         public virtual ICollection<DistributionLog>? DistributionLogs { get; set; }
     }

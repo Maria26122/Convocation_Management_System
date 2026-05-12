@@ -11,26 +11,26 @@ namespace Convocation.DataAccess.Migrations
         {
             // Drop existing foreign key that references the old column name
             migrationBuilder.DropForeignKey(
-                name: "FK_DistributionLogs_UserAccounts_StaffUserAccountId",
-                table: "DistributionLogs");
+                name: "FK_DistributionLog_UserAccount_StaffUserAccountId",
+                table: "DistributionLog");
 
             // Rename the column and its index
             migrationBuilder.RenameColumn(
                 name: "StaffUserAccountId",
-                table: "DistributionLogs",
+                table: "DistributionLog",
                 newName: "UserAccountId");
 
             migrationBuilder.RenameIndex(
-                name: "IX_DistributionLogs_StaffUserAccountId",
-                table: "DistributionLogs",
-                newName: "IX_DistributionLogs_UserAccountId");
+                name: "IX_DistributionLog_StaffUserAccountId",
+                table: "DistributionLog",
+                newName: "IX_DistributionLog_UserAccountId");
 
             // Recreate foreign key with the new column name
             migrationBuilder.AddForeignKey(
-                name: "FK_DistributionLogs_UserAccounts_UserAccountId",
-                table: "DistributionLogs",
+                name: "FK_DistributionLog_UserAccount_UserAccountId",
+                table: "DistributionLog",
                 column: "UserAccountId",
-                principalTable: "UserAccounts",
+                principalTable: "UserAccount",
                 principalColumn: "UserAccountId",
                 onDelete: ReferentialAction.Cascade);
         }
@@ -38,24 +38,24 @@ namespace Convocation.DataAccess.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_DistributionLogs_UserAccounts_UserAccountId",
-                table: "DistributionLogs");
+                name: "FK_DistributionLog_UserAccount_UserAccountId",
+                table: "DistributionLog");
 
             migrationBuilder.RenameIndex(
-                name: "IX_DistributionLogs_UserAccountId",
-                table: "DistributionLogs",
-                newName: "IX_DistributionLogs_StaffUserAccountId");
+                name: "IX_DistributionLog_UserAccountId",
+                table: "DistributionLog",
+                newName: "IX_DistributionLog_StaffUserAccountId");
 
             migrationBuilder.RenameColumn(
                 name: "UserAccountId",
-                table: "DistributionLogs",
+                table: "DistributionLog",
                 newName: "StaffUserAccountId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_DistributionLogs_UserAccounts_StaffUserAccountId",
-                table: "DistributionLogs",
+                name: "FK_DistributionLog_UserAccount_StaffUserAccountId",
+                table: "DistributionLog",
                 column: "StaffUserAccountId",
-                principalTable: "UserAccounts",
+                principalTable: "UserAccount",
                 principalColumn: "UserAccountId",
                 onDelete: ReferentialAction.Cascade);
         }

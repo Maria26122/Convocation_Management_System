@@ -323,6 +323,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             var registration = await _context.Registration
                 .Include(r => r.Participant)
+                .ThenInclude(p => p.UserAccount)
                 .Include(r => r.Event)
                 .FirstOrDefaultAsync(r => r.RegistrationId == id.Value);
 

@@ -1,0 +1,39 @@
+﻿@model Convocation.Entities.DistributionLog
+Distribution Entry
+</div>
+
+<div class="card-body">
+
+    <form asp-action="Create" method="post">
+
+        <div class="mb-3">
+            <label>Registration ID</label>
+            <input asp-for="RegistrationId" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label>Distribution Type</label>
+            <select asp-for="ActionType" class="form-select">
+                <option value="Food">Food</option>
+                <option value="Kit">Kit</option>
+                <option value="Gown">Gown</option>
+                <option value="Certificate">Certificate</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Remarks</label>
+            <textarea asp-for="Remarks"
+                      class="form-control"
+                      rows="4"></textarea>
+        </div>
+
+        <button type="submit"
+                class="btn btn-success">
+            Save Distribution
+        </button>
+
+    </form>
+</div>
+</div>
+</div>

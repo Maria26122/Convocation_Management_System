@@ -13,17 +13,17 @@ namespace Convocation.DataAccess.Migrations
         {
             migrationBuilder.RenameColumn(
                 name: "QrCodeText",
-                table: "QrPasses",
+                table: "QrPass",
                 newName: "QrCode");
 
             migrationBuilder.RenameIndex(
-                name: "IX_QrPasses_QrCodeText",
-                table: "QrPasses",
-                newName: "IX_QrPasses_QrCode");
+                name: "IX_QrPass_QrCodeText",
+                table: "QrPass",
+                newName: "IX_QrPass_QrCode");
 
             migrationBuilder.AlterColumn<string>(
                 name: "Phone",
-                table: "UserAccounts",
+                table: "UserAccount",
                 type: "nvarchar(20)",
                 maxLength: 20,
                 nullable: true,
@@ -34,7 +34,7 @@ namespace Convocation.DataAccess.Migrations
 
             migrationBuilder.AlterColumn<string>(
                 name: "PasswordHash",
-                table: "UserAccounts",
+                table: "UserAccount",
                 type: "nvarchar(max)",
                 nullable: false,
                 oldClrType: typeof(string),
@@ -43,7 +43,7 @@ namespace Convocation.DataAccess.Migrations
 
             migrationBuilder.AlterColumn<string>(
                 name: "FullName",
-                table: "UserAccounts",
+                table: "UserAccount",
                 type: "nvarchar(100)",
                 maxLength: 100,
                 nullable: false,
@@ -53,7 +53,7 @@ namespace Convocation.DataAccess.Migrations
 
             migrationBuilder.AlterColumn<string>(
                 name: "Email",
-                table: "UserAccounts",
+                table: "UserAccount",
                 type: "nvarchar(100)",
                 maxLength: 100,
                 nullable: false,
@@ -63,20 +63,20 @@ namespace Convocation.DataAccess.Migrations
 
             migrationBuilder.AddColumn<bool>(
                 name: "IsTwoFactorEnabled",
-                table: "UserAccounts",
+                table: "UserAccount",
                 type: "bit",
                 nullable: false,
                 defaultValue: false);
 
             migrationBuilder.AddColumn<string>(
                 name: "OtpCode",
-                table: "UserAccounts",
+                table: "UserAccount",
                 type: "nvarchar(max)",
                 nullable: true);
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "OtpExpiryTime",
-                table: "UserAccounts",
+                table: "UserAccount",
                 type: "datetime2",
                 nullable: true);
         }
@@ -86,29 +86,28 @@ namespace Convocation.DataAccess.Migrations
         {
             migrationBuilder.DropColumn(
                 name: "IsTwoFactorEnabled",
-                table: "UserAccounts");
+                table: "UserAccount");
 
             migrationBuilder.DropColumn(
                 name: "OtpCode",
-                table: "UserAccounts");
-
+                table: "UserAccount");
             migrationBuilder.DropColumn(
                 name: "OtpExpiryTime",
-                table: "UserAccounts");
+                table: "UserAccount");
 
             migrationBuilder.RenameColumn(
                 name: "QrCode",
-                table: "QrPasses",
+                table: "QrPass",
                 newName: "QrCodeText");
 
             migrationBuilder.RenameIndex(
                 name: "IX_QrPasses_QrCode",
-                table: "QrPasses",
-                newName: "IX_QrPasses_QrCodeText");
+                table: "QrPass",
+                newName: "IX_QrPass_QrCodeText");
 
             migrationBuilder.AlterColumn<string>(
                 name: "Phone",
-                table: "UserAccounts",
+                table: "UserAccount",
                 type: "nvarchar(30)",
                 maxLength: 30,
                 nullable: true,
@@ -119,7 +118,7 @@ namespace Convocation.DataAccess.Migrations
 
             migrationBuilder.AlterColumn<string>(
                 name: "PasswordHash",
-                table: "UserAccounts",
+                table: "UserAccount",
                 type: "nvarchar(200)",
                 maxLength: 200,
                 nullable: false,
@@ -128,7 +127,7 @@ namespace Convocation.DataAccess.Migrations
 
             migrationBuilder.AlterColumn<string>(
                 name: "FullName",
-                table: "UserAccounts",
+                table: "UserAccount",
                 type: "nvarchar(120)",
                 maxLength: 120,
                 nullable: false,
@@ -138,7 +137,7 @@ namespace Convocation.DataAccess.Migrations
 
             migrationBuilder.AlterColumn<string>(
                 name: "Email",
-                table: "UserAccounts",
+                table: "UserAccount",
                 type: "nvarchar(150)",
                 maxLength: 150,
                 nullable: false,
