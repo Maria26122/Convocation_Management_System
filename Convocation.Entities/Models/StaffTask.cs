@@ -7,26 +7,24 @@ namespace Convocation.Entities
         [Key]
         public int StaffTaskId { get; set; }
 
-        [Required]
-        public int EventId { get; set; }
-        public Event? Event { get; set; }
+        public int UserAccountId { get; set; }
+        public UserAccount? UserAccount { get; set; }
 
         [Required]
-        public int StaffUserAccountId { get; set; }
-        public UserAccount? StaffUserAccount { get; set; }
+        [StringLength(150)]
+        public string TaskTitle { get; set; }
+
+        [StringLength(500)]
+        public string Description { get; set; }
 
         [Required]
-        [StringLength(100)]
-        public string TaskName { get; set; } = "";
-
-        [StringLength(300)]
-        public string? Description { get; set; }
-
-        [StringLength(30)]
-        public string Status { get; set; } = "Assigned";
+        public string Status { get; set; } = "Pending";
+        // Pending, InProgress, Completed
 
         public DateTime AssignedAt { get; set; } = DateTime.Now;
 
         public DateTime? CompletedAt { get; set; }
+
+        public string? Remarks { get; set; }
     }
 }

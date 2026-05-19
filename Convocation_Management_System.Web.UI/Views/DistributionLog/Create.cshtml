@@ -2,49 +2,82 @@
 
 @{
     ViewData["Title"] = "Create Distribution";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="container mt-4">
+<div class="card shadow-sm border-0">
 
-    <div class="card shadow">
-
-        <div class="card-header bg-primary text-white">
-            Distribution Entry
-        </div>
-
-        <div class="card-body">
-
-            <form asp-action="Create" method="post">
-
-                <div class="mb-3">
-                    <label>Registration ID</label>
-                    <input asp-for="RegistrationId" class="form-control" />
-                </div>
-
-                <div class="mb-3">
-                    <label>Distribution Type</label>
-                    <select asp-for="ActionType" class="form-select">
-                        <option value="">Select Distribution</option>
-                        <option value="Food">Food</option>
-                        <option value="Kit">Kit</option>
-                        <option value="Certificate">Certificate</option>
-                        <option value="Gown">Gown</option>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label>Remarks</label>
-                    <textarea asp-for="Remarks"
-                              class="form-control"
-                              rows="4"></textarea>
-                </div>
-
-                <button type="submit"
-                        class="btn btn-success">
-                    Save Distribution
-                </button>
-
-            </form>
-        </div>
+    <div class="card-header bg-primary text-white">
+        <h4>Create Distribution</h4>
     </div>
+
+    <div class="card-body">
+
+        <form asp-action="Create" method="post">
+
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger"></div>
+
+            <div class="mb-3">
+                <label class="form-label">Participant</label>
+
+                <select asp-for="ParticipantId"
+                        asp-items="ViewBag.ParticipantId"
+                        class="form-select">
+
+                    <option value="">Select Participant</option>
+
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Event</label>
+
+                <select asp-for="EventId"
+                        asp-items="ViewBag.EventId"
+                        class="form-select">
+
+                    <option value="">Select Event</option>
+
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Distribution Type</label>
+
+                <select asp-for="ActionType"
+                        class="form-select">
+
+                    <option value="">Select Type</option>
+
+                    @foreach (string item in (ViewBag.DistributionTypes ?? new List<string>()))
+                    {
+                        <option value="@item">@item</option>
+                    }
+
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Remarks</label>
+
+                <textarea asp-for="Remarks"
+                          class="form-control"
+                          rows="4"></textarea>
+            </div>
+
+            <button type="submit"
+                    class="btn btn-success">
+                Save
+            </button>
+
+            <a asp-action="Index"
+               class="btn btn-secondary">
+                Back
+            </a>
+
+        </form>
+
+    </div>
+
 </div>

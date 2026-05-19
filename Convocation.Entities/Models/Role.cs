@@ -1,5 +1,4 @@
-﻿using Convocation.Entities;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Convocation.Entities
@@ -9,11 +8,12 @@ namespace Convocation.Entities
         [Key]
         public int RoleId { get; set; }
 
-        [Required]
-        [StringLength(50)]
-        public string RoleName { get; set; } = string.Empty;
+        public string RoleName { get; set; }
 
-        public virtual ICollection<UserAccount> UserAccounts { get; set; } = new List<UserAccount>();
-        public virtual ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
+        public ICollection<UserAccount> UserAccounts { get; set; }
+            = new List<UserAccount>();
+
+        public ICollection<RolePermission> RolePermissions { get; set; }
+            = new List<RolePermission>();
     }
 }

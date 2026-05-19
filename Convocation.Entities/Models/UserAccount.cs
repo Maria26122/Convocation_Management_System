@@ -1,5 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Convocation.Entities
 {
@@ -8,37 +9,25 @@ namespace Convocation.Entities
         [Key]
         public int UserAccountId { get; set; }
 
-        [Required]
-        [StringLength(100)]
-        public string FullName { get; set; } = "";
-
-        [Required]
-        [StringLength(100)]
-        public string Email { get; set; } = "";
-
-        [StringLength(20)]
+        public string? FullName { get; set; }
+  public string? NickName { get; set; }
+        public string? Email { get; set; }
         public string? Phone { get; set; }
-
-       [Required]
-        public string PasswordHash { get; set; } = "";
+        public string PasswordHash { get; set; }
 
         public int RoleId { get; set; }
+        public Role? Role { get; set; }
 
         public bool IsActive { get; set; } = true;
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-        // OTP for 2FA
-        public string? OtpCode { get; set; }
-        public DateTime? OtpExpiryTime { get; set; }
-        public bool IsTwoFactorEnabled { get; set; } = false;
+        public Participant? Participant { get; set; }
 
-        // Navigation properties
-        public virtual Role? Role { get; set; }
-        public virtual Participant? Participant { get; set; }
+        public ICollection<DistributionLog> DistributionLogs { get; set; }
+            = new List<DistributionLog>();
 
-        public virtual ICollection<UserPermission>? UserPermission { get; set; }
-
-        public virtual ICollection<DistributionLog>? DistributionLogs { get; set; }
+        public ICollection<UserPermission> UserPermissions { get; set; }
+            = new List<UserPermission>();
     }
 }

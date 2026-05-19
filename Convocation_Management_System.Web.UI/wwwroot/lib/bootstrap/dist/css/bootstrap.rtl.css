@@ -2173,7 +2173,7 @@ progress {
   margin-inline-end: 0.75rem;
   color: var(--bs-body-color);
   background-color: var(--bs-tertiary-bg);
-  pointer-events: none;
+  pointer-Event: none;
   border-color: inherit;
   border-style: solid;
   border-width: 0;
@@ -2189,7 +2189,7 @@ progress {
   margin-inline-end: 0.75rem;
   color: var(--bs-body-color);
   background-color: var(--bs-tertiary-bg);
-  pointer-events: none;
+  pointer-Event: none;
   border-color: inherit;
   border-style: solid;
   border-width: 0;
@@ -2438,7 +2438,7 @@ textarea.form-control-lg {
   --bs-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10h8'/%3e%3c/svg%3e");
 }
 .form-check-input:disabled {
-  pointer-events: none;
+  pointer-Event: none;
   filter: none;
   opacity: 0.5;
 }
@@ -2488,10 +2488,10 @@ textarea.form-control-lg {
 .btn-check {
   position: absolute;
   clip: rect(0, 0, 0, 0);
-  pointer-events: none;
+  pointer-Event: none;
 }
 .btn-check[disabled] + .btn, .btn-check:disabled + .btn {
-  pointer-events: none;
+  pointer-Event: none;
   filter: none;
   opacity: 0.65;
 }
@@ -2581,7 +2581,7 @@ textarea.form-control-lg {
   border-radius: 1rem;
 }
 .form-range:disabled {
-  pointer-events: none;
+  pointer-Event: none;
 }
 .form-range:disabled::-webkit-slider-thumb {
   background-color: var(--bs-secondary-color);
@@ -2611,7 +2611,7 @@ textarea.form-control-lg {
   text-align: start;
   text-overflow: ellipsis;
   white-space: nowrap;
-  pointer-events: none;
+  pointer-Event: none;
   border: var(--bs-border-width) solid transparent;
   transform-origin: 100% 0;
   transition: opacity 0.1s ease-in-out, transform 0.1s ease-in-out;
@@ -3045,7 +3045,7 @@ textarea.form-control-lg {
 }
 .btn:disabled, .btn.disabled, fieldset:disabled .btn {
   color: var(--bs-btn-disabled-color);
-  pointer-events: none;
+  pointer-Event: none;
   background-color: var(--bs-btn-disabled-bg);
   border-color: var(--bs-btn-disabled-border-color);
   opacity: var(--bs-btn-disabled-opacity);
@@ -3675,7 +3675,7 @@ textarea.form-control-lg {
 }
 .dropdown-item.disabled, .dropdown-item:disabled {
   color: var(--bs-dropdown-link-disabled-color);
-  pointer-events: none;
+  pointer-Event: none;
   background-color: transparent;
 }
 
@@ -3852,7 +3852,7 @@ textarea.form-control-lg {
 }
 .nav-link.disabled, .nav-link:disabled {
   color: var(--bs-nav-link-disabled-color);
-  pointer-events: none;
+  pointer-Event: none;
   cursor: default;
 }
 
@@ -4795,7 +4795,7 @@ textarea.form-control-lg {
 }
 .page-link.disabled, .disabled > .page-link {
   color: var(--bs-pagination-disabled-color);
-  pointer-events: none;
+  pointer-Event: none;
   background-color: var(--bs-pagination-disabled-bg);
   border-color: var(--bs-pagination-disabled-border-color);
 }
@@ -5079,7 +5079,7 @@ textarea.form-control-lg {
 }
 .list-group-item.disabled, .list-group-item:disabled {
   color: var(--bs-list-group-disabled-color);
-  pointer-events: none;
+  pointer-Event: none;
   background-color: var(--bs-list-group-disabled-bg);
 }
 .list-group-item.active {
@@ -5383,7 +5383,7 @@ textarea.form-control-lg {
   opacity: var(--bs-btn-close-focus-opacity);
 }
 .btn-close:disabled, .btn-close.disabled {
-  pointer-events: none;
+  pointer-Event: none;
   -webkit-user-select: none;
   -moz-user-select: none;
   user-select: none;
@@ -5418,7 +5418,7 @@ textarea.form-control-lg {
   max-width: 100%;
   font-size: var(--bs-toast-font-size);
   color: var(--bs-toast-color);
-  pointer-events: auto;
+  pointer-Event: auto;
   background-color: var(--bs-toast-bg);
   background-clip: padding-box;
   border: var(--bs-toast-border-width) solid var(--bs-toast-border-color);
@@ -5440,7 +5440,7 @@ textarea.form-control-lg {
   width: -moz-max-content;
   width: max-content;
   max-width: 100%;
-  pointer-events: none;
+  pointer-Event: none;
 }
 .toast-container > :not(:last-child) {
   margin-bottom: var(--bs-toast-spacing);
@@ -5505,7 +5505,7 @@ textarea.form-control-lg {
   position: relative;
   width: auto;
   margin: var(--bs-modal-margin);
-  pointer-events: none;
+  pointer-Event: none;
 }
 .modal.fade .modal-dialog {
   transition: transform 0.3s ease-out;
@@ -5546,7 +5546,7 @@ textarea.form-control-lg {
   flex-direction: column;
   width: 100%;
   color: var(--bs-modal-color);
-  pointer-events: auto;
+  pointer-Event: auto;
   background-color: var(--bs-modal-bg);
   background-clip: padding-box;
   border: var(--bs-modal-border-width) solid var(--bs-modal-border-color);
@@ -8922,11 +8922,11 @@ textarea.form-control-lg {
 }
 
 .pe-none {
-  pointer-events: none !important;
+  pointer-Event: none !important;
 }
 
 .pe-auto {
-  pointer-events: auto !important;
+  pointer-Event: auto !important;
 }
 
 .rounded {

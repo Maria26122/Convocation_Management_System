@@ -35,11 +35,11 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var registrations = await query
+            var Registration = await query
                 .OrderByDescending(r => r.RegistrationDate)
                 .ToListAsync();
 
-            return View(registrations);
+            return View(Registration);
         }
 
         public async Task<IActionResult> Details(int? id)
@@ -156,7 +156,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 var now = DateTime.Now;
 
                 if (IsParticipant() &&
-                    !(selectedEvent.RegistrationStartDate <= now &&
+                    !(selectedEvent.RegistrationtartDate <= now &&
                       selectedEvent.RegistrationEndDate >= now))
                 {
                     ModelState.AddModelError("EventId", "Registration is closed for this event.");
@@ -194,6 +194,11 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             if (IsParticipant())
             {
+                if (registration.TotalAmount <= 0)
+                {
+                    TempData["Error"] = "Invalid amount.";
+                    return RedirectToAction(nameof(Index));
+                }
                 return RedirectToAction("PayNow", "Payment", new { registrationId = registration.RegistrationId });
             }
 
@@ -234,81 +239,26 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Registration registration)
+        public async Task<IActionResult> Edit(int id, Registration model)
         {
-            if (!LoggedIn())
-                return RedirectToAction("Login", "Account");
-
-            if (id != registration.RegistrationId)
+            if (id != model.RegistrationId)
                 return NotFound();
 
-            var existing = await _context.Registration.FindAsync(id);
+            var registration = await _context.Registration
+                .FirstOrDefaultAsync(r => r.RegistrationId == id);
 
-            if (existing == null)
+            if (registration == null)
                 return NotFound();
 
-            if (IsParticipant())
-            {
-                var participantId = await CurrentParticipantIdAsync();
+            // ONLY UPDATE SAFE FIELDS
+            registration.EventId = model.EventId;
+            registration.RegistrationStatus = model.RegistrationStatus;
+            registration.RegistrationDate = model.RegistrationDate;
 
-                if (existing.ParticipantId != participantId)
-                    return RedirectToAction(nameof(Index));
-
-                registration.ParticipantId = existing.ParticipantId;
-                registration.RegistrationStatus = existing.RegistrationStatus;
-
-                ModelState.Remove("ParticipantId");
-                ModelState.Remove("Participant");
-            }
-            else if (!IsAdmin() && !IsStaff())
-            {
-                return RedirectToAction(nameof(Index));
-            }
-
-            ModelState.Remove("Event");
-
-            if (registration.GuestCount < 0)
-                ModelState.AddModelError("GuestCount", "Guest count cannot be negative.");
-
-            bool duplicateExists = await _context.Registration
-                .AnyAsync(r => r.RegistrationId != registration.RegistrationId &&
-                               r.ParticipantId == registration.ParticipantId &&
-                               r.EventId == registration.EventId);
-
-            if (duplicateExists)
-                ModelState.AddModelError("", "This participant is already registered for the selected event.");
-
-            var selectedEvent = await _context.Event
-                .FirstOrDefaultAsync(e => e.EventId == registration.EventId);
-
-            if (selectedEvent == null)
-            {
-                ModelState.AddModelError("EventId", "Selected event is invalid.");
-            }
-            else
-            {
-                if (registration.GuestCount > selectedEvent.MaxGuestAllowed)
-                    ModelState.AddModelError("GuestCount", $"Maximum allowed guest is {selectedEvent.MaxGuestAllowed}.");
-
-                registration.TotalAmount = selectedEvent.BaseFee + (registration.GuestCount * selectedEvent.GuestFee);
-            }
-
-            if (!ModelState.IsValid)
-            {
-                await LoadDropdownsAsync(registration.ParticipantId, registration.EventId);
-                ViewBag.SelectedEventId = registration.EventId;
-                return View(registration);
-            }
-
-            existing.ParticipantId = registration.ParticipantId;
-            existing.EventId = registration.EventId;
-            existing.GuestCount = registration.GuestCount;
-            existing.TotalAmount = registration.TotalAmount;
-            existing.RegistrationStatus = registration.RegistrationStatus;
+            // DO NOT TOUCH ParticipantId unless needed
 
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Registration updated successfully.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -431,17 +381,17 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             var now = DateTime.Now;
 
-            var eventsQuery = _context.Event.AsQueryable();
+            var EventQuery = _context.Event.AsQueryable();
 
             if (IsParticipant())
             {
-                eventsQuery = eventsQuery.Where(e =>
+                EventQuery = EventQuery.Where(e =>
                     e.IsActive &&
-                    e.RegistrationStartDate <= now &&
+                    e.RegistrationtartDate <= now &&
                     e.RegistrationEndDate >= now);
             }
 
-            ViewBag.Event = await eventsQuery
+            ViewBag.Event = await EventQuery
                 .OrderBy(e => e.EventDate)
                 .Select(e => new
                 {

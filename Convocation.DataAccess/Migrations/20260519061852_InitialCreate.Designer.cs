@@ -12,15 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Convocation.DataAccess.Migrations
 {
     [DbContext(typeof(ConvocationDbContext))]
-    [Migration("20260402051335_AddQrImagePathToQrPass")]
-    partial class AddQrImagePathToQrPass
+    [Migration("20260519061852_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.3")
+                .HasAnnotation("ProductVersion", "10.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -38,26 +38,47 @@ namespace Convocation.DataAccess.Migrations
 
                     b.Property<string>("ActionType")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("EventId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Note")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ParticipantId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ParticipantId1")
+                        .HasColumnType("int");
 
                     b.Property<int>("RegistrationId")
                         .HasColumnType("int");
+
+                    b.Property<int?>("RegistrationId1")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Remarks")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UserAccountId")
                         .HasColumnType("int");
 
                     b.HasKey("DistributionLogId");
 
+                    b.HasIndex("EventId");
+
+                    b.HasIndex("ParticipantId");
+
+                    b.HasIndex("ParticipantId1");
+
                     b.HasIndex("RegistrationId");
+
+                    b.HasIndex("RegistrationId1");
 
                     b.HasIndex("UserAccountId");
 
-                    b.ToTable("DistributionLogs");
+                    b.ToTable("DistributionLog");
                 });
 
             modelBuilder.Entity("Convocation.Entities.Event", b =>
@@ -69,7 +90,7 @@ namespace Convocation.DataAccess.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EventId"));
 
                     b.Property<decimal>("BaseFee")
-                        .HasColumnType("decimal(10,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("EventDate")
                         .HasColumnType("datetime2");
@@ -80,7 +101,7 @@ namespace Convocation.DataAccess.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<decimal>("GuestFee")
-                        .HasColumnType("decimal(10,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -91,7 +112,7 @@ namespace Convocation.DataAccess.Migrations
                     b.Property<DateTime>("RegistrationEndDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("RegistrationStartDate")
+                    b.Property<DateTime>("RegistrationtartDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Venue")
@@ -101,7 +122,36 @@ namespace Convocation.DataAccess.Migrations
 
                     b.HasKey("EventId");
 
-                    b.ToTable("Events");
+                    b.ToTable("Event");
+                });
+
+            modelBuilder.Entity("Convocation.Entities.FoodMenu", b =>
+                {
+                    b.Property<int>("FoodMenuId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FoodMenuId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MenuItems")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("MenuName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("FoodMenuId");
+
+                    b.ToTable("FoodMenu");
                 });
 
             modelBuilder.Entity("Convocation.Entities.Guest", b =>
@@ -128,7 +178,36 @@ namespace Convocation.DataAccess.Migrations
 
                     b.HasIndex("RegistrationId");
 
-                    b.ToTable("Guests");
+                    b.ToTable("Guest");
+                });
+
+            modelBuilder.Entity("Convocation.Entities.Models.DistributionItem", b =>
+                {
+                    b.Property<int>("DistributionItemId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DistributionItemId"));
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ItemName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ItemType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("RequiresQrValidation")
+                        .HasColumnType("bit");
+
+                    b.HasKey("DistributionItemId");
+
+                    b.ToTable("DistributionItem");
                 });
 
             modelBuilder.Entity("Convocation.Entities.Participant", b =>
@@ -173,13 +252,10 @@ namespace Convocation.DataAccess.Migrations
 
                     b.HasKey("ParticipantId");
 
-                    b.HasIndex("StudentId")
-                        .IsUnique();
-
                     b.HasIndex("UserAccountId")
                         .IsUnique();
 
-                    b.ToTable("Participants");
+                    b.ToTable("Participant");
                 });
 
             modelBuilder.Entity("Convocation.Entities.Payment", b =>
@@ -190,13 +266,14 @@ namespace Convocation.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PaymentId"));
 
-                    b.Property<decimal>("PaidAmount")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<DateTime?>("PaymentDate")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<decimal>("PaidAmount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("PaymentMethod")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
@@ -212,11 +289,15 @@ namespace Convocation.DataAccess.Migrations
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
 
+                    b.Property<DateTime?>("VerifiedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("PaymentId");
 
-                    b.HasIndex("RegistrationId");
+                    b.HasIndex("RegistrationId")
+                        .IsUnique();
 
-                    b.ToTable("Payments");
+                    b.ToTable("Payment");
                 });
 
             modelBuilder.Entity("Convocation.Entities.Permission", b =>
@@ -229,15 +310,11 @@ namespace Convocation.DataAccess.Migrations
 
                     b.Property<string>("PermissionName")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("PermissionId");
 
-                    b.HasIndex("PermissionName")
-                        .IsUnique();
-
-                    b.ToTable("Permissions");
+                    b.ToTable("Permission", (string)null);
                 });
 
             modelBuilder.Entity("Convocation.Entities.QrPass", b =>
@@ -248,31 +325,31 @@ namespace Convocation.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("QrPassId"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("IsUsed")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("IssuedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("QrCodeText")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("QrImagePath")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RegistrationId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("UsedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("QrPassId");
 
-                    b.HasIndex("QrCodeText")
-                        .IsUnique();
+                    b.HasIndex("RegistrationId");
 
-                    b.HasIndex("RegistrationId")
-                        .IsUnique();
-
-                    b.ToTable("QrPasses");
+                    b.ToTable("QrPass");
                 });
 
             modelBuilder.Entity("Convocation.Entities.Registration", b =>
@@ -303,14 +380,17 @@ namespace Convocation.DataAccess.Migrations
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(10,2)");
 
+                    b.Property<string>("TransactionId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.HasKey("RegistrationId");
 
                     b.HasIndex("EventId");
 
-                    b.HasIndex("ParticipantId", "EventId")
-                        .IsUnique();
+                    b.HasIndex("ParticipantId");
 
-                    b.ToTable("Registrations");
+                    b.ToTable("Registration");
                 });
 
             modelBuilder.Entity("Convocation.Entities.Role", b =>
@@ -323,39 +403,89 @@ namespace Convocation.DataAccess.Migrations
 
                     b.Property<string>("RoleName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("RoleId");
 
-                    b.HasIndex("RoleName")
-                        .IsUnique();
+                    b.ToTable("Role", (string)null);
 
-                    b.ToTable("Roles");
+                    b.HasData(
+                        new
+                        {
+                            RoleId = 1,
+                            RoleName = "Admin"
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            RoleName = "Event Manager"
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            RoleName = "Staff"
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            RoleName = "Student"
+                        });
                 });
 
             modelBuilder.Entity("Convocation.Entities.RolePermission", b =>
                 {
-                    b.Property<int>("RolePermissionId")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("RoleId")
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RolePermissionId"));
 
                     b.Property<int>("PermissionId")
                         .HasColumnType("int");
 
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
-                    b.HasKey("RolePermissionId");
+                    b.HasKey("RoleId", "PermissionId");
 
                     b.HasIndex("PermissionId");
 
-                    b.HasIndex("RoleId", "PermissionId")
-                        .IsUnique();
+                    b.ToTable("RolePermission", (string)null);
+                });
 
-                    b.ToTable("RolePermissions");
+            modelBuilder.Entity("Convocation.Entities.StaffTask", b =>
+                {
+                    b.Property<int>("StaffTaskId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StaffTaskId"));
+
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Remarks")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TaskTitle")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<int>("UserAccountId")
+                        .HasColumnType("int");
+
+                    b.HasKey("StaffTaskId");
+
+                    b.HasIndex("UserAccountId");
+
+                    b.ToTable("StaffTask");
                 });
 
             modelBuilder.Entity("Convocation.Entities.UserAccount", b =>
@@ -370,38 +500,114 @@ namespace Convocation.DataAccess.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<string>("NickName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RoleId")
                         .HasColumnType("int");
 
                     b.HasKey("UserAccountId");
 
-                    b.HasIndex("Email")
-                        .IsUnique();
-
                     b.HasIndex("RoleId");
 
-                    b.ToTable("UserAccounts");
+                    b.ToTable("UserAccount");
+
+                    b.HasData(
+                        new
+                        {
+                            UserAccountId = 1,
+                            CreatedAt = new DateTime(2026, 5, 17, 19, 18, 41, 790, DateTimeKind.Unspecified),
+                            Email = "admin@gmail.com",
+                            FullName = "Administrator",
+                            IsActive = true,
+                            NickName = "admin",
+                            PasswordHash = "JAvlGPq9JyTdtvBO6x2llnRI1+gxwIyPqCKAn3THIKk=",
+                            Phone = "01700000000",
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            UserAccountId = 3,
+                            CreatedAt = new DateTime(2026, 5, 17, 19, 56, 47, 959, DateTimeKind.Unspecified).AddTicks(9201),
+                            Email = "mariaislam1226@gmail.com",
+                            FullName = "Maria Islam Shuchona",
+                            IsActive = true,
+                            NickName = "",
+                            PasswordHash = "Ym48gF537rRyxCxr5ge+KvesXAj9cFDyeOAzD+gav1c=",
+                            Phone = "01851355381",
+                            RoleId = 4
+                        },
+                        new
+                        {
+                            UserAccountId = 4,
+                            CreatedAt = new DateTime(2026, 5, 17, 20, 37, 24, 663, DateTimeKind.Unspecified).AddTicks(7944),
+                            Email = "shuchona@gmail.com",
+                            FullName = "Shuchona",
+                            IsActive = true,
+                            NickName = "",
+                            PasswordHash = "2IwvVDg6k/EX5OOg/KjtgFYefq1v3L4iuvS2E3iWC+k=",
+                            Phone = "01851355382",
+                            RoleId = 4
+                        },
+                        new
+                        {
+                            UserAccountId = 5,
+                            CreatedAt = new DateTime(2026, 5, 18, 0, 35, 42, 609, DateTimeKind.Unspecified).AddTicks(6320),
+                            Email = "mis@gmail.com",
+                            FullName = "Maria",
+                            IsActive = true,
+                            PasswordHash = "wskrEOQJE84GQlOhnsUEpAzcJeQMqKF1eo4QhS3tEOw=",
+                            Phone = "01851355382",
+                            RoleId = 4
+                        },
+                        new
+                        {
+                            UserAccountId = 6,
+                            CreatedAt = new DateTime(2026, 5, 18, 12, 7, 3, 814, DateTimeKind.Unspecified).AddTicks(7314),
+                            Email = "maria@gmail.com",
+                            FullName = "maria",
+                            IsActive = true,
+                            PasswordHash = "lK7J++2Yns4Ymn4XLJz0FmkFBJUVK8TB2/KjjX/YVic=",
+                            Phone = "01851355382",
+                            RoleId = 4
+                        },
+                        new
+                        {
+                            UserAccountId = 7,
+                            CreatedAt = new DateTime(2026, 5, 18, 12, 14, 13, 716, DateTimeKind.Unspecified).AddTicks(7778),
+                            Email = "shuch@gmail.com",
+                            FullName = "Shuchonaa",
+                            IsActive = true,
+                            PasswordHash = "o89N5RAvRkvkkiLfq5xtreNIeAtDDvRCCllSH/npa2I=",
+                            Phone = "01851355381",
+                            RoleId = 4
+                        },
+                        new
+                        {
+                            UserAccountId = 9,
+                            CreatedAt = new DateTime(2026, 5, 18, 14, 42, 29, 525, DateTimeKind.Unspecified).AddTicks(7312),
+                            Email = "ary@gmail.com",
+                            FullName = "ariyan",
+                            IsActive = true,
+                            PasswordHash = "DwGS1cbVgZdTJReuXUr1SCJ/+jlpRCsdt0iOKYxfyDk=",
+                            Phone = "01851355381",
+                            RoleId = 4
+                        });
                 });
 
             modelBuilder.Entity("Convocation.Entities.UserPermission", b =>
@@ -422,25 +628,48 @@ namespace Convocation.DataAccess.Migrations
 
                     b.HasIndex("PermissionId");
 
-                    b.HasIndex("UserAccountId", "PermissionId")
-                        .IsUnique();
+                    b.HasIndex("UserAccountId");
 
-                    b.ToTable("UserPermissions");
+                    b.ToTable("UserPermission", (string)null);
                 });
 
             modelBuilder.Entity("Convocation.Entities.DistributionLog", b =>
                 {
+                    b.HasOne("Convocation.Entities.Event", "Event")
+                        .WithMany()
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Convocation.Entities.Participant", "Participant")
+                        .WithMany()
+                        .HasForeignKey("ParticipantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Convocation.Entities.Participant", null)
+                        .WithMany("DistributionLog")
+                        .HasForeignKey("ParticipantId1");
+
                     b.HasOne("Convocation.Entities.Registration", "Registration")
                         .WithMany()
                         .HasForeignKey("RegistrationId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("Convocation.Entities.Registration", null)
+                        .WithMany("DistributionLog")
+                        .HasForeignKey("RegistrationId1");
 
                     b.HasOne("Convocation.Entities.UserAccount", "UserAccount")
                         .WithMany("DistributionLogs")
                         .HasForeignKey("UserAccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Event");
+
+                    b.Navigation("Participant");
 
                     b.Navigation("Registration");
 
@@ -463,7 +692,7 @@ namespace Convocation.DataAccess.Migrations
                     b.HasOne("Convocation.Entities.UserAccount", "UserAccount")
                         .WithOne("Participant")
                         .HasForeignKey("Convocation.Entities.Participant", "UserAccountId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("UserAccount");
@@ -472,8 +701,8 @@ namespace Convocation.DataAccess.Migrations
             modelBuilder.Entity("Convocation.Entities.Payment", b =>
                 {
                     b.HasOne("Convocation.Entities.Registration", "Registration")
-                        .WithMany()
-                        .HasForeignKey("RegistrationId")
+                        .WithOne("Payment")
+                        .HasForeignKey("Convocation.Entities.Payment", "RegistrationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -494,13 +723,13 @@ namespace Convocation.DataAccess.Migrations
             modelBuilder.Entity("Convocation.Entities.Registration", b =>
                 {
                     b.HasOne("Convocation.Entities.Event", "Event")
-                        .WithMany("Registrations")
+                        .WithMany("Registration")
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Convocation.Entities.Participant", "Participant")
-                        .WithMany()
+                        .WithMany("Registration")
                         .HasForeignKey("ParticipantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -529,12 +758,23 @@ namespace Convocation.DataAccess.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("Convocation.Entities.StaffTask", b =>
+                {
+                    b.HasOne("Convocation.Entities.UserAccount", "UserAccount")
+                        .WithMany()
+                        .HasForeignKey("UserAccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UserAccount");
+                });
+
             modelBuilder.Entity("Convocation.Entities.UserAccount", b =>
                 {
                     b.HasOne("Convocation.Entities.Role", "Role")
                         .WithMany("UserAccounts")
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Role");
@@ -545,13 +785,13 @@ namespace Convocation.DataAccess.Migrations
                     b.HasOne("Convocation.Entities.Permission", "Permission")
                         .WithMany("UserPermissions")
                         .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Convocation.Entities.UserAccount", "UserAccount")
                         .WithMany("UserPermissions")
                         .HasForeignKey("UserAccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Permission");
@@ -561,7 +801,14 @@ namespace Convocation.DataAccess.Migrations
 
             modelBuilder.Entity("Convocation.Entities.Event", b =>
                 {
-                    b.Navigation("Registrations");
+                    b.Navigation("Registration");
+                });
+
+            modelBuilder.Entity("Convocation.Entities.Participant", b =>
+                {
+                    b.Navigation("DistributionLog");
+
+                    b.Navigation("Registration");
                 });
 
             modelBuilder.Entity("Convocation.Entities.Permission", b =>
@@ -569,6 +816,13 @@ namespace Convocation.DataAccess.Migrations
                     b.Navigation("RolePermissions");
 
                     b.Navigation("UserPermissions");
+                });
+
+            modelBuilder.Entity("Convocation.Entities.Registration", b =>
+                {
+                    b.Navigation("DistributionLog");
+
+                    b.Navigation("Payment");
                 });
 
             modelBuilder.Entity("Convocation.Entities.Role", b =>

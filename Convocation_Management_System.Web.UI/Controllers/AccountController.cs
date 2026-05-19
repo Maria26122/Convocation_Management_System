@@ -1,7 +1,7 @@
 ﻿using Convocation.DataAccess;
 using Convocation.Entities;
-using Convocation_Management_System.Web.UI.Helpers;
 using Convocation_Management_System.Web.UI.Models;
+using Convocation_Management_System.Web.UI.Utils;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -23,63 +23,55 @@ namespace Convocation_Management_System.Web.UI.Controllers
         // REGISTER
         // =========================
         [HttpGet]
-        public IActionResult Register(int? eventId = null, string? returnUrl = null)
+        public IActionResult Register()
         {
-            ViewBag.EventId = eventId;
-            ViewBag.ReturnUrl = returnUrl;
             return View();
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel vm, int? eventId = null, string? returnUrl = null)
+        public async Task<IActionResult> Register(RegisterViewModel vm)
         {
-            ViewBag.EventId = eventId;
-            ViewBag.ReturnUrl = returnUrl;
-
             if (!ModelState.IsValid)
                 return View(vm);
 
-            bool emailExists = await _context.UserAccount.AnyAsync(x => x.Email == vm.Email);
+            var emailExists = await _context.UserAccount
+                .AnyAsync(x => x.Email == vm.Email);
+
             if (emailExists)
             {
-                ModelState.AddModelError("Email", "Email already exists.");
+                ModelState.AddModelError("Email", "Email already exists");
                 return View(vm);
             }
 
-            bool studentIdExists = await _context.Participant.AnyAsync(p => p.StudentId == vm.StudentId);
-            if (studentIdExists)
-            {
-                ModelState.AddModelError("StudentId", "Student ID already exists.");
-                return View(vm);
-            }
-
-            var participantRole = await _context.Role
+            var role = await _context.Role
                 .FirstOrDefaultAsync(r =>
                     r.RoleName.ToLower() == "student" ||
                     r.RoleName.ToLower() == "participant");
 
-            if (participantRole == null)
+            if (role == null)
             {
-                ModelState.AddModelError("", "Student role not found in database.");
+                ModelState.AddModelError("", "Role not found");
                 return View(vm);
             }
 
+            // CREATE USER
             var user = new UserAccount
             {
                 FullName = vm.FullName,
                 Email = vm.Email,
                 Phone = vm.Phone,
                 PasswordHash = PasswordHelper.HashPassword(vm.Password),
-                RoleId = participantRole.RoleId,
+                RoleId = role.RoleId,
                 IsActive = true,
-                CreatedAt = DateTime.Now,
-                IsTwoFactorEnabled = false
+                CreatedAt = DateTime.Now
             };
 
             _context.UserAccount.Add(user);
             await _context.SaveChangesAsync();
 
+            // CREATE PARTICIPANT
             var participant = new Participant
             {
                 UserAccountId = user.UserAccountId,
@@ -94,147 +86,83 @@ namespace Convocation_Management_System.Web.UI.Controllers
             _context.Participant.Add(participant);
             await _context.SaveChangesAsync();
 
-            user.Role = participantRole;
-            await SignInUserAsync(user);
+            // LOGIN USER
+            await SignInUserAsync(user, role.RoleName);
 
-            if (eventId.HasValue && eventId.Value > 0)
+            return RedirectToAction("Dashboard", "Participant");
+        }
+
+
+
+        // =========================
+        // LOGIN (FIXED)
+        // =========================
+        [HttpGet]
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(string email, string password)
+        {
+            var hashedPassword = PasswordHelper.HashPassword(password);
+
+            var user = await _context.UserAccount
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u =>
+                    u.Email == email &&
+                    u.PasswordHash == hashedPassword);
+
+            if (user == null)
             {
-                return RedirectToAction("Create", "Registration", new { eventId = eventId.Value });
+                TempData["Error"] = "Invalid login";
+                return View();
             }
 
-            if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
-                return Redirect(returnUrl);
+            if (!user.IsActive)
+            {
+                TempData["Error"] = "Account inactive";
+                return View();
+            }
+
+            var roleName = (user.Role?.RoleName ?? "").Trim().ToLower();
+
+            // SESSION (IMPORTANT)
+            HttpContext.Session.SetString("UserId", user.UserAccountId.ToString());
+            HttpContext.Session.SetString("Role", roleName);
+
+            await SignInUserAsync(user, roleName);
+
+            if (roleName == "admin")
+                return RedirectToAction("Index", "Admin");
 
             return RedirectToAction("Dashboard", "Participant");
         }
 
         // =========================
-        // LOGIN
+        // SIGN IN HELPER (FIXED)
         // =========================
-        [HttpGet]
-        public IActionResult Login(string? returnUrl = null)
+        private async Task SignInUserAsync(UserAccount user, string roleName)
         {
-            ViewBag.ReturnUrl = returnUrl;
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel vm, string? returnUrl = null)
-        {
-            ViewBag.ReturnUrl = returnUrl;
-
-            if (!ModelState.IsValid)
-                return View(vm);
-
-            var user = await _context.UserAccount
-                .Include(u => u.Role)
-                .FirstOrDefaultAsync(u => u.Email == vm.Email);
-
-            if (user == null)
-            {
-                ModelState.AddModelError("", "User not found.");
-                return View(vm);
-            }
-
-            if (!user.IsActive)
-            {
-                ModelState.AddModelError("", "Your account is inactive.");
-                return View(vm);
-            }
-
-            bool passwordOk = PasswordHelper.VerifyPassword(vm.Password, user.PasswordHash);
-            if (!passwordOk)
-            {
-                ModelState.AddModelError("", "Wrong password.");
-                return View(vm);
-            }
-
-            await SignInUserAsync(user);
-
-            if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
-                return Redirect(returnUrl);
-
-            return RedirectByRole(user.Role?.RoleName ?? "");
-        }
-
-        // =========================
-        // CHANGE PASSWORD
-        // =========================
-        [HttpGet]
-        public IActionResult ChangePassword()
-        {
-            if (HttpContext.Session.GetString("UserId") == null)
-                return RedirectToAction("Login");
-
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
-        {
-            if (HttpContext.Session.GetString("UserId") == null)
-                return RedirectToAction("Login");
-
-            if (!ModelState.IsValid)
-                return View(model);
-
-            var userIdString = HttpContext.Session.GetString("UserId");
-            if (!int.TryParse(userIdString, out int userId))
-                return RedirectToAction("Login");
-
-            var user = await _context.UserAccount.FirstOrDefaultAsync(u => u.UserAccountId == userId);
-            if (user == null)
-                return RedirectToAction("Login");
-
-            if (!PasswordHelper.VerifyPassword(model.CurrentPassword, user.PasswordHash))
-            {
-                ModelState.AddModelError("CurrentPassword", "Current password is incorrect.");
-                return View(model);
-            }
-
-            user.PasswordHash = PasswordHelper.HashPassword(model.NewPassword);
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] = "Password changed successfully.";
-            return RedirectToAction("ChangePassword");
-        }
-
-        // =========================
-        // LOGOUT
-        // =========================
-        public async Task<IActionResult> Logout()
-        {
-            HttpContext.Session.Clear();
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction("Index", "Home");
-        }
-
-        // =========================
-        // HELPERS
-        // =========================
-        private async Task SignInUserAsync(UserAccount user)
-        {
-            var roleName = (user.Role?.RoleName ?? "").Trim();
+            roleName = (roleName ?? "").Trim().ToLower();
 
             HttpContext.Session.SetString("UserId", user.UserAccountId.ToString());
-            HttpContext.Session.SetString("UserEmail", user.Email ?? "");
             HttpContext.Session.SetString("Role", roleName);
+            HttpContext.Session.SetString("UserEmail", user.Email ?? "");
             HttpContext.Session.SetString("FullName", user.FullName ?? "");
 
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.UserAccountId.ToString()),
-                new Claim(ClaimTypes.Name, user.FullName ?? ""),
-                new Claim(ClaimTypes.Email, user.Email ?? ""),
-                new Claim(ClaimTypes.Role, roleName)
-            };
+    {
+        new Claim(ClaimTypes.NameIdentifier, user.UserAccountId.ToString()),
+        new Claim(ClaimTypes.Name, user.FullName ?? ""),
+        new Claim(ClaimTypes.Email, user.Email ?? ""),
+        new Claim(ClaimTypes.Role, roleName)
+    };
 
-            var identity = new ClaimsIdentity(
-                claims,
-                CookieAuthenticationDefaults.AuthenticationScheme);
-
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
 
             await HttpContext.SignInAsync(
@@ -246,27 +174,20 @@ namespace Convocation_Management_System.Web.UI.Controllers
                     ExpiresUtc = DateTime.UtcNow.AddDays(7)
                 });
         }
-
-        private IActionResult RedirectByRole(string roleName)
+        public async Task<IActionResult> Logout()
         {
-            var normalizedRole = (roleName ?? "").Trim().ToLower();
+            HttpContext.Session.Clear();
 
-            if (normalizedRole == "admin")
-                return RedirectToAction("Index", "Admin");
+            await HttpContext.SignOutAsync();
 
-            if (normalizedRole == "eventmanager" || normalizedRole == "staff")
-                return RedirectToAction("Index", "Event");
-
-            if (normalizedRole == "student" || normalizedRole == "participant")
-                return RedirectToAction("Dashboard", "Participant");
-
-            return RedirectToAction("Login");
+            return RedirectToAction("Login", "Account");
         }
 
-        public IActionResult GenerateHash()
+        [HttpGet]
+        public IActionResult AccessDenied()
         {
-            string hash = PasswordHelper.HashPassword("admin123");
-            return Content(hash);
+            return View();
         }
+        
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Convocation.Entities
 {
@@ -8,30 +7,22 @@ namespace Convocation.Entities
         [Key]
         public int PaymentId { get; set; }
 
-        [Required]
         public int RegistrationId { get; set; }
-
-        [ForeignKey("RegistrationId")]
         public Registration? Registration { get; set; }
 
-        [Required]
-        [Column(TypeName = "decimal(18,2)")]
         public decimal PaidAmount { get; set; }
 
         [StringLength(50)]
-        public string? PaymentMethod { get; set; }
+        public string PaymentMethod { get; set; } = "SSLCommerz";
 
-        [StringLength(100)]
+        [StringLength(120)]
         public string? TransactionId { get; set; }
 
-        [StringLength(50)]
+        [StringLength(30)]
         public string PaymentStatus { get; set; } = "Pending";
 
-        public DateTime? PaymentDate { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-        [StringLength(200)]
-        public string? SessionKey { get; set; }
-
-        public string? QrPass { get; set; }
+        public DateTime? VerifiedAt { get; set; }
     }
 }

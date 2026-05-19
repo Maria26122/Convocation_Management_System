@@ -1,39 +1,54 @@
-﻿@model Convocation.Entities.DistributionLog
-Distribution Entry
+﻿@model IEnumerable<Convocation.Entities.FoodMenu>
+
+@{
+    ViewData["Title"] = "Food Menu List";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between mb-3">
+    <h3>Food Menu</h3>
+    <a asp-action="Create" class="btn btn-primary">+ Create Menu</a>
 </div>
 
-<div class="card-body">
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
 
-    <form asp-action="Create" method="post">
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Menu Name</th>
+            <th>Items</th>
+            <th>Status</th>
+            <th>Created At</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
 
-        <div class="mb-3">
-            <label>Registration ID</label>
-            <input asp-for="RegistrationId" class="form-control" />
-        </div>
-
-        <div class="mb-3">
-            <label>Distribution Type</label>
-            <select asp-for="ActionType" class="form-select">
-                <option value="Food">Food</option>
-                <option value="Kit">Kit</option>
-                <option value="Gown">Gown</option>
-                <option value="Certificate">Certificate</option>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label>Remarks</label>
-            <textarea asp-for="Remarks"
-                      class="form-control"
-                      rows="4"></textarea>
-        </div>
-
-        <button type="submit"
-                class="btn btn-success">
-            Save Distribution
-        </button>
-
-    </form>
-</div>
-</div>
-</div>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.MenuName</td>
+                <td>@item.MenuItems</td>
+                <td>
+                    @if (item.IsActive)
+                    {
+                        <span class="badge bg-success">Active</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Inactive</span>
+                    }
+                </td>
+                <td>@item.CreatedAt.ToString("dd MMM yyyy")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.FoodMenuId" class="btn btn-sm btn-warning">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

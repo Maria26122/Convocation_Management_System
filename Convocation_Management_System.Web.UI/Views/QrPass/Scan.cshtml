@@ -1,140 +1,54 @@
 ﻿@{
-    ViewData["Title"] = "Verify QR Pass";
+    ViewData["Title"] = "QR Scan";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<style>
-    .page-card {
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 22px;
-        padding: 24px;
-        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
-        margin-bottom: 24px;
-    }
+<h3>QR Scanner (Gate Entry System)</h3>
 
-    .section-title {
-        font-weight: 800;
-        margin-bottom: 18px;
-    }
+<div class="card p-3">
 
-    .scanner-wrap {
-        max-width: 720px;
-        margin: 0 auto;
-    }
+    <label>Scan QR Code</label>
 
-    #reader {
-        width: 100%;
-        border-radius: 18px;
-        overflow: hidden;
-        border: 1px solid #e5e7eb;
-        background: #f8fafc;
-        padding: 12px;
-    }
+    <input type="text" id="qrInput" class="form-control"
+           placeholder="Scan or paste QR code here" />
 
-    .scan-result-box {
-        border-radius: 16px;
-        padding: 14px 16px;
-        font-weight: 600;
-        margin-top: 18px;
-    }
+    <br />
 
-    .scan-success {
-        background: #ecfdf3;
-        color: #15803d;
-        border: 1px solid #bbf7d0;
-    }
+    <button class="btn btn-success" onclick="scanQr()">
+        Submit Scan
+    </button>
 
-    .scan-warning {
-        background: #fff7ed;
-        color: #c2410c;
-        border: 1px solid #fed7aa;
-    }
+    <hr />
 
-    .scan-error {
-        background: #fef2f2;
-        color: #b91c1c;
-        border: 1px solid #fecaca;
-    }
+    <div id="result"></div>
 
-    .manual-box {
-        margin-top: 22px;
-        padding-top: 18px;
-        border-top: 1px solid #e5e7eb;
-    }
-</style>
-
-<div class="page-card">
-    <div class="scanner-wrap">
-        <h4 class="section-title">Verify QR Pass</h4>
-        <p class="text-muted mb-3">
-            Scan the participant QR pass using device camera.
-        </p>
-
-        <div id="reader"></div>
-
-        @if (TempData["ScanMessage"] != null)
-        {
-            var status = TempData["ScanStatus"]?.ToString() ?? "error";
-            var cssClass = status == "success" ? "scan-success"
-                         : status == "warning" ? "scan-warning"
-                         : "scan-error";
-
-            <div class="scan-result-box @cssClass">
-                @TempData["ScanMessage"]
-            </div>
-        }
-
-        <div class="manual-box">
-            <form asp-controller="QrPass" asp-action="Verify" method="post">
-                @Html.AntiForgeryToken()
-                <label class="form-label fw-semibold">Manual QR Text Entry</label>
-                <div class="input-group">
-                    <input type="text" name="qrCodeText" class="form-control" placeholder="Paste QR code text here" />
-                    <button type="submit" class="btn btn-primary">Verify</button>
-                </div>
-            </form>
-
-            <form id="scanForm" asp-controller="QrPass" asp-action="Verify" method="post" style="display:none;">
-                @Html.AntiForgeryToken()
-                <input type="hidden" id="qrCodeText" name="qrCodeText" />
-            </form>
-        </div>
-    </div>
 </div>
 
-<form id="scanForm" asp-controller="QrPass" asp-action="VerifyScan" method="post" style="display:none;">
-    <input type="hidden" id="qrCodeText" name="qrCodeText" />
-</form>
-
-<script src="https://unpkg.com/html5-qrcode"></script>
 <script>
-    let hasScanned = false;
+    async function scanQr() {
+        const qr = document.getElementById("qrInput").value;
 
-    function onScanSuccess(decodedText, decodedResult) {
-    if (hasScanned) return;
-    hasScanned = true;
+        const response = await fetch('/QrPass/ScanQr', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'qrCode=' + encodeURIComponent(qr)
+        });
 
-    document.getElementById("qrCodeText").value = decodedText;
-    document.getElementById("scanForm").submit();
+        const data = await response.json();
+
+        if (data.success) {
+            document.getElementById("result").innerHTML =
+                `<div class="alert alert-success">
+                    ${data.message} <br/>
+                    Name: ${data.name} <br/>
+                    Student ID: ${data.studentId}
+                </div>`;
+        }
+        else {
+            document.getElementById("result").innerHTML =
+                `<div class="alert alert-danger">
+                    ${data.message}
+                </div>`;
+        }
     }
-
-    function onScanFailure(error) {
-    // keep silent during scanning
-    }
-
-    window.addEventListener("load", function () {
-    const html5QrCodeScanner = new Html5QrcodeScanner(
-    "reader",
-    {
-    fps: 10,
-    qrbox: { width: 250, height: 250 },
-    rememberLastUsedCamera: true,
-    supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
-    },
-    false
-    );
-
-    html5QrCodeScanner.render(onScanSuccess, onScanFailure);
-    });
 </script>

@@ -11,7 +11,7 @@
         currentController == "Participant" &&
         (currentAction == "Dashboard" ||
          currentAction == "MyProfile" ||
-         currentAction == "MyGuests");
+         currentAction == "MyGuest");
 
     bool isRegistrationOpen =
         currentController == "Participant" &&
@@ -27,7 +27,7 @@
     bool isMyRegistration = currentController == "Participant" && currentAction == "MyRegistration";
     bool isMyPayment = currentController == "Participant" && currentAction == "MyPayment";
     bool isMyQrPass = currentController == "Participant" && (currentAction == "MyQrPass" || currentAction == "MyQRPass");
-    bool isMyGuests = currentController == "Participant" && currentAction == "MyGuests";
+    bool isMyGuest = currentController == "Participant" && currentAction == "MyGuest";
 }
 
 <!DOCTYPE html>
@@ -329,11 +329,11 @@
                             </span>
                         </a>
 
-                        <a asp-controller="Participant" asp-action="MyGuests"
-                               class="sidebar-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "MyGuests" ? "active-menu" : "")">
+                        <a asp-controller="Participant" asp-action="MyGuest"
+                               class="sidebar-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "MyGuest" ? "active-menu" : "")">
                             <span class="menu-left">
                                 <i class="fas fa-user-friends menu-icon"></i>
-                                <span>My Guests</span>
+                                <span>My Guest</span>
                             </span>
                         </a>
                     </div>

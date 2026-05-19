@@ -2,7 +2,7 @@
 
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-    ViewData["Title"] = "Participants";
+    ViewData["Title"] = "Participant";
 }
 
 <div class="card shadow-sm border-0">
@@ -30,6 +30,7 @@
                     <tr>
                         <th>Participant ID</th>
                         <th>Full Name</th>
+                   
                         <th>Email</th>
                         <th>Student ID</th>
                         <th>Department</th>
@@ -47,6 +48,7 @@
                             <tr>
                                 <td>@item.ParticipantId</td>
                                 <td>@item.UserAccount?.FullName</td>
+                               
                                 <td>@item.UserAccount?.Email</td>
                                 <td>@item.StudentId</td>
                                 <td>@item.Department</td>
@@ -79,7 +81,7 @@
                     else
                     {
                         <tr>
-                            <td colspan="9" class="text-center text-muted">No participants found.</td>
+                            <td colspan="9" class="text-center text-muted">No Participant found.</td>
                         </tr>
                     }
                 </tbody>

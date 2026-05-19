@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace Convocation.DataAccess.Migrations
 {
     /// <inheritdoc />
@@ -12,6 +14,22 @@ namespace Convocation.DataAccess.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "DistributionItem",
+                columns: table => new
+                {
+                    DistributionItemId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ItemName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    ItemType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    RequiresQrValidation = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DistributionItem", x => x.DistributionItemId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Event",
                 columns: table => new
                 {
@@ -20,10 +38,10 @@ namespace Convocation.DataAccess.Migrations
                     EventTitle = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     EventDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Venue = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    RegistrationStartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    RegistrationtartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     RegistrationEndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    BaseFee = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
-                    GuestFee = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
+                    BaseFee = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    GuestFee = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     MaxGuestAllowed = table.Column<int>(type: "int", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
@@ -33,13 +51,28 @@ namespace Convocation.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "FoodMenu",
+                columns: table => new
+                {
+                    FoodMenuId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    MenuName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    MenuItems = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FoodMenu", x => x.FoodMenuId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Permission",
                 columns: table => new
                 {
                     PermissionId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    PermissionName = table.Column<string>(type: "nvarchar(80)", maxLength: 80, nullable: false),
-                    PermissionTitle = table.Column<string>(type: "nvarchar(120)", maxLength: 120, nullable: true)
+                    PermissionName = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -52,7 +85,7 @@ namespace Convocation.DataAccess.Migrations
                 {
                     RoleId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    RoleName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                    RoleName = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -63,14 +96,12 @@ namespace Convocation.DataAccess.Migrations
                 name: "RolePermission",
                 columns: table => new
                 {
-                    RolePermissionId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
                     RoleId = table.Column<int>(type: "int", nullable: false),
                     PermissionId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RolePermission", x => x.RolePermissionId);
+                    table.PrimaryKey("PK_RolePermission", x => new { x.RoleId, x.PermissionId });
                     table.ForeignKey(
                         name: "FK_RolePermission_Permission_PermissionId",
                         column: x => x.PermissionId,
@@ -91,11 +122,12 @@ namespace Convocation.DataAccess.Migrations
                 {
                     UserAccountId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NickName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RoleId = table.Column<int>(type: "int", nullable: false),
-                    FullName = table.Column<string>(type: "nvarchar(120)", maxLength: 120, nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Phone = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -103,11 +135,11 @@ namespace Convocation.DataAccess.Migrations
                 {
                     table.PrimaryKey("PK_UserAccount", x => x.UserAccountId);
                     table.ForeignKey(
-                        name: "FK_UserAccounts_Roles_RoleId",
+                        name: "FK_UserAccount_Role_RoleId",
                         column: x => x.RoleId,
                         principalTable: "Role",
                         principalColumn: "RoleId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -117,10 +149,10 @@ namespace Convocation.DataAccess.Migrations
                     ParticipantId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserAccountId = table.Column<int>(type: "int", nullable: false),
-                    StudentId = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    StudentId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Department = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Program = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Session = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Program = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Session = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     IsEligible = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -133,7 +165,32 @@ namespace Convocation.DataAccess.Migrations
                         column: x => x.UserAccountId,
                         principalTable: "UserAccount",
                         principalColumn: "UserAccountId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StaffTask",
+                columns: table => new
+                {
+                    StaffTaskId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserAccountId = table.Column<int>(type: "int", nullable: false),
+                    TaskTitle = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AssignedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CompletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Remarks = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StaffTask", x => x.StaffTaskId);
+                    table.ForeignKey(
+                        name: "FK_StaffTask_UserAccount_UserAccountId",
+                        column: x => x.UserAccountId,
+                        principalTable: "UserAccount",
+                        principalColumn: "UserAccountId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -143,8 +200,7 @@ namespace Convocation.DataAccess.Migrations
                     UserPermissionId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserAccountId = table.Column<int>(type: "int", nullable: false),
-                    PermissionId = table.Column<int>(type: "int", nullable: false),
-                    IsAllowed = table.Column<bool>(type: "bit", nullable: false)
+                    PermissionId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -154,13 +210,13 @@ namespace Convocation.DataAccess.Migrations
                         column: x => x.PermissionId,
                         principalTable: "Permission",
                         principalColumn: "PermissionId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_UserPermission_UserAccount_UserAccountId",
                         column: x => x.UserAccountId,
                         principalTable: "UserAccount",
                         principalColumn: "UserAccountId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -173,8 +229,9 @@ namespace Convocation.DataAccess.Migrations
                     EventId = table.Column<int>(type: "int", nullable: false),
                     GuestCount = table.Column<int>(type: "int", nullable: false),
                     TotalAmount = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
-                    RegistrationStatus = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    RegistrationDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    RegistrationStatus = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    RegistrationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    TransactionId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -200,26 +257,53 @@ namespace Convocation.DataAccess.Migrations
                     DistributionLogId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RegistrationId = table.Column<int>(type: "int", nullable: false),
-                 UserAccountId = table.Column<int>(type: "int", nullable: false),
-                    ActionType = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    UserAccountId = table.Column<int>(type: "int", nullable: false),
+                    EventId = table.Column<int>(type: "int", nullable: false),
+                    ParticipantId = table.Column<int>(type: "int", nullable: false),
+                    ActionType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ActionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Note = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true)
+                    Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Remarks = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ParticipantId1 = table.Column<int>(type: "int", nullable: true),
+                    RegistrationId1 = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DistributionLog", x => x.DistributionLogId);
                     table.ForeignKey(
+                        name: "FK_DistributionLog_Event_EventId",
+                        column: x => x.EventId,
+                        principalTable: "Event",
+                        principalColumn: "EventId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_DistributionLog_Participant_ParticipantId",
+                        column: x => x.ParticipantId,
+                        principalTable: "Participant",
+                        principalColumn: "ParticipantId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_DistributionLog_Participant_ParticipantId1",
+                        column: x => x.ParticipantId1,
+                        principalTable: "Participant",
+                        principalColumn: "ParticipantId");
+                    table.ForeignKey(
                         name: "FK_DistributionLog_Registration_RegistrationId",
                         column: x => x.RegistrationId,
                         principalTable: "Registration",
                         principalColumn: "RegistrationId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_DistributionLog_Registration_RegistrationId1",
+                        column: x => x.RegistrationId1,
+                        principalTable: "Registration",
+                        principalColumn: "RegistrationId");
                     table.ForeignKey(
                         name: "FK_DistributionLog_UserAccount_UserAccountId",
                         column: x => x.UserAccountId,
                         principalTable: "UserAccount",
                         principalColumn: "UserAccountId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -250,11 +334,12 @@ namespace Convocation.DataAccess.Migrations
                     PaymentId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RegistrationId = table.Column<int>(type: "int", nullable: false),
-                    PaymentMethod = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    PaidAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PaymentMethod = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     TransactionId = table.Column<string>(type: "nvarchar(120)", maxLength: 120, nullable: true),
-                    PaidAmount = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
                     PaymentStatus = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    VerifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -271,15 +356,18 @@ namespace Convocation.DataAccess.Migrations
                 name: "QrPass",
                 columns: table => new
                 {
-                    
+                    QrPassId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     RegistrationId = table.Column<int>(type: "int", nullable: false),
-                    QrCodeText = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    IssuedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    QrCodeText = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsUsed = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UsedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    QrImagePath = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                  
+                    table.PrimaryKey("PK_QrPass", x => x.QrPassId);
                     table.ForeignKey(
                         name: "FK_QrPass_Registration_RegistrationId",
                         column: x => x.RegistrationId,
@@ -288,29 +376,68 @@ namespace Convocation.DataAccess.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.InsertData(
+                table: "Role",
+                columns: new[] { "RoleId", "RoleName" },
+                values: new object[,]
+                {
+                    { 1, "Admin" },
+                    { 2, "Event Manager" },
+                    { 3, "Staff" },
+                    { 4, "Student" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "UserAccount",
+                columns: new[] { "UserAccountId", "CreatedAt", "Email", "FullName", "IsActive", "NickName", "PasswordHash", "Phone", "RoleId" },
+                values: new object[,]
+                {
+                    { 1, new DateTime(2026, 5, 17, 19, 18, 41, 790, DateTimeKind.Unspecified), "admin@gmail.com", "Administrator", true, "admin", "JAvlGPq9JyTdtvBO6x2llnRI1+gxwIyPqCKAn3THIKk=", "01700000000", 1 },
+                    { 3, new DateTime(2026, 5, 17, 19, 56, 47, 959, DateTimeKind.Unspecified).AddTicks(9201), "mariaislam1226@gmail.com", "Maria Islam Shuchona", true, "", "Ym48gF537rRyxCxr5ge+KvesXAj9cFDyeOAzD+gav1c=", "01851355381", 4 },
+                    { 4, new DateTime(2026, 5, 17, 20, 37, 24, 663, DateTimeKind.Unspecified).AddTicks(7944), "shuchona@gmail.com", "Shuchona", true, "", "2IwvVDg6k/EX5OOg/KjtgFYefq1v3L4iuvS2E3iWC+k=", "01851355382", 4 },
+                    { 5, new DateTime(2026, 5, 18, 0, 35, 42, 609, DateTimeKind.Unspecified).AddTicks(6320), "mis@gmail.com", "Maria", true, null, "wskrEOQJE84GQlOhnsUEpAzcJeQMqKF1eo4QhS3tEOw=", "01851355382", 4 },
+                    { 6, new DateTime(2026, 5, 18, 12, 7, 3, 814, DateTimeKind.Unspecified).AddTicks(7314), "maria@gmail.com", "maria", true, null, "lK7J++2Yns4Ymn4XLJz0FmkFBJUVK8TB2/KjjX/YVic=", "01851355382", 4 },
+                    { 7, new DateTime(2026, 5, 18, 12, 14, 13, 716, DateTimeKind.Unspecified).AddTicks(7778), "shuch@gmail.com", "Shuchonaa", true, null, "o89N5RAvRkvkkiLfq5xtreNIeAtDDvRCCllSH/npa2I=", "01851355381", 4 },
+                    { 9, new DateTime(2026, 5, 18, 14, 42, 29, 525, DateTimeKind.Unspecified).AddTicks(7312), "ary@gmail.com", "ariyan", true, null, "DwGS1cbVgZdTJReuXUr1SCJ/+jlpRCsdt0iOKYxfyDk=", "01851355381", 4 }
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DistributionLog_EventId",
+                table: "DistributionLog",
+                column: "EventId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DistributionLog_ParticipantId",
+                table: "DistributionLog",
+                column: "ParticipantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DistributionLog_ParticipantId1",
+                table: "DistributionLog",
+                column: "ParticipantId1");
+
             migrationBuilder.CreateIndex(
                 name: "IX_DistributionLog_RegistrationId",
                 table: "DistributionLog",
                 column: "RegistrationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DistributionLog_StaffUserAccountId",
+                name: "IX_DistributionLog_RegistrationId1",
                 table: "DistributionLog",
-                column: "StaffUserAccountId");
+                column: "RegistrationId1");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Guests_RegistrationId",
+                name: "IX_DistributionLog_UserAccountId",
+                table: "DistributionLog",
+                column: "UserAccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Guest_RegistrationId",
                 table: "Guest",
                 column: "RegistrationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Participants_StudentId",
-                table: "Participant",
-                column: "StudentId",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Participants_UserAccountId",
+                name: "IX_Participant_UserAccountId",
                 table: "Participant",
                 column: "UserAccountId",
                 unique: true);
@@ -318,25 +445,13 @@ namespace Convocation.DataAccess.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Payment_RegistrationId",
                 table: "Payment",
-                column: "RegistrationId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Permission_PermissionName",
-                table: "Permission",
-                column: "PermissionName",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_QrPass_QrCode",
-                table: "QrPass",
-                column: "QrCodeText",
+                column: "RegistrationId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_QrPass_RegistrationId",
                 table: "QrPass",
-                column: "RegistrationId",
-                unique: true);
+                column: "RegistrationId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Registration_EventId",
@@ -344,10 +459,9 @@ namespace Convocation.DataAccess.Migrations
                 column: "EventId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Registration_ParticipantId_EventId",
+                name: "IX_Registration_ParticipantId",
                 table: "Registration",
-                columns: new[] { "ParticipantId", "EventId" },
-                unique: true);
+                column: "ParticipantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RolePermission_PermissionId",
@@ -355,22 +469,9 @@ namespace Convocation.DataAccess.Migrations
                 column: "PermissionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RolePermission_RoleId_PermissionId",
-                table: "RolePermission",
-                columns: new[] { "RoleId", "PermissionId" },
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Role_RoleName",
-                table: "Role",
-                column: "RoleName",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserAccount_Email",
-                table: "UserAccount",
-                column: "Email",
-                unique: true);
+                name: "IX_StaffTask_UserAccountId",
+                table: "StaffTask",
+                column: "UserAccountId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserAccount_RoleId",
@@ -383,17 +484,22 @@ namespace Convocation.DataAccess.Migrations
                 column: "PermissionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserPermission_UserAccountId_PermissionId",
+                name: "IX_UserPermission_UserAccountId",
                 table: "UserPermission",
-                columns: new[] { "UserAccountId", "PermissionId" },
-                unique: true);
+                column: "UserAccountId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "DistributionItem");
+
+            migrationBuilder.DropTable(
                 name: "DistributionLog");
+
+            migrationBuilder.DropTable(
+                name: "FoodMenu");
 
             migrationBuilder.DropTable(
                 name: "Guest");
@@ -406,6 +512,9 @@ namespace Convocation.DataAccess.Migrations
 
             migrationBuilder.DropTable(
                 name: "RolePermission");
+
+            migrationBuilder.DropTable(
+                name: "StaffTask");
 
             migrationBuilder.DropTable(
                 name: "UserPermission");

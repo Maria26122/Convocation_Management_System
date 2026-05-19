@@ -1,16 +1,14 @@
 ﻿@model Convocation.Entities.RolePermission
+
 @{
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Role Permission Details";
 }
-<div class="form-card">
-    <h3 class="form-title mb-4">Role Permission Details</h3>
-    <dl class="row">
-        <dt class="col-sm-3">Role</dt>
-        <dd class="col-sm-9">@Model.Role?.RoleName</dd>
-        <dt class="col-sm-3">Permission</dt>
-        <dd class="col-sm-9">@Model.Permission?.PermissionName</dd>
-    </dl>
-    <a asp-action="Edit" asp-route-id="@Model.RolePermissionId" class="btn btn-warning">Edit</a>
-    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+
+<h2>Details</h2>
+
+<div class="card p-3">
+    <p><strong>Role:</strong> @Model.Role?.RoleName</p>
+    <p><strong>Permission:</strong> @Model.Permission?.PermissionName</p>
 </div>
+
+<a asp-action="Index" class="btn btn-secondary mt-2">Back</a>

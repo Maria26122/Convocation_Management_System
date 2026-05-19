@@ -15,79 +15,29 @@ namespace Convocation_Management_System.Web.UI.Controllers
             _context = context;
         }
 
-        private string CurrentRole()
-        {
-            return (HttpContext.Session.GetString("Role") ?? "").Trim().ToLower();
-        }
-
-        private bool HasAccess()
-        {
-            var role = CurrentRole();
-            return role == "admin" || role == "staff" || role == "eventmanager";
-        }
-
-        private int? CurrentUserId()
-        {
-            var userId = HttpContext.Session.GetString("UserId");
-            return int.TryParse(userId, out int id) ? id : null;
-        }
-
-        private async Task LoadRegistrationDropdownAsync(object? selectedId = null)
-        {
-            var registrations = await _context.Registration
-                .Include(r => r.Participant)
-                    .ThenInclude(p => p.UserAccount)
-                .Include(r => r.Event)
-                .OrderByDescending(r => r.RegistrationId)
-                .Select(r => new
-                {
-                    r.RegistrationId,
-                    DisplayText = "Reg#" + r.RegistrationId
-                                  + " - " + (r.Participant != null && r.Participant.UserAccount != null
-                                      ? r.Participant.UserAccount.FullName
-                                      : "Unknown")
-                                  + " - " + (r.Event != null ? r.Event.EventTitle : "No Event")
-                })
-                .ToListAsync();
-
-            ViewBag.RegistrationId = new SelectList(registrations, "RegistrationId", "DisplayText", selectedId);
-        }
-
+        // GET: DistributionLog
         public async Task<IActionResult> Index()
         {
-            if (!HasAccess())
-                return RedirectToAction("Login", "Account");
-
             var logs = await _context.DistributionLog
-                .Include(d => d.Registration)
-                    .ThenInclude(r => r.Participant)
-                        .ThenInclude(p => p.UserAccount)
-                .Include(d => d.Registration)
-                    .ThenInclude(r => r.Event)
-                .Include(d => d.UserAccount)
+                .Include(d => d.Event)
+                .Include(d => d.Participant)
+                    .ThenInclude(p => p.UserAccount)
                 .OrderByDescending(d => d.ActionDate)
-                .ThenByDescending(d => d.DistributionLogId)
                 .ToListAsync();
 
             return View(logs);
         }
-
+        // GET: DistributionLog/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (!HasAccess())
-                return RedirectToAction("Login", "Account");
-
             if (id == null)
                 return NotFound();
 
             var log = await _context.DistributionLog
-                .Include(d => d.Registration)
-                    .ThenInclude(r => r.Participant)
-                        .ThenInclude(p => p.UserAccount)
-                .Include(d => d.Registration)
-                    .ThenInclude(r => r.Event)
-                .Include(d => d.UserAccount)
-                .FirstOrDefaultAsync(d => d.DistributionLogId == id.Value);
+                .Include(d => d.Event)
+                .Include(d => d.Participant)
+                    .ThenInclude(p => p.UserAccount)
+                .FirstOrDefaultAsync(m => m.DistributionLogId == id);
 
             if (log == null)
                 return NotFound();
@@ -95,67 +45,92 @@ namespace Convocation_Management_System.Web.UI.Controllers
             return View(log);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Create()
-        {
-            if (!HasAccess())
-                return RedirectToAction("Login", "Account");
-
-            await LoadRegistrationDropdownAsync();
-
-            return View(new DistributionLog
-            {
-                ActionDate = DateTime.Now
-            });
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(DistributionLog model)
+        public async Task<IActionResult> CreateDistributionPlan(int eventId, string notes)
         {
-            if (!HasAccess())
-                return RedirectToAction("Login", "Account");
+            var exists = await _context.DistributionLog
+                .AnyAsync(d => d.EventId == eventId && d.ActionType == "PLAN");
 
-            ModelState.Remove("Registration");
-            ModelState.Remove("UserAccount");
-
-            var registration = await _context.Registration
-                .FirstOrDefaultAsync(r => r.RegistrationId == model.RegistrationId);
-
-            if (registration == null)
-                ModelState.AddModelError("RegistrationId", "Invalid registration.");
-
-            if (registration != null && registration.RegistrationStatus != "Paid")
-                ModelState.AddModelError("RegistrationId", "Distribution is allowed only after payment.");
-
-            if (string.IsNullOrWhiteSpace(model.ActionType))
-                ModelState.AddModelError("ActionType", "Select distribution item.");
-
-            bool alreadyExists = await _context.DistributionLog
-                .AnyAsync(d => d.RegistrationId == model.RegistrationId &&
-                               d.ActionType == model.ActionType);
-
-            if (alreadyExists)
-                ModelState.AddModelError("ActionType", model.ActionType + " is already distributed for this registration.");
-
-            if (!ModelState.IsValid)
+            if (exists)
             {
-                await LoadRegistrationDropdownAsync(model.RegistrationId);
-                return View(model);
+                TempData["Error"] = "Distribution already created for this event.";
+                return RedirectToAction("Index");
             }
 
-            model.UserAccountId = CurrentUserId();
-            model.ActionDate = DateTime.Now;
-            model.Note = model.ActionType + " Distribution";
+            var plan = new DistributionLog
+            {
+                EventId = eventId,
+                ActionType = "PLAN",
+                ActionDate = DateTime.Now,
+                Note = notes,
+                Remarks = "Distribution plan created"
+            };
 
-            _context.DistributionLog.Add(model);
+            _context.DistributionLog.Add(plan);
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = model.ActionType + " distributed successfully.";
+            TempData["Success"] = "Distribution plan created successfully.";
+            return RedirectToAction("Index");
+        }
+
+        // GET: DistributionLog/Create
+        public IActionResult Create()
+        {
+            ViewBag.ParticipantId = _context.Participant
+                .Include(p => p.UserAccount)
+                .Select(p => new SelectListItem
+                {
+                    Value = p.ParticipantId.ToString(),
+                    Text = p.StudentId + " - " + p.UserAccount.FullName
+                }).ToList();
+
+            ViewBag.EventId = _context.Event
+                .Select(e => new SelectListItem
+                {
+                    Value = e.EventId.ToString(),
+                    Text = e.EventTitle
+                }).ToList();
+
+            ViewBag.DistributionTypes = new List<string>
+    {
+        "Food",
+        "Kit",
+        "Gown",
+        "Certificate"
+    };
+
+            return View();
+        }
+
+        // POST: DistributionLog/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(DistributionLog log)
+        {
+            if (!ModelState.IsValid)
+                return View(log);
+
+            log.ActionDate = DateTime.Now;
+
+            // 🔥 FIX 1: prevent duplicate same action
+            bool exists = await _context.DistributionLog.AnyAsync(d =>
+                d.RegistrationId == log.RegistrationId &&
+                d.ActionType == log.ActionType);
+
+            if (exists)
+            {
+                ModelState.AddModelError("", "This action already exists for this student.");
+                return View(log);
+            }
+
+            _context.DistributionLog.Add(log);
+            await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
 
-        [HttpGet]
+        // GET: DistributionLog/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -166,52 +141,51 @@ namespace Convocation_Management_System.Web.UI.Controllers
             if (log == null)
                 return NotFound();
 
-            await LoadRegistrationDropdownAsync(log.RegistrationId);
+            return View(log);
+        }
+
+        // POST: DistributionLog/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("DistributionLogId,RegistrationId,ParticipantId,ActionType,ActionDate,UserAccountId,Note,Remarks")] DistributionLog log)
+        {
+            if (id != log.DistributionLogId)
+                return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(log);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!DistributionLogExists((int)log.DistributionLogId))
+                        return NotFound();
+                    else
+                        throw;
+                }
+
+                return RedirectToAction(nameof(Index));
+            }
 
             return View(log);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, DistributionLog model)
-        {
-            if (id != model.DistributionLogId)
-                return NotFound();
 
-            ModelState.Remove("Registration");
-            ModelState.Remove("UserAccount");
 
-            if (!ModelState.IsValid)
-            {
-                await LoadRegistrationDropdownAsync(model.RegistrationId);
-                return View(model);
-            }
-
-            _context.Update(model);
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] = "Distribution updated successfully.";
-
-            return RedirectToAction(nameof(Index));
-        }
-
-        [HttpGet]
+        // GET: DistributionLog/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (!HasAccess())
-                return RedirectToAction("Login", "Account");
-
             if (id == null)
                 return NotFound();
 
             var log = await _context.DistributionLog
-                .Include(d => d.Registration)
-                    .ThenInclude(r => r.Participant)
-                        .ThenInclude(p => p.UserAccount)
-                .Include(d => d.Registration)
-                    .ThenInclude(r => r.Event)
-                .Include(d => d.UserAccount)
-                .FirstOrDefaultAsync(d => d.DistributionLogId == id.Value);
+                .Include(d => d.Event)
+                .Include(d => d.Participant)
+                    .ThenInclude(p => p.UserAccount)
+                .FirstOrDefaultAsync(m => m.DistributionLogId == id);
 
             if (log == null)
                 return NotFound();
@@ -219,23 +193,41 @@ namespace Convocation_Management_System.Web.UI.Controllers
             return View(log);
         }
 
+        // POST: DistributionLog/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (!HasAccess())
-                return RedirectToAction("Login", "Account");
-
             var log = await _context.DistributionLog.FindAsync(id);
 
-            if (log == null)
-                return NotFound();
+            if (log != null)
+            {
+                _context.DistributionLog.Remove(log);
+                await _context.SaveChangesAsync();
+            }
 
-            _context.DistributionLog.Remove(log);
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] = "Distribution log deleted successfully.";
             return RedirectToAction(nameof(Index));
         }
+
+        private bool DistributionLogExists(int id)
+        {
+            return _context.DistributionLog.Any(e => e.DistributionLogId == id);
+        }
+        private async Task AddLog(int registrationId, int userId, string actionType, string note)
+        {
+            var log = new DistributionLog
+            {
+                RegistrationId = registrationId,
+                UserAccountId = userId,
+                ActionType = actionType,
+                ActionDate = DateTime.Now,
+                Note = note,
+                Remarks = "Auto logged"
+            };
+
+            _context.DistributionLog.Add(log);
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

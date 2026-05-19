@@ -27,7 +27,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             {
                 return RedirectToAction("Login", "Account");
             }
-            var guests = await _context.Guest   
+            var Guest = await _context.Guest
                 .Include(g => g.Registration)
                 .ThenInclude(r => r.Participant)
                 .Include(g => g.Registration)
@@ -35,7 +35,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 .OrderByDescending(g => g.GuestId)
                 .ToListAsync();
 
-            return View(guests ?? new List<Guest>());
+            return View(Guest ?? new List<Guest>());
         }
 
         private new string CurrentRole()
@@ -189,7 +189,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
         private void LoadRegistrationDropdown(object? selectedRegistration = null)
         {
-            var registrations = _context.Registration
+            var Registration = _context.Registration
                 .Include(r => r.Participant)
                 .Include(r => r.Event)
                 .AsEnumerable()
@@ -200,7 +200,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 .ToList();
 
             ViewBag.RegistrationId = new SelectList(
-                registrations,
+                Registration,
                 "RegistrationId",
                 "DisplayText",
                 selectedRegistration

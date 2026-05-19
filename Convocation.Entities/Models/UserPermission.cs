@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Convocation.Entities
 {
@@ -8,16 +7,10 @@ namespace Convocation.Entities
         [Key]
         public int UserPermissionId { get; set; }
 
-        [Required]
         public int UserAccountId { get; set; }
+        public UserAccount UserAccount { get; set; }
 
-        [Required]
         public int PermissionId { get; set; }
-
-        [ForeignKey("UserAccountId")]
-        public virtual UserAccount? UserAccount { get; set; }
-
-        [ForeignKey("PermissionId")]
-        public virtual Permission? Permission { get; set; }
+        public Permission Permission { get; set; }
     }
 }

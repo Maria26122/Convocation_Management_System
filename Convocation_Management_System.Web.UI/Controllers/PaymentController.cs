@@ -22,67 +22,70 @@ namespace Convocation_Management_System.Web.UI.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
+        // =========================
+        // TEST
+        // =========================
         public IActionResult Test()
         {
-            return Content("Controller working");
+            return Content("Payment Controller Working");
         }
 
+        // =========================
+        // CHECKOUT PAGE
+        // =========================
         public async Task<IActionResult> Checkout(int id)
         {
             var registration = await _context.Registration
-    .Include(r => r.Participant)
-    .ThenInclude(p => p.UserAccount)
-    .FirstOrDefaultAsync(r => r.RegistrationId == id);
-
-            if (registration == null)
-                return NotFound();
-
-            if (registration.RegistrationStatus == "Paid")
-            {
-                TempData["Success"] = "Payment already completed.";
-                return RedirectToAction("Index", "Registration");
-            }
-
-            return View(registration);
-        }
-
-        public async Task<IActionResult> Pay(int id)
-        {
-            var registration = await _context.Registration
                 .Include(r => r.Participant)
+                .ThenInclude(p => p.UserAccount)
                 .FirstOrDefaultAsync(r => r.RegistrationId == id);
 
             if (registration == null)
                 return NotFound();
 
-            if (registration.RegistrationStatus == "Paid")
+            return View(registration);
+        }
+
+        // =========================
+        // PAY NOW (SSLCommerz START)
+        // =========================
+        public async Task<IActionResult> PayNow(int registrationId)
+        {
+            var registration = await _context.Registration
+                .Include(r => r.Participant)
+                .ThenInclude(p => p.UserAccount)
+                .FirstOrDefaultAsync(r => r.RegistrationId == registrationId);
+
+            if (registration == null)
+                return NotFound();
+
+            decimal amount = registration.TotalAmount;
+
+            string tranId = "CNV-" + Guid.NewGuid().ToString("N")[..10].ToUpper();
+
+            var payment = await _context.Payment
+                .FirstOrDefaultAsync(p => p.RegistrationId == registrationId);
+
+            if (payment == null)
             {
-                TempData["Success"] = "Payment already completed.";
-                return RedirectToAction("Index", "Registration");
+                payment = new Payment
+                {
+                    RegistrationId = registrationId,
+                    PaidAmount = amount,
+                    TransactionId = tranId,
+                    PaymentMethod = "SSLCommerz",
+                    PaymentStatus = "Pending",
+                    CreatedAt = DateTime.Now
+                };
+
+                _context.Payment.Add(payment);
             }
-
-            decimal amount = 670;
-
-            string tranId = "CNV-" +
-                Guid.NewGuid().ToString("N")
-                .Substring(0, 10)
-                .ToUpper();
-
-            registration.TransactionId = tranId;
-
-            await _context.SaveChangesAsync();
-
-            var payment = new Payment
+            else
             {
-                RegistrationId = registration.RegistrationId,
-                PaidAmount = amount,
-                TransactionId = tranId,
-                PaymentMethod = "SSLCommerz",
-                PaymentStatus = "Pending",
-                PaymentDate = DateTime.Now
-            };
-
-            _context.Payment.Add(payment);
+                payment.TransactionId = tranId;
+                payment.PaymentStatus = "Pending";
+                payment.PaidAmount = amount;
+            }
 
             await _context.SaveChangesAsync();
 
@@ -90,122 +93,107 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             var postData = new Dictionary<string, string>
             {
-                { "store_id", _config["SSLCommerz:StoreId"] ?? "" },
-                { "store_passwd", _config["SSLCommerz:StorePassword"] ?? "" },
+                ["store_id"] = _config["SSLCommerz:StoreId"],
+                ["store_passwd"] = _config["SSLCommerz:StorePassword"],
+                ["total_amount"] = amount.ToString("0.00"),
+                ["currency"] = "BDT",
+                ["tran_id"] = tranId,
 
-                { "total_amount", amount.ToString("0.00") },
-                { "currency", "BDT" },
-                { "tran_id", tranId },
+                ["success_url"] = $"{baseUrl}/Payment/Success",
+                ["fail_url"] = $"{baseUrl}/Payment/Fail",
+                ["cancel_url"] = $"{baseUrl}/Payment/Cancel",
 
-                { "success_url", $"{baseUrl}/Payment/Success" },
-                { "fail_url", $"{baseUrl}/Payment/Fail" },
-                { "cancel_url", $"{baseUrl}/Payment/Cancel" },
+                ["cus_name"] = registration.Participant?.UserAccount?.FullName ?? "Student",
+                ["cus_email"] = registration.Participant?.UserAccount?.Email ?? "test@test.com",
+                ["cus_phone"] = registration.Participant?.UserAccount?.Phone ?? "01700000000",
 
-                { "cus_name", registration.Participant.UserAccount?.FullName ?? "Student" },
-{ "cus_email", registration.Participant.UserAccount?.Email ?? "student@gmail.com" },
-{ "cus_phone", registration.Participant.UserAccount?.Phone ?? "01700000000" },
-
-                { "cus_add1", "Bangladesh" },
-                { "cus_city", "Dhaka" },
-                { "cus_country", "Bangladesh" },
-
-                { "shipping_method", "NO" },
-
-                { "product_name", "Convocation Registration Fee" },
-                { "product_category", "Education" },
-                { "product_profile", "general" }
+                ["shipping_method"] = "NO",
+                ["product_name"] = "Convocation Fee",
+                ["product_category"] = "Education",
+                ["product_profile"] = "general"
             };
 
             var client = _httpClientFactory.CreateClient();
-
             var response = await client.PostAsync(
                 _config["SSLCommerz:GatewayUrl"],
                 new FormUrlEncodedContent(postData));
 
             var json = await response.Content.ReadAsStringAsync();
+            var result = JsonDocument.Parse(json);
 
-            using var result = JsonDocument.Parse(json);
-
-            if (result.RootElement.TryGetProperty(
-                "GatewayPageURL",
-                out var gatewayUrl))
+            if (result.RootElement.TryGetProperty("GatewayPageURL", out var url))
             {
-                var url = gatewayUrl.GetString();
-
-                if (!string.IsNullOrWhiteSpace(url))
-                {
-                    return Redirect(url);
-                }
+                var gateway = url.GetString();
+                return Redirect(gateway);
             }
 
-            TempData["Error"] =
-                "SSLCommerz gateway connection failed.";
-
-            return RedirectToAction("Index", "Registration");
+            TempData["Error"] = "Payment gateway failed.";
+            return RedirectToAction("MyRegistration", "Participant");
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Success()
+        // =========================
+        // SUCCESS
+        // =========================
+        [HttpGet]
+        public async Task<IActionResult> Success(string tran_id)
         {
-            string tranId = Request.Form["tran_id"];
-
             var payment = await _context.Payment
-                .FirstOrDefaultAsync(p =>
-                    p.TransactionId == tranId);
+                .FirstOrDefaultAsync(p => p.TransactionId == tran_id);
 
             if (payment != null)
             {
                 payment.PaymentStatus = "Paid";
-                payment.PaymentDate = DateTime.Now;
+                payment.VerifiedAt = DateTime.Now;
 
                 var registration = await _context.Registration
-                    .FirstOrDefaultAsync(r =>
-                        r.RegistrationId ==
-                        payment.RegistrationId);
+                    .FirstOrDefaultAsync(r => r.RegistrationId == payment.RegistrationId);
 
                 if (registration != null)
                 {
-                    registration.RegistrationStatus = "Paid";
+                    registration.RegistrationStatus = "Confirmed";
                 }
 
                 await _context.SaveChangesAsync();
             }
 
-            TempData["Success"] =
-                "Payment completed successfully.";
-
-            return RedirectToAction("Index", "Registration");
+            TempData["Success"] = "Payment successful!";
+            return RedirectToAction("MyPayment", "Participant");
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Fail()
+        // =========================
+        // FAIL
+        // =========================
+        [HttpGet]
+        public async Task<IActionResult> Fail(string tran_id)
         {
-            string tranId = Request.Form["tran_id"];
-
             var payment = await _context.Payment
-                .FirstOrDefaultAsync(p =>
-                    p.TransactionId == tranId);
+                .FirstOrDefaultAsync(p => p.TransactionId == tran_id);
 
             if (payment != null)
             {
                 payment.PaymentStatus = "Failed";
-
                 await _context.SaveChangesAsync();
             }
 
-            TempData["Error"] =
-                "Payment failed.";
-
-            return RedirectToAction("Index", "Registration");
+            TempData["Error"] = "Payment failed.";
+            return RedirectToAction("MyPayment", "Participant");
         }
 
-        [HttpPost]
+        [HttpGet]
         public IActionResult Cancel()
         {
-            TempData["Error"] =
-                "Payment cancelled.";
+            TempData["Error"] = "Payment cancelled.";
+            return RedirectToAction("MyPayment", "Participant");
+        }
 
-            return RedirectToAction("Index", "Registration");
+        // =========================
+        // CANCEL
+        // =========================
+        [HttpGet]
+        public IActionResult Cancel()
+        {
+            TempData["Error"] = "Payment cancelled.";
+            return RedirectToAction("MyPayment", "Participant");
         }
     }
 }

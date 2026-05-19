@@ -15,7 +15,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             _context = context;
         }
 
-        private async Task LoadRolesAsync(object? selectedRole = null)
+        private async Task LoadRoleAsync(object? selectedRole = null)
         {
             ViewBag.RoleId = new SelectList(await _context.Role.OrderBy(r => r.RoleName).ToListAsync(), "RoleId", "RoleName", selectedRole);
         }
@@ -36,24 +36,26 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null)
+                return NotFound();
 
             var user = await _context.UserAccount
                 .Include(u => u.Role)
                 .Include(u => u.Participant)
-                .Include(u => u.UserPermission)
+                .Include(u => u.UserPermissions)
                     .ThenInclude(up => up.Permission)
                 .FirstOrDefaultAsync(u => u.UserAccountId == id);
 
-            if (user == null) return NotFound();
+            if (user == null)
+                return NotFound();
 
             return View(user);
         }
 
         public async Task<IActionResult> Create()
         {
-            await LoadRolesAsync();
-            return View(new UserAccount { IsActive = true });
+            await LoadRoleAsync();
+            return View(model: new UserAccount { IsActive = true });
         }
 
         [HttpPost]
@@ -72,7 +74,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             if (!ModelState.IsValid)
             {
-                await LoadRolesAsync(userAccount.RoleId);
+                await LoadRoleAsync(userAccount.RoleId);
                 return View(userAccount);
             }
 
@@ -90,7 +92,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             var user = await _context.UserAccount.FindAsync(id);
             if (user == null) return NotFound();
 
-            await LoadRolesAsync(user.RoleId);
+            await LoadRoleAsync(user.RoleId);
             return View(user);
         }
 
@@ -107,7 +109,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             if (!ModelState.IsValid)
             {
-                await LoadRolesAsync(userAccount.RoleId);
+                await LoadRoleAsync(userAccount.RoleId);
                 return View(userAccount);
             }
 

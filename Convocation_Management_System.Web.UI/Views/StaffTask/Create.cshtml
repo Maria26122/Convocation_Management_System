@@ -1,53 +1,28 @@
-﻿@model Convocation.Entities.StaffTask
+﻿@model Convocation_Management_System.Web.UI.Models.StaffTaskViewModel
 
-@{
-    ViewData["Title"] = "Assign Staff Task";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
-}
+<form asp-action="Create" method="post">
 
-<div class="page-card">
-    <h4 class="section-title">Assign Staff Task</h4>
+    <label>Staff</label>
+    <select asp-for="UserAccountId"
+            class="form-control"
+            asp-items="Model.Users">
+    </select>
 
-    <form asp-action="Create" method="post">
-        @Html.AntiForgeryToken()
+    <label>Task Title</label>
+    <input asp-for="TaskTitle" class="form-control" />
 
-        <div class="mb-3">
-            <label asp-for="EventId" class="form-label">Event</label>
-            <select asp-for="EventId" class="form-select" asp-items="ViewBag.EventId">
-                <option value="">-- Select Event --</option>
-            </select>
-            <span asp-validation-for="EventId" class="text-danger"></span>
-        </div>
+    <label>Description</label>
+    <textarea asp-for="Description" class="form-control"></textarea>
 
-        <div class="mb-3">
-            <label asp-for="StaffUserAccountId" class="form-label">Staff</label>
-            <select asp-for="StaffUserAccountId" class="form-select" asp-items="ViewBag.StaffUserAccountId">
-                <option value="">-- Select Staff --</option>
-            </select>
-            <span asp-validation-for="StaffUserAccountId" class="text-danger"></span>
-        </div>
+    <label>Status</label>
+    <select asp-for="Status" class="form-control">
+        <option>Pending</option>
+        <option>InProgress</option>
+        <option>Completed</option>
+    </select>
 
-        <div class="mb-3">
-            <label asp-for="TaskName" class="form-label">Task</label>
-            <select asp-for="TaskName" class="form-select">
-                <option value="">-- Select Task --</option>
-                <option value="Entry Verification">Entry Verification</option>
-                <option value="Food Distribution">Food Distribution</option>
-                <option value="Kit Distribution">Kit Distribution</option>
-                <option value="Certificate Distribution">Certificate Distribution</option>
-                <option value="Gown Distribution">Gown Distribution</option>
-                <option value="Guest Support">Guest Support</option>
-            </select>
-            <span asp-validation-for="TaskName" class="text-danger"></span>
-        </div>
+    <label>Remarks</label>
+    <textarea asp-for="Remarks" class="form-control"></textarea>
 
-        <div class="mb-3">
-            <label asp-for="Description" class="form-label">Description</label>
-            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
-            <span asp-validation-for="Description" class="text-danger"></span>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Assign Task</button>
-        <a asp-action="Index" class="btn btn-secondary">Back</a>
-    </form>
-</div>
+    <button class="btn btn-success mt-2">Save</button>
+</form>

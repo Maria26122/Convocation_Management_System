@@ -24,10 +24,10 @@ namespace Convocation_Management_System.Web.UI.Controllers
             {
                 return RedirectToAction("Login", "Account");
             }
-            var permissions = await _context.Permission
+            var Permission = await _context.Permission
                 .OrderBy(p => p.PermissionName)
                 .ToListAsync();
-            return View(permissions);
+            return View(Permission);
         }
 
         public IActionResult Create()

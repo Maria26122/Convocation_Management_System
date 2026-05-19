@@ -350,7 +350,7 @@
                         <span class="mini-badge">Digital Convocation Registration Portal</span>
                         <h1 class="banner-title">Complete your convocation registration, payment, and QR pass in one place</h1>
                         <p class="banner-text">
-                            This platform helps students view active convocation events, register online,
+                            This platform helps students view active convocation Event, register online,
                             complete fee payment, and receive a QR pass for smooth entry on event day.
                             Fast, professional, and paperless.
                         </p>
@@ -393,7 +393,7 @@
                     </div>
                     <h4 class="feature-title">Student Registration</h4>
                     <p class="feature-text">
-                        Students can create accounts, update their profile, and register for active convocation events online.
+                        Students can create Account, update their profile, and register for active convocation Event online.
                     </p>
                 </div>
             </div>
@@ -429,7 +429,7 @@
                     </div>
                     <h4 class="feature-title">Admin Monitoring</h4>
                     <p class="feature-text">
-                        Admin can manage events, participants, payments, passes, and distribution activities centrally.
+                        Admin can manage Event, Participant, Payment, passes, and distribution activities centrally.
                     </p>
                 </div>
             </div>
@@ -437,11 +437,11 @@
     </div>
 </section>
      
-<section class="section-wrap pt-0" id="events">
+<section class="section-wrap pt-0" id="Event">
     <div class="container">
-        <h2 class="section-title">Upcoming Events</h2>
+        <h2 class="section-title">Upcoming Graduations</h2>
         <p class="section-subtitle">
-            Check active and upcoming convocation events and register within the valid time.
+            Check active and upcoming convocation Event and register within the valid time.
         </p>
 
     @if (Model != null && Model.Any())
@@ -451,7 +451,7 @@
             @foreach (var item in Model.OrderBy(e => e.EventDate))
             {
                 var registrationOpen = item.IsActive &&
-                                       item.RegistrationStartDate <= now &&
+                                       item.RegistrationtartDate <= now &&
                                        item.RegistrationEndDate >= now;
 
                 var eventUpcoming = item.EventDate >= now.Date;
@@ -492,7 +492,7 @@
                         <div class="event-line">
                             <i class="fas fa-clock"></i>
                             <strong>Registration:</strong>
-                            @item.RegistrationStartDate.ToString("dd MMM yyyy")
+                            @item.RegistrationtartDate.ToString("dd MMM yyyy")
                             -
                             @item.RegistrationEndDate.ToString("dd MMM yyyy")
                         </div>
@@ -558,9 +558,9 @@
     {
         <div class="empty-box">
             <i class="fas fa-calendar-xmark fa-2x mb-3 text-secondary"></i>
-            <h5 class="fw-bold">No events available right now</h5>
+            <h5 class="fw-bold">No Event available right now</h5>
             <p class="mb-0">
-                Upcoming convocation events will appear here once they are created by the administration.
+                Upcoming convocation Event will appear here once they are created by the administration.
             </p>
         </div>
     }
@@ -586,7 +586,7 @@
                 <div class="step-card">
                     <div class="step-number">2</div>
                     <h4 class="step-title">Choose Event</h4>
-                    <p class="step-text">View active convocation events and submit your registration during the open period.</p>
+                    <p class="step-text">View active convocation Event and submit your registration during the open period.</p>
                 </div>
             </div>
 

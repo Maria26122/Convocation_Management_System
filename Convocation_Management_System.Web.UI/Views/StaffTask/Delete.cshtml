@@ -1,36 +1,66 @@
 ﻿@model Convocation.Entities.StaffTask
 
 @{
-    ViewData["Title"] = "Delete Staff Task";
+    ViewData["Title"] = "Delete Task";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="page-card">
-    <h4 class="section-title text-danger">Delete Staff Task</h4>
-
-    <div class="alert alert-warning">
-        Are you sure you want to delete this task?
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-danger text-white">
+        <h4 class="mb-0">Delete Staff Task</h4>
     </div>
 
-    <dl class="row">
-        <dt class="col-sm-3">Event</dt>
-        <dd class="col-sm-9">@Model.Event?.EventTitle</dd>
+    <div class="card-body">
 
-        <dt class="col-sm-3">Staff</dt>
-        <dd class="col-sm-9">@Model.StaffUserAccount?.FullName</dd>
+        <h5 class="text-danger mb-3">
+            Are you sure you want to delete this task?
+        </h5>
 
-        <dt class="col-sm-3">Task</dt>
-        <dd class="col-sm-9">@Model.TaskName</dd>
+        <dl class="row">
 
-        <dt class="col-sm-3">Status</dt>
-        <dd class="col-sm-9">@Model.Status</dd>
-    </dl>
+            <dt class="col-sm-3">Task Title</dt>
+            <dd class="col-sm-9">@Model.TaskTitle</dd>
 
-    <form asp-action="Delete" method="post">
-        @Html.AntiForgeryToken()
-        <input type="hidden" asp-for="StaffTaskId" />
+            <dt class="col-sm-3">Description</dt>
+            <dd class="col-sm-9">@Model.Description</dd>
 
-        <button type="submit" class="btn btn-danger">Delete</button>
-        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-    </form>
+            <dt class="col-sm-3">Assigned To</dt>
+            <dd class="col-sm-9">
+                @(Model.UserAccount?.FullName ?? "N/A")
+            </dd>
+
+            <dt class="col-sm-3">Status</dt>
+            <dd class="col-sm-9">
+                @if (Model.Status == "Completed")
+                {
+                    <span class="badge bg-success">Completed</span>
+                }
+                else if (Model.Status == "InProgress")
+                {
+                    <span class="badge bg-warning text-dark">In Progress</span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">Pending</span>
+                }
+            </dd>
+
+            <dt class="col-sm-3">Assigned At</dt>
+            <dd class="col-sm-9">@Model.AssignedAt.ToString("dd MMM yyyy hh:mm tt")</dd>
+
+        </dl>
+
+        <form asp-action="DeleteConfirmed" method="post">
+            <input type="hidden" asp-for="StaffTaskId" />
+
+            <button type="submit" class="btn btn-danger">
+                Yes, Delete
+            </button>
+
+            <a asp-action="Index" class="btn btn-secondary ms-2">
+                Cancel
+            </a>
+        </form>
+
+    </div>
 </div>

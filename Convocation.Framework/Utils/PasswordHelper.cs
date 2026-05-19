@@ -1,25 +1,20 @@
-﻿using System;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace Convocation_Management_System.Web.UI.Helpers
+namespace Convocation_Management_System.Web.UI.Utils
 {
     public static class PasswordHelper
     {
         public static string HashPassword(string password)
         {
-            using (SHA256 sha256 = SHA256.Create())
-            {
-                byte[] bytes = Encoding.UTF8.GetBytes(password);
-                byte[] hash = sha256.ComputeHash(bytes);
-                return Convert.ToBase64String(hash);
-            }
+            using var sha = SHA256.Create();
+            var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(password));
+            return Convert.ToBase64String(bytes);
         }
 
-        public static bool VerifyPassword(string enteredPassword, string storedHash)
+        public static bool VerifyPassword(string password, string hash)
         {
-            string enteredHash = HashPassword(enteredPassword);
-            return enteredHash == storedHash;
+            return HashPassword(password) == hash;
         }
     }
 }

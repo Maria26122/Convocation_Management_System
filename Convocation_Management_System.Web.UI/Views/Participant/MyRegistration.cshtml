@@ -16,18 +16,15 @@
         {
             if (!isPaid)
             {
-                <form asp-controller="Payment"
-                      asp-action="Pay"
+                <form asp-controller="Participant"
+                      asp-action="SubmitPayment"
                       method="post">
 
                     <input type="hidden"
                            name="registrationId"
                            value="@Model.RegistrationId" />
 
-                    <button type="submit"
-                            class="btn btn-success">
-                        Pay With SSLCommerz
-                    </button>
+                   
                 </form>
             }
             else
@@ -103,35 +100,40 @@
         <hr class="my-4" />
 
         <div class="d-flex gap-2 flex-wrap">
+
             @if (!isPaid)
             {
-                <a asp-controller="Payment"
-                       asp-action="PayNow"
-                       asp-route-registrationId="@Model.RegistrationId"
-                       class="btn btn-success">
-                    <i class="fas fa-credit-card me-2"></i>Pay Now
+                <a asp-controller="Participant"
+                   asp-action="MyPayment"
+                   class="btn btn-success">
+
+                    Pay Now
                 </a>
             }
             else
             {
                 <a asp-controller="Participant"
-                       asp-action="MyPayment"
-                       class="btn btn-outline-success">
+                   asp-action="MyPayment"
+                   class="btn btn-outline-success">
+
                     <i class="fas fa-receipt me-2"></i>View Payment
                 </a>
 
                 <a asp-controller="Participant"
-                       asp-action="MyQrPass"
-                       class="btn btn-outline-primary">
+                   asp-action="MyQrPass"
+                   class="btn btn-outline-primary">
+
                     <i class="fas fa-qrcode me-2"></i>View QR Pass
                 </a>
             }
 
             <a asp-controller="Guest"
-                   asp-action="Index"
-                   class="btn btn-outline-secondary">
-                <i class="fas fa-users me-2"></i>My Guests
+               asp-action="Index"
+               class="btn btn-outline-secondary">
+
+                <i class="fas fa-users me-2"></i>My Guest
             </a>
+
         </div>
     }
 </div>

@@ -28,11 +28,11 @@ namespace Convocation_Management_System.Web.UI.Controllers
             if (!IsAdmin() && !IsEventManager())
                 return RedirectToAction("Login", "Account");
 
-            var events = await _context.Event
+            var Event = await _context.Event
                 .OrderByDescending(e => e.EventDate)
                 .ToListAsync();
 
-            return View(events);
+            return View(Event);
         }
         // GET: Event/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -153,7 +153,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             if (eventItem != null)
             {
-                _context.Event .Remove(eventItem);
+                _context.Event.Remove(eventItem);
                 await _context.SaveChangesAsync();
             }
 

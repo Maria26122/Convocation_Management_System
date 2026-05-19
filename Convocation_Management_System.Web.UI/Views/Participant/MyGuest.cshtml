@@ -1,16 +1,16 @@
 ﻿@model IEnumerable<Convocation.Entities.Guest>
 
 @{
-    ViewData["Title"] = "My Guests";
+    ViewData["Title"] = "My Guest";
     Layout = "~/Views/Shared/_ParticipantLayout.cshtml";
 }
 
 <div class="content-card">
-    <h4 class="mb-4">My Guests</h4>
+    <h4 class="mb-4">My Guest</h4>
 
     @if (Model == null || !Model.Any())
     {
-        <div class="alert alert-warning">No guests added.</div>
+        <div class="alert alert-warning">No Guest added.</div>
     }
     else
     {

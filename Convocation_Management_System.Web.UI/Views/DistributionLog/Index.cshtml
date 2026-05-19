@@ -6,48 +6,108 @@
 
 <div class="container mt-4">
 
-    <h3 class="mb-3">Distribution Logs</h3>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Distribution Logs</h2>
 
-    <table class="table table-bordered table-hover">
-        <thead>
+        <a asp-action="Create"
+               class="btn btn-primary">
+            New Distribution
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    <table class="table table-bordered table-striped table-hover">
+
+        <thead class="table-dark">
             <tr>
-                <th>Student</th>
-                <th>Registration</th>
-                <th>Type</th>
+                <th>Participant</th>
+                <th>Event</th>
+                <th>Distribution Type</th>
                 <th>Status</th>
-                <th>Food Menu</th>
-                <th>Distributed At</th>
-                <th>Verified By</th>
+                <th>Date</th>
+                <th>Remarks</th>
+                <th width="180">Action</th>
             </tr>
         </thead>
 
         <tbody>
-            @foreach (var item in Model)
+
+            @if (Model?.Any() == true)
+            {
+                @foreach (var item in Model!)           {
+                    <tr>
+
+                        <td>
+                            @item.Participant?.UserAccount?.FullName
+                        </td>
+
+                        <td>
+                            @item.Event?.EventTitle
+                        </td>
+
+                        <td>
+                            @item.ActionType
+                        </td>
+
+                        <td>
+                            @if (item.ActionType != null)
+                            {
+                                <span class="badge bg-success">
+                                    Delivered
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">
+                                    Pending
+                                </span>
+                            }
+                        </td>
+
+                        <td>
+                            @(item.ActionDate.ToString("dd MMM yyyy hh:mm tt"))
+                        </td>
+
+                        <td>
+                            @item.Remarks
+                        </td>
+
+                        <td>
+
+                            <a asp-action="Details"
+                                   asp-route-id="@item.DistributionLogId"
+                                   class="btn btn-info btn-sm">
+                                Details
+                            </a>
+
+                            <a asp-action="Delete"
+                                   asp-route-id="@item.DistributionLogId"
+                                   class="btn btn-danger btn-sm">
+                                Delete
+                            </a>
+
+                        </td>
+
+                    </tr>
+                }
+            }
+            else
             {
                 <tr>
-                    <td>
-                        @(item.Registration?.Participant?.UserAccount?.FullName
-                            ?? item.Registration?.Participant?.StudentId
-                            ?? "Unknown")
+                    <td colspan="7" class="text-center text-muted">
+                        No distribution records found.
                     </td>
-
-                    <td>@item.RegistrationId</td>
-
-                    <td>@item.ActionType</td>
-
-                    <td>
-                        <span class="badge bg-success">
-                            @item.DistributionStatus
-                        </span>
-                    </td>
-
-                    <td>@(item.FoodMenu?.MenuName ?? "-")</td>
-
-                    <td>@item.ActionDate.ToString("dd MMM yyyy hh:mm tt")</td>
-
-                    <td>@(item.UserAccount?.FullName ?? "System")</td>
                 </tr>
             }
+
         </tbody>
+
     </table>
-</div>
+
+    </div>

@@ -44,7 +44,7 @@
 }() );
 
 /**
- * This is used in the United States to process payments, deposits,
+ * This is used in the United States to process Payment, deposits,
  * or transfers using the Automated Clearing House (ACH) or Fedwire
  * systems. A very common use case would be to validate a form for
  * an ACH bill payment.
@@ -821,7 +821,7 @@ $.validator.addMethod( "iban", function( value, element ) {
 
 	// As new countries will start using IBAN in the
 	// future, we only check if the countrycode is known.
-	// This prevents false negatives, while almost all
+	// This prEvent false negatives, while almost all
 	// false positives introduced by this, will be caught
 	// by the checksum validation below anyway.
 	// Strict checking should return FALSE for unknown

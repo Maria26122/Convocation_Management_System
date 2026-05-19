@@ -2,21 +2,21 @@
 {
     public class AdminDashboardViewModel
     {
-        public int TotalParticipants { get; set; }
-        public int TotalEvents { get; set; }
-        public int TotalRegistrations { get; set; }
-        public int TotalGuests { get; set; }
-        public int TotalPayments { get; set; }
-        public int TotalQrPasses { get; set; }
-        public int TotalDistributionLogs { get; set; }
+        public int TotalParticipant { get; set; }
+        public int TotalEvent { get; set; }
+        public int TotalRegistration { get; set; }
+        public int TotalGuest { get; set; }
+        public int TotalPayment { get; set; }
+        public int TotalQrPass { get; set; }
+        public int TotalDistributionLog { get; set; }
 
-        public int ApprovedRegistrations { get; set; }
-        public int PendingRegistrations { get; set; }
-        public int RejectedRegistrations { get; set; }
+        public int ApprovedRegistration { get; set; }
+        public int PendingRegistration { get; set; }
+        public int RejectedRegistration { get; set; }
 
-        public int PaidPayments { get; set; }
-        public int PendingPayments { get; set; }
-        public int FailedPayments { get; set; }
+        public int PaidPayment { get; set; }
+        public int PendingPayment { get; set; }
+        public int FailedPayment { get; set; }
     }
 
 

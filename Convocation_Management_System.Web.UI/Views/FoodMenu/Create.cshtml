@@ -2,44 +2,30 @@
 
 @{
     ViewData["Title"] = "Create Food Menu";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="container mt-4">
-    <div class="card shadow">
-        <div class="card-header bg-primary text-white">
-            Create Food Menu
-        </div>
+<h3>Create Food Menu</h3>
 
-        <div class="card-body">
-            <form asp-action="Create" method="post">
+<form asp-action="Create" method="post">
 
-                <div class="mb-3">
-                    <label class="form-label">Menu Name</label>
-                    <input asp-for="MenuName" class="form-control" />
-                    <span asp-validation-for="MenuName" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Menu Items</label>
-                    <textarea asp-for="MenuItems"
-                              rows="5"
-                              class="form-control"></textarea>
-                    <span asp-validation-for="MenuItems" class="text-danger"></span>
-                </div>
-
-                <div class="form-check mb-3">
-                    <input asp-for="IsActive" class="form-check-input" />
-                    <label asp-for="IsActive" class="form-check-label"></label>
-                </div>
-
-                <button type="submit" class="btn btn-success">
-                    Save Menu
-                </button>
-
-                <a asp-action="Index" class="btn btn-secondary">
-                    Back
-                </a>
-            </form>
-        </div>
+    <div class="form-group mb-2">
+        <label>Menu Name</label>
+        <input asp-for="MenuName" class="form-control" />
+        <span asp-validation-for="MenuName" class="text-danger"></span>
     </div>
-</div>
+
+    <div class="form-group mb-2">
+        <label>Menu Items</label>
+        <textarea asp-for="MenuItems" class="form-control" rows="4"></textarea>
+        <span asp-validation-for="MenuItems" class="text-danger"></span>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="IsActive" class="form-check-input" />
+        <label class="form-check-label">Active</label>
+    </div>
+
+    <button type="submit" class="btn btn-success">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Back</a>
+</form>

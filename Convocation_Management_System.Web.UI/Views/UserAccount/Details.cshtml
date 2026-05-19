@@ -1,38 +1,89 @@
 ﻿@model Convocation.Entities.UserAccount
+
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "User Details";
 }
+
 <div class="form-card">
+
     <h3 class="form-title mb-4">User Details</h3>
+
     <dl class="row">
+
         <dt class="col-sm-3">Full Name</dt>
         <dd class="col-sm-9">@Model.FullName</dd>
+
+       
+
         <dt class="col-sm-3">Email</dt>
         <dd class="col-sm-9">@Model.Email</dd>
+
         <dt class="col-sm-3">Role</dt>
-        <dd class="col-sm-9">@Model.Role?.RoleName</dd>
+        <dd class="col-sm-9">
+            @(Model.Role != null ? Model.Role.RoleName : "N/A")
+        </dd>
+
         <dt class="col-sm-3">Phone</dt>
         <dd class="col-sm-9">@Model.Phone</dd>
+
         <dt class="col-sm-3">Status</dt>
-        <dd class="col-sm-9">@(Model.IsActive ? "Active" : "Inactive")</dd>
+        <dd class="col-sm-9">
+            @(Model.IsActive ? "Active" : "Inactive")
+        </dd>
+
         <dt class="col-sm-3">Created At</dt>
-        <dd class="col-sm-9">@Model.CreatedAt</dd>
+        <dd class="col-sm-9">
+            @Model.CreatedAt.ToString("dd MMM yyyy hh:mm tt")
+        </dd>
+
         <dt class="col-sm-3">Participant Linked</dt>
-        <dd class="col-sm-9">@(Model.Participant != null ? "Yes" : "No")</dd>
+        <dd class="col-sm-9">
+            @(Model.Participant != null ? "Yes" : "No")
+        </dd>
+
     </dl>
 
-    @if (Model.UserPermission != null && Model.UserPermission.Any())
+    <hr />
+
+    <h5 class="mt-4">Assigned Permissions</h5>
+
+
+    @if (Model.UserPermissions != null && Model.UserPermissions.Any())
     {
-        <h5 class="mt-4">Assigned Permissions</h5>
-        <ul>
-            @foreach (var item in Model.UserPermission)
+        <ul class="list-group mb-3">
+
+            @foreach (var item in Model.UserPermissions)
             {
-                <li>@item.Permission?.PermissionName</li>
+                <li class="list-group-item">
+                    @(item.Permission != null
+                        ? item.Permission.PermissionName
+                        : "No Permission")
+                </li>
             }
+
         </ul>
     }
+    else
+    {
+        <div class="alert alert-warning">
+            No permissions assigned.
+        </div>
+    }
 
-    <a asp-action="Edit" asp-route-id="@Model.UserAccountId" class="btn btn-warning">Edit</a>
-    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    <div class="mt-4">
+
+        <a asp-action="Edit"
+           asp-route-id="@Model.UserAccountId"
+           class="btn btn-warning">
+            Edit
+        </a>
+
+        <a asp-action="Index"
+           class="btn btn-secondary">
+            Back to List
+        </a>
+
+    </div>
+
 </div>

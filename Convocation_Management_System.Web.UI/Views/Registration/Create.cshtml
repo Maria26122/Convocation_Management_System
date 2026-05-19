@@ -9,7 +9,7 @@
 
     ViewData["Title"] = "Create Registration";
 
-    var events = ViewBag.Event as IEnumerable<dynamic>;
+    var Event = ViewBag.Event as IEnumerable<dynamic>;
     var selectedEventId = ViewBag.SelectedEventId != null ? (int)ViewBag.SelectedEventId : Model.EventId;
 }
 
@@ -43,7 +43,7 @@
             <div class="col-md-6">
                 <label asp-for="EventId" class="form-label"></label>
 
-                <select asp-for="EventId" class="form-select" id="eventSelect">
+                <select asp-for="EventId" class="form-select" id="EventSelect">
                     <option value="">-- Select Event --</option>
 
                     @if (ViewBag.Event != null)
@@ -134,13 +134,13 @@
 
     <script>
         function calculateAmount() {
-            var eventSelect = document.getElementById("eventSelect");
+            var EventSelect = document.getElementById("EventSelect");
             var guestCountInput = document.getElementById("GuestCount");
             var totalAmountInput = document.getElementById("TotalAmount");
 
-            if (!eventSelect || !guestCountInput || !totalAmountInput) return;
+            if (!EventSelect || !guestCountInput || !totalAmountInput) return;
 
-            var selectedOption = eventSelect.options[eventSelect.selectedIndex];
+            var selectedOption = EventSelect.options[EventSelect.selectedIndex];
 
             if (!selectedOption) {
                 totalAmountInput.value = "0.00";
@@ -161,11 +161,11 @@
         }
 
         document.addEventListener("DOMContentLoaded", function () {
-            var eventSelect = document.getElementById("eventSelect");
+            var EventSelect = document.getElementById("EventSelect");
             var guestCountInput = document.getElementById("GuestCount");
 
-            if (eventSelect) {
-                eventSelect.addEventListener("change", calculateAmount);
+            if (EventSelect) {
+                EventSelect.addEventListener("change", calculateAmount);
             }
 
             if (guestCountInput) {

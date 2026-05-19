@@ -1,0 +1,58 @@
+﻿@model List<Convocation.Entities.Payment>
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Pending Payment</h2>
+
+@if (!Model.Any())
+{
+    <p>No pending Payment.</p>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Email</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Transaction ID</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Registration?.ParticipantId</td>
+                    <td>@item.Registration?.Participant?.UserAccount?.Email</td>
+                    <td>@item.PaidAmount</td>
+                    <td>@item.PaymentMethod</td>
+                    <td>@item.TransactionId</td>
+                    <td>
+                        <span class="badge bg-warning">@item.PaymentStatus</span>
+                    </td>
+                    <td>@item.CreatedAt.ToString("dd MMM yyyy")</td>
+
+                    <td>
+                        <a asp-action="Approve" asp-route-id="@item.PaymentId"
+                           class="btn btn-success btn-sm">
+                            Approve
+                        </a>
+
+                        <a asp-action="Reject" asp-route-id="@item.PaymentId"
+                           class="btn btn-danger btn-sm">
+                            Reject
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

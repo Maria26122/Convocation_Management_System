@@ -2,7 +2,7 @@
 
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-    ViewData["Title"] = "Events";
+    ViewData["Title"] = "Event";
 }
 
 <div class="page-card">
@@ -22,7 +22,7 @@
                     <th>Venue</th>
                     <th>Base Fee</th>
                     <th>Guest Fee</th>
-                    <th>Max Guests</th>
+                    <th>Max Guest</th>
                     <th>Status</th>
                     <th style="width: 220px;">Actions</th>
                 </tr>
@@ -60,7 +60,7 @@
                 else
                 {
                     <tr>
-                        <td colspan="8" class="text-center text-soft">No events found.</td>
+                        <td colspan="8" class="text-center text-soft">No Event found.</td>
                     </tr>
                 }
             </tbody>

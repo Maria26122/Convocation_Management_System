@@ -8,19 +8,22 @@
 <div class="form-card">
     <h3 class="form-title mb-4">Edit Registration</h3>
 
-    <form asp-action="Edit"
-          method="post">
+    <form asp-action="Edit" method="post">
+
         <input type="hidden" asp-for="RegistrationId" />
-        <input type="hidden"
-               asp-for="RegistrationDate" />
+
+        <input type="hidden" asp-for="ParticipantId" />
+
+        <input type="hidden" asp-for="RegistrationDate" />
+
         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
         <div class="row g-3">
             <div class="col-md-6">
                 <label asp-for="EventId" class="form-label"></label>
-                <select asp-for="EventId" class="form-select" id="eventSelect">
+                <select asp-for="EventId" class="form-select" id="EventSelect">
                     <option value="">-- Select Event --</option>
-                    @foreach (var item in ViewBag.Events)
+                    @foreach (var item in ViewBag.Event)
                     {
                         <option value="@item.EventId"
                                 data-basefee="@item.BaseFee"
@@ -71,13 +74,13 @@
 
     <script>
         function calculateAmount() {
-            var eventSelect = document.getElementById("eventSelect");
+            var EventSelect = document.getElementById("EventSelect");
             var guestCountInput = document.getElementById("GuestCount");
             var totalAmountInput = document.getElementById("TotalAmount");
 
-            if (!eventSelect || !guestCountInput || !totalAmountInput) return;
+            if (!EventSelect || !guestCountInput || !totalAmountInput) return;
 
-            var selectedOption = eventSelect.options[eventSelect.selectedIndex];
+            var selectedOption = EventSelect.options[EventSelect.selectedIndex];
 
             var baseFee = parseFloat(selectedOption.getAttribute("data-basefee")) || 0;
             var guestFee = parseFloat(selectedOption.getAttribute("data-guestfee")) || 0;
@@ -90,11 +93,11 @@
         }
 
         document.addEventListener("DOMContentLoaded", function () {
-            var eventSelect = document.getElementById("eventSelect");
+            var EventSelect = document.getElementById("EventSelect");
             var guestCountInput = document.getElementById("GuestCount");
 
-            if (eventSelect) {
-                eventSelect.addEventListener("change", calculateAmount);
+            if (EventSelect) {
+                EventSelect.addEventListener("change", calculateAmount);
             }
 
             if (guestCountInput) {

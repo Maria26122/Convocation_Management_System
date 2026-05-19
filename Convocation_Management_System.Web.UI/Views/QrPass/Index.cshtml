@@ -1,20 +1,23 @@
-﻿@model IEnumerable<Convocation.Entities.QrPass>
+﻿@model List<Convocation.Entities.QrPass>
 
 @{
-    ViewData["Title"] = "QR Pass List";
+    ViewData["Title"] = "QR List";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
-<table class="table table-bordered table-striped align-middle">
-    <thead class="table-light">
+
+<h3>QR Pass List</h3>
+
+<table class="table table-bordered table-striped">
+
+    <thead>
         <tr>
-            <th>Registration</th>
-            <th>Participant</th>
+            <th>ID</th>
+            <th>Student</th>
             <th>Event</th>
             <th>QR Code</th>
-            <th>QR Image</th>
+            <th>Image</th>
             <th>Status</th>
-            <th>Generated Date</th>
-            <th width="160">Actions</th>
+            <th>Created</th>
         </tr>
     </thead>
 
@@ -22,7 +25,7 @@
         @foreach (var item in Model)
         {
             <tr>
-                <td>#@item.RegistrationId</td>
+                <td>@item.QrPassId</td>
 
                 <td>
                     @item.Registration?.Participant?.StudentId
@@ -33,44 +36,34 @@
                 </td>
 
                 <td>
-                    <small>@item.QrCodeText</small>
+                    @item.QrCodeText
                 </td>
 
                 <td>
                     @if (!string.IsNullOrEmpty(item.QrImagePath))
                     {
                         <img src="@item.QrImagePath"
-                             width="70"
-                             height="70"
-                             class="img-thumbnail" />
-                    }
-                    else
-                    {
-                        <span class="text-muted">No Image</span>
+                             width="80"
+                             height="80" />
                     }
                 </td>
 
                 <td>
                     @if (item.IsUsed)
                     {
-                        <span class="badge bg-success">Used</span>
+                        <span class="badge bg-danger">Used</span>
                     }
                     else
                     {
-                        <span class="badge bg-warning text-dark">Unused</span>
+                        <span class="badge bg-success">Active</span>
                     }
                 </td>
 
                 <td>
-                    @item.IssuedAt.ToString("dd MMM yyyy hh:mm tt")
-                </td>
-
-                <td>
-                    <a asp-action="Details" asp-route-id="@item.QrPassId" class="btn btn-info btn-sm">Details</a>
-                    <a asp-action="Edit" asp-route-id="@item.QrPassId" class="btn btn-warning btn-sm">Edit</a>
-                    <a asp-action="Delete" asp-route-id="@item.QrPassId" class="btn btn-danger btn-sm">Delete</a>
+                    @item.CreatedAt.ToString("dd MMM yyyy")
                 </td>
             </tr>
         }
     </tbody>
+
 </table>

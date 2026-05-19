@@ -24,11 +24,11 @@ namespace Convocation_Management_System.Web.UI.Controllers
             {
                 return RedirectToAction("Login", "Account");
             }
-            var roles = await _context.Role
+            var Role = await _context.Role
                 .OrderBy(r => r.RoleName)
                 .ToListAsync();
 
-            return View(roles);
+            return View(Role);
         }
 
         public IActionResult Create()

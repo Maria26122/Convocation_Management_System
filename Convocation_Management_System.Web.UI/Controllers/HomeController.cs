@@ -17,12 +17,12 @@ namespace Convocation_Management_System.Web.UI.Controllers
         {
             var now = DateTime.Now;
 
-            var upcomingEvents = await _context.Event
+            var upcomingEvent = await _context.Event
                 .Where(e => e.IsActive && e.EventDate >= now)
                 .OrderBy(e => e.EventDate)
                 .ToListAsync();
 
-            return View(upcomingEvents);
+            return View(upcomingEvent);
         }
     }
 }

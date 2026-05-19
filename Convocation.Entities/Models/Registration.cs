@@ -32,9 +32,10 @@ namespace Convocation.Entities
         [ForeignKey("EventId")]
         public Event? Event { get; set; }
 
-        public virtual ICollection<DistributionLog> DistributionLogs { get; set; } = new List<DistributionLog>();
+        public virtual ICollection<DistributionLog> DistributionLog { get; set; } = new List<DistributionLog>();
 
         [StringLength(100)]
         public string? TransactionId { get; set; }
+        public Payment? Payment { get; set; }
     }
 }

@@ -22,7 +22,7 @@ namespace Convocation.Entities
         public required string Venue { get; set; }
 
         [Required]
-        public DateTime RegistrationStartDate { get; set; }
+        public DateTime RegistrationtartDate { get; set; }
 
         [Required]
         public DateTime RegistrationEndDate { get; set; }
@@ -38,6 +38,8 @@ namespace Convocation.Entities
 
         public bool IsActive { get; set; } = true;
 
-        public virtual ICollection<Registration> Registrations { get; set; } = new List<Registration>();
+     
+
+        public virtual ICollection<Registration> Registration { get; set; } = new List<Registration>();
     }
 }

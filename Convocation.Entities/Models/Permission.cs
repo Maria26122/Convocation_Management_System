@@ -9,10 +9,12 @@ namespace Convocation.Entities
         public int PermissionId { get; set; }
 
         [Required]
-        [StringLength(100)]
         public string PermissionName { get; set; } = string.Empty;
 
-        public virtual ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
-        public virtual ICollection<UserPermission> UserPermissions { get; set; } = new List<UserPermission>();
+        public ICollection<RolePermission> RolePermissions { get; set; }
+            = new List<RolePermission>();
+
+        public ICollection<UserPermission> UserPermissions { get; set; }
+            = new List<UserPermission>();
     }
 }
