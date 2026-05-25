@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Convocation.Entities
 {
@@ -7,24 +9,35 @@ namespace Convocation.Entities
         [Key]
         public int StaffTaskId { get; set; }
 
+        // =========================
+        // RELATION: DISTRIBUTION TASK
+        // =========================
+        [Required]
+        public int DistributionTaskId { get; set; }
+
+        [ForeignKey(nameof(DistributionTaskId))]
+        public DistributionTask DistributionTask { get; set; }
+
+        // =========================
+        // ASSIGNED STAFF
+        // =========================
+        [Required]
         public int UserAccountId { get; set; }
-        public UserAccount? UserAccount { get; set; }
 
+        [ForeignKey(nameof(UserAccountId))]
+        public UserAccount UserAccount { get; set; }
+
+        // =========================
+        // STATUS TRACKING
+        // =========================
         [Required]
-        [StringLength(150)]
-        public string TaskTitle { get; set; }
-
-        [StringLength(500)]
-        public string Description { get; set; }
-
-        [Required]
+        [StringLength(20)]
         public string Status { get; set; } = "Pending";
-        // Pending, InProgress, Completed
 
         public DateTime AssignedAt { get; set; } = DateTime.Now;
 
         public DateTime? CompletedAt { get; set; }
 
-        public string? Remarks { get; set; }
+      
     }
 }

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Convocation.DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -143,6 +143,37 @@ namespace Convocation.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "DistributionTask",
+                columns: table => new
+                {
+                    DistributionTaskId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EventId = table.Column<int>(type: "int", nullable: false),
+                    TaskTitle = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AssignedStaffId = table.Column<int>(type: "int", nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CompletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DistributionTask", x => x.DistributionTaskId);
+                    table.ForeignKey(
+                        name: "FK_DistributionTask_Event_EventId",
+                        column: x => x.EventId,
+                        principalTable: "Event",
+                        principalColumn: "EventId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_DistributionTask_UserAccount_AssignedStaffId",
+                        column: x => x.AssignedStaffId,
+                        principalTable: "UserAccount",
+                        principalColumn: "UserAccountId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Participant",
                 columns: table => new
                 {
@@ -180,7 +211,8 @@ namespace Convocation.DataAccess.Migrations
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AssignedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CompletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Remarks = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Remarks = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DistributionTaskId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -264,8 +296,10 @@ namespace Convocation.DataAccess.Migrations
                     ActionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Remarks = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DistributionTaskId = table.Column<int>(type: "int", nullable: false),
                     ParticipantId1 = table.Column<int>(type: "int", nullable: true),
-                    RegistrationId1 = table.Column<int>(type: "int", nullable: true)
+                    RegistrationId1 = table.Column<int>(type: "int", nullable: true),
+                    UserAccountId1 = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -304,6 +338,11 @@ namespace Convocation.DataAccess.Migrations
                         principalTable: "UserAccount",
                         principalColumn: "UserAccountId",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_DistributionLog_UserAccount_UserAccountId1",
+                        column: x => x.UserAccountId1,
+                        principalTable: "UserAccount",
+                        principalColumn: "UserAccountId");
                 });
 
             migrationBuilder.CreateTable(
@@ -393,12 +432,11 @@ namespace Convocation.DataAccess.Migrations
                 values: new object[,]
                 {
                     { 1, new DateTime(2026, 5, 17, 19, 18, 41, 790, DateTimeKind.Unspecified), "admin@gmail.com", "Administrator", true, "admin", "JAvlGPq9JyTdtvBO6x2llnRI1+gxwIyPqCKAn3THIKk=", "01700000000", 1 },
-                    { 3, new DateTime(2026, 5, 17, 19, 56, 47, 959, DateTimeKind.Unspecified).AddTicks(9201), "mariaislam1226@gmail.com", "Maria Islam Shuchona", true, "", "Ym48gF537rRyxCxr5ge+KvesXAj9cFDyeOAzD+gav1c=", "01851355381", 4 },
-                    { 4, new DateTime(2026, 5, 17, 20, 37, 24, 663, DateTimeKind.Unspecified).AddTicks(7944), "shuchona@gmail.com", "Shuchona", true, "", "2IwvVDg6k/EX5OOg/KjtgFYefq1v3L4iuvS2E3iWC+k=", "01851355382", 4 },
-                    { 5, new DateTime(2026, 5, 18, 0, 35, 42, 609, DateTimeKind.Unspecified).AddTicks(6320), "mis@gmail.com", "Maria", true, null, "wskrEOQJE84GQlOhnsUEpAzcJeQMqKF1eo4QhS3tEOw=", "01851355382", 4 },
-                    { 6, new DateTime(2026, 5, 18, 12, 7, 3, 814, DateTimeKind.Unspecified).AddTicks(7314), "maria@gmail.com", "maria", true, null, "lK7J++2Yns4Ymn4XLJz0FmkFBJUVK8TB2/KjjX/YVic=", "01851355382", 4 },
-                    { 7, new DateTime(2026, 5, 18, 12, 14, 13, 716, DateTimeKind.Unspecified).AddTicks(7778), "shuch@gmail.com", "Shuchonaa", true, null, "o89N5RAvRkvkkiLfq5xtreNIeAtDDvRCCllSH/npa2I=", "01851355381", 4 },
-                    { 9, new DateTime(2026, 5, 18, 14, 42, 29, 525, DateTimeKind.Unspecified).AddTicks(7312), "ary@gmail.com", "ariyan", true, null, "DwGS1cbVgZdTJReuXUr1SCJ/+jlpRCsdt0iOKYxfyDk=", "01851355381", 4 }
+                    { 2, new DateTime(2026, 5, 20, 10, 0, 0, 0, DateTimeKind.Unspecified), "eventmanager@gmail.com", "Event Manager", true, "eventmanager", "t5Y6r3iXw1hT4Q3Y7e7nNWh0VvM6nZk+3+8v2/2+J1Y=", "01711111111", 2 },
+                    { 3, new DateTime(2026, 5, 20, 10, 0, 0, 0, DateTimeKind.Unspecified), "staff1@gmail.com", "Staff1", true, "staff1", "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=", "01722222222", 3 },
+                    { 4, new DateTime(2026, 5, 20, 10, 0, 0, 0, DateTimeKind.Unspecified), "staff2@gmail.com", "Staff2", true, "staff2", "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=", "01733333333", 3 },
+                    { 5, new DateTime(2026, 5, 20, 10, 0, 0, 0, DateTimeKind.Unspecified), "staff3@gmail.com", "Staff3", true, "staff3", "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=", "01744444444", 3 },
+                    { 6, new DateTime(2026, 5, 18, 12, 7, 3, 814, DateTimeKind.Unspecified).AddTicks(7314), "maria@gmail.com", "maria", true, null, "lK7J++2Yns4Ymn4XLJz0FmkFBJUVK8TB2/KjjX/YVic=", "01851355382", 4 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -430,6 +468,21 @@ namespace Convocation.DataAccess.Migrations
                 name: "IX_DistributionLog_UserAccountId",
                 table: "DistributionLog",
                 column: "UserAccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DistributionLog_UserAccountId1",
+                table: "DistributionLog",
+                column: "UserAccountId1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DistributionTask_AssignedStaffId",
+                table: "DistributionTask",
+                column: "AssignedStaffId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DistributionTask_EventId",
+                table: "DistributionTask",
+                column: "EventId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Guest_RegistrationId",
@@ -497,6 +550,9 @@ namespace Convocation.DataAccess.Migrations
 
             migrationBuilder.DropTable(
                 name: "DistributionLog");
+
+            migrationBuilder.DropTable(
+                name: "DistributionTask");
 
             migrationBuilder.DropTable(
                 name: "FoodMenu");

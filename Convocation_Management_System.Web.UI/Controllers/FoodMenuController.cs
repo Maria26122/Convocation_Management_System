@@ -1,5 +1,6 @@
 ﻿using Convocation.DataAccess;
 using Convocation.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +15,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             _context = context;
         }
 
+        
         public async Task<IActionResult> Index()
         {
             return View(await _context.FoodMenu

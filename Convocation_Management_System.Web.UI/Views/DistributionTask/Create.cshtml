@@ -1,0 +1,43 @@
+﻿@model Convocation_Management_System.Web.UI.Models.DistributionTaskViewModel
+
+@{
+    ViewData["Title"] = "Create Task";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4">
+
+    <h2>Create Distribution Task</h2>
+
+    <form asp-action="Create" method="post">
+
+        <div class="mb-2">
+            <label>Title</label>
+            <input asp-for="TaskTitle" class="form-control" />
+        </div>
+
+        <div class="mb-2">
+            <label>Description</label>
+            <input asp-for="Description" class="form-control" />
+        </div>
+
+        <div class="mb-2">
+            <label>Type</label>
+            <input asp-for="DistributionType" class="form-control" />
+        </div>
+
+        <div class="mb-2">
+            <label>Event</label>
+            <select asp-for="EventId" asp-items="Model.Events" class="form-control"></select>
+        </div>
+
+        <div class="mb-2">
+            <label>Assign Staff</label>
+            <select asp-for="AssignedStaffId" asp-items="Model.Staffs" class="form-control"></select>
+        </div>
+
+        <button type="submit" class="btn btn-success">Create</button>
+
+    </form>
+
+</div>

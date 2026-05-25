@@ -13,7 +13,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         {
             _context = context;
         }
-        [Authorize(Roles = "admin,organizer")]
+        [Authorize(Roles = "admin")]
         public IActionResult Index()
         {
             if (HttpContext.Session.GetString("Role")?.ToLower() != "admin")

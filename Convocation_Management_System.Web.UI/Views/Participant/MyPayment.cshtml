@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "My Payment";
+    Layout = "~/Views/Shared/_ParticipantLayout.cshtml";
 }
 
 <h3>Payment Page</h3>
@@ -18,14 +19,14 @@ else
         <h4>Payment Status: @Model.PaymentStatus</h4>
         <p>Amount: @Model.PaidAmount</p>
         <p>Transaction: @Model.TransactionId</p>
-    </div>
-}
 
         @if (Model.PaymentStatus == "Pending")
         {
+            <hr />
+
             <a class="btn btn-primary"
                href="@Url.Action("PayWithSSL", "Payment",
-                                  new { registrationId = Model.RegistrationId, amount = Model.PaidAmount })">
+                              new { registrationId = Model.RegistrationId, amount = Model.PaidAmount })">
                 Pay with SSLCommerz
             </a>
 
@@ -56,6 +57,5 @@ else
                 Back to Registration
             </a>
         }
-
     </div>
 }

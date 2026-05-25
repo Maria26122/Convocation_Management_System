@@ -10,7 +10,7 @@
 <table class="table table-bordered">
     <thead>
         <tr>
-            <th>Title</th>
+            <th>TaskTitle</th>
             <th>Staff</th>
             <th>Status</th>
             <th>Assigned At</th>
@@ -22,7 +22,7 @@
         @foreach (var item in Model)
         {
             <tr>
-                <td>@item.TaskTitle</td>
+                <td>@item.DistributionTask?.TaskTitle</td>
                 <td>@item.UserAccount?.FullName</td>
                 <td>@item.Status</td>
                 <td>@item.AssignedAt.ToString("dd MMM yyyy")</td>

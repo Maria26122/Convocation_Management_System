@@ -6,28 +6,11 @@
     var fullName = Context.Session.GetString("FullName") ?? "Student";
 
     bool isDashboard = currentController == "Participant" && currentAction == "Dashboard";
-
-    bool isStudentOpen =
-        currentController == "Participant" &&
-        (currentAction == "Dashboard" ||
-         currentAction == "MyProfile" ||
-         currentAction == "MyGuest");
-
-    bool isRegistrationOpen =
-        currentController == "Participant" &&
-        (currentAction == "MyRegistration" ||
-         currentAction == "MyQrPass" ||
-         currentAction == "MyQRPass");
-
-    bool isPaymentOpen =
-        currentController == "Participant" &&
-        (currentAction == "MyPayment");
-
-    bool isMyProfile = currentController == "Participant" && currentAction == "MyProfile";
-    bool isMyRegistration = currentController == "Participant" && currentAction == "MyRegistration";
-    bool isMyPayment = currentController == "Participant" && currentAction == "MyPayment";
-    bool isMyQrPass = currentController == "Participant" && (currentAction == "MyQrPass" || currentAction == "MyQRPass");
-    bool isMyGuest = currentController == "Participant" && currentAction == "MyGuest";
+    bool isProfile = currentController == "Participant" && currentAction == "MyProfile";
+    bool isRegistration = currentController == "Participant" && currentAction == "MyRegistration";
+    bool isPayment = currentController == "Participant" && currentAction == "MyPayment";
+    bool isQr = currentController == "Participant" && currentAction == "MyQrPass";
+    bool isGuest = currentController == "Participant" && currentAction == "MyGuest";
 }
 
 <!DOCTYPE html>
@@ -44,392 +27,198 @@
             :root {
                 --sidebar-bg: #ffffff;
                 --sidebar-border: #e5e7eb;
-                --sidebar-text: #4b5563;
-                --sidebar-title: #111827;
-                --sidebar-muted: #9ca3af;
+                --text: #374151;
                 --primary: #4f46e5;
                 --primary-soft: #eef2ff;
                 --danger: #dc2626;
-                --content-bg: #f8fafc;
-                --card-bg: #ffffff;
-                --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.06);
-            }
-
-            * {
-                box-sizing: border-box;
+                --bg: #f8fafc;
+                --shadow: 0 10px 30px rgba(15,23,42,0.06);
             }
 
             body {
                 margin: 0;
                 font-family: 'Segoe UI', sans-serif;
-                background: var(--content-bg);
-                color: #111827;
+                background: var(--bg);
             }
 
-            .app-shell {
+            .app {
                 display: flex;
                 min-height: 100vh;
             }
 
+            /* SIDEBAR */
             .sidebar {
-                width: 280px;
+                width: 270px;
                 background: var(--sidebar-bg);
                 border-right: 1px solid var(--sidebar-border);
-                padding: 24px 18px;
+                padding: 20px;
                 position: fixed;
-                top: 0;
-                left: 0;
                 height: 100vh;
-                overflow-y: auto;
-                z-index: 1000;
             }
 
-            .brand-box {
+            .brand {
                 display: flex;
+                gap: 12px;
                 align-items: center;
-                gap: 14px;
-                padding: 6px 6px 24px 6px;
-                border-bottom: 1px solid #f1f5f9;
-                margin-bottom: 22px;
+                margin-bottom: 25px;
             }
 
-            .brand-icon-wrap {
-                width: 52px;
-                height: 52px;
-                border-radius: 16px;
-                background: linear-gradient(135deg, #4f46e5, #7c3aed);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                font-size: 20px;
-                box-shadow: 0 10px 22px rgba(79, 70, 229, 0.20);
-            }
-
-            .brand-title {
-                font-size: 18px;
-                font-weight: 800;
-                color: var(--sidebar-title);
-                margin: 0;
-            }
-
-            .brand-subtitle {
-                margin: 2px 0 0;
-                font-size: 13px;
-                color: var(--sidebar-muted);
-            }
-
-            .menu-group {
-                margin-bottom: 12px;
-            }
-
-            .section-toggle {
-                width: 100%;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                text-decoration: none;
-                color: var(--sidebar-title);
-                font-weight: 700;
-                font-size: 14px;
-                padding: 12px 14px;
-                border-radius: 14px;
-                background: #f8fafc;
-                border: 1px solid #edf2f7;
-            }
-
-                .section-toggle:hover {
-                    color: var(--sidebar-title);
-                    background: #f3f6fb;
-                }
-
-            .section-text {
-                font-weight: 700;
-                color: #374151;
-            }
-
-            .toggle-icon {
-                font-size: 12px;
-                color: #6b7280;
-                transition: transform 0.25s ease;
-            }
-
-                .toggle-icon.rotate {
-                    transform: rotate(90deg);
-                }
-
-            .submenu-wrap {
-                margin-top: 10px;
-            }
-
-            .submenu {
-                display: flex;
-                flex-direction: column;
-                gap: 8px;
-                padding-left: 6px;
-            }
-
-            .sidebar-link {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                text-decoration: none;
-                color: var(--sidebar-text);
-                padding: 12px 14px;
-                border-radius: 14px;
-                transition: all 0.2s ease;
-            }
-
-                .sidebar-link:hover {
-                    background: #f8fafc;
+                .brand i {
+                    font-size: 22px;
                     color: var(--primary);
                 }
 
-            .active-menu {
+                .brand h4 {
+                    margin: 0;
+                    font-weight: 800;
+                }
+
+            .menu {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+                .menu a {
+                    text-decoration: none;
+                    color: var(--text);
+                    padding: 12px 14px;
+                    border-radius: 12px;
+                    display: flex;
+                    gap: 10px;
+                    align-items: center;
+                    transition: 0.2s;
+                }
+
+                    .menu a:hover {
+                        background: #f3f4f6;
+                        color: var(--primary);
+                    }
+
+            .active {
                 background: var(--primary-soft);
                 color: var(--primary) !important;
-                font-weight: 700;
-                box-shadow: inset 0 0 0 1px rgba(79, 70, 229, 0.08);
+                font-weight: 600;
             }
 
-            .menu-left {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-            }
-
-            .menu-icon {
-                width: 18px;
-                text-align: center;
-                font-size: 15px;
-            }
-
-            .logout-link {
+            .logout {
                 color: var(--danger);
             }
 
-                .logout-link:hover {
-                    background: #fef2f2;
-                    color: var(--danger);
-                }
-
+            /* CONTENT */
             .content {
-                margin-left: 280px;
-                width: calc(100% - 280px);
-                padding: 24px;
+                margin-left: 270px;
+                width: calc(100% - 270px);
+                padding: 25px;
             }
 
             .topbar {
-                background: var(--card-bg);
-                border: 1px solid #e5e7eb;
-                border-radius: 20px;
-                padding: 18px 22px;
-                box-shadow: var(--shadow-soft);
-                margin-bottom: 24px;
+                background: white;
+                padding: 18px;
+                border-radius: 16px;
+                box-shadow: var(--shadow);
+                margin-bottom: 20px;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                gap: 16px;
-                flex-wrap: wrap;
             }
 
-            .topbar-title {
-                margin: 0;
-                font-size: 24px;
-                font-weight: 800;
-                color: #111827;
-            }
-
-            .topbar-subtitle {
-                margin: 5px 0 0;
-                color: #6b7280;
-                font-size: 14px;
-            }
-
-            .user-badge {
-                display: inline-flex;
-                align-items: center;
-                gap: 10px;
-                padding: 10px 16px;
-                background: var(--primary-soft);
+            .user {
+                font-weight: 600;
                 color: var(--primary);
-                border-radius: 999px;
-                font-weight: 700;
-                font-size: 14px;
             }
 
-                .user-badge i {
-                    font-size: 15px;
-                }
-
-            @@media (max-width: 991px) {
-                .app-shell {
-                    display: block;
-                }
-
+            @@media(max-width: 768px) {
                 .sidebar {
                     position: relative;
                     width: 100%;
                     height: auto;
-                    border-right: none;
-                    border-bottom: 1px solid var(--sidebar-border);
                 }
 
                 .content {
                     margin-left: 0;
                     width: 100%;
-                    padding: 18px;
+                }
+
+                .app {
+                    flex-direction: column;
                 }
             }
     </style>
 </head>
+
 <body>
-    <div class="app-shell">
 
+    <div class="app">
+
+        <!-- SIDEBAR -->
         <aside class="sidebar">
-            <div class="brand-box">
-                <div class="brand-icon-wrap">
-                    <i class="fas fa-user-graduate"></i>
-                </div>
-                <div>
-                    <h4 class="brand-title">Convocation</h4>
-                    <p class="brand-subtitle">Participant Panel</p>
-                </div>
+
+            <div class="brand">
+                <i class="fas fa-graduation-cap"></i>
+                <h4>Convocation</h4>
             </div>
 
-            <div class="menu-group">
+            <div class="menu">
+
                 <a asp-controller="Participant" asp-action="Dashboard"
-                       class="sidebar-link @(isDashboard ? "active-menu" : "")">
-                    <span class="menu-left">
-                        <i class="fas fa-house menu-icon"></i>
-                        <span>Dashboard</span>
-                    </span>
-                </a>
-            </div>
-
-            <!-- STUDENT -->
-            <div class="menu-group">
-                <a class="section-toggle @(isStudentOpen ? "open-menu" : "")"
-                       data-bs-toggle="collapse"
-                       href="#studentMenu"
-                       role="button"
-                       aria-expanded="@(isStudentOpen.ToString().ToLower())"
-                       aria-controls="studentMenu">
-                    <span class="section-text">Student</span>
-                    <i class="fas fa-chevron-right toggle-icon @(isStudentOpen ? "rotate" : "")"></i>
+                   class="@(isDashboard ? "active" : "")">
+                    <i class="fas fa-home"></i> Dashboard
                 </a>
 
-                <div class="collapse submenu-wrap @(isStudentOpen ? "show" : "")" id="studentMenu">
-                    <div class="submenu">
-                        <a asp-controller="Participant" asp-action="MyProfile"
-                               class="sidebar-link @(isMyProfile ? "active-menu" : "")">
-                            <span class="menu-left">
-                                <i class="fas fa-user menu-icon"></i>
-                                <span>My Profile</span>
-                            </span>
-                        </a>
-
-                        <a asp-controller="Participant" asp-action="MyGuest"
-                               class="sidebar-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "MyGuest" ? "active-menu" : "")">
-                            <span class="menu-left">
-                                <i class="fas fa-user-friends menu-icon"></i>
-                                <span>My Guest</span>
-                            </span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- REGISTRATION -->
-            <div class="menu-group">
-                <a class="section-toggle @(isRegistrationOpen ? "open-menu" : "")"
-                       data-bs-toggle="collapse"
-                       href="#registrationMenu"
-                       role="button"
-                       aria-expanded="@(isRegistrationOpen.ToString().ToLower())"
-                       aria-controls="registrationMenu">
-                    <span class="section-text">Registration</span>
-                    <i class="fas fa-chevron-right toggle-icon @(isRegistrationOpen ? "rotate" : "")"></i>
+                <a asp-controller="Participant" asp-action="MyProfile"
+                   class="@(isProfile ? "active" : "")">
+                    <i class="fas fa-user"></i> Profile
                 </a>
 
-                <div class="collapse submenu-wrap @(isRegistrationOpen ? "show" : "")" id="registrationMenu">
-                    <div class="submenu">
-                        <a asp-controller="Participant" asp-action="MyRegistration"
-                               class="sidebar-link @(isMyRegistration ? "active-menu" : "")">
-                            <span class="menu-left">
-                                <i class="fas fa-file-signature menu-icon"></i>
-                                <span>My Registration</span>
-                            </span>
-                        </a>
-
-                        <a asp-controller="Participant" asp-action="MyQrPass"
-                               class="sidebar-link @(isMyQrPass ? "active-menu" : "")">
-                            <span class="menu-left">
-                                <i class="fas fa-qrcode menu-icon"></i>
-                                <span>My QR Pass</span>
-                            </span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- PAYMENT -->
-            <div class="menu-group">
-                <a class="section-toggle @(isPaymentOpen ? "open-menu" : "")"
-                       data-bs-toggle="collapse"
-                       href="#paymentMenu"
-                       role="button"
-                       aria-expanded="@(isPaymentOpen.ToString().ToLower())"
-                       aria-controls="paymentMenu">
-                    <span class="section-text">Payment</span>
-                    <i class="fas fa-chevron-right toggle-icon @(isPaymentOpen ? "rotate" : "")"></i>
+                <a asp-controller="Participant" asp-action="MyRegistration"
+                   class="@(isRegistration ? "active" : "")">
+                    <i class="fas fa-file"></i> Registration
                 </a>
 
-                <div class="collapse submenu-wrap @(isPaymentOpen ? "show" : "")" id="paymentMenu">
-                    <div class="submenu">
-                        <a asp-controller="Participant" asp-action="MyPayment"
-                               class="sidebar-link @(isMyPayment ? "active-menu" : "")">
-                            <span class="menu-left">
-                                <i class="fas fa-money-bill-wave menu-icon"></i>
-                                <span>My Payment</span>
-                            </span>
-                        </a>
-                    </div>
-                </div>
-            </div>
+                <a asp-controller="Participant" asp-action="MyPayment"
+                   class="@(isPayment ? "active" : "")">
+                    <i class="fas fa-credit-card"></i> Payment
+                </a>
 
-            <div class="menu-group mt-3">
+                <a asp-controller="Participant" asp-action="MyQrPass"
+                   class="@(isQr ? "active" : "")">
+                    <i class="fas fa-qrcode"></i> QR Pass
+                </a>
+
+                <a asp-controller="Participant" asp-action="MyGuest"
+                   class="@(isGuest ? "active" : "")">
+                    <i class="fas fa-users"></i> Guests
+                </a>
+
                 <a asp-controller="Account" asp-action="Logout"
-                       class="sidebar-link logout-link">
-                    <span class="menu-left">
-                        <i class="fas fa-right-from-bracket menu-icon"></i>
-                        <span>Logout</span>
-                    </span>
+                   class="logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
+
             </div>
+
         </aside>
 
+        <!-- CONTENT -->
         <main class="content">
+
             <div class="topbar">
                 <div>
-                    <h2 class="topbar-title">@ViewData["Title"]</h2>
-                    <p class="topbar-subtitle">Manage your convocation activities from your participant panel.</p>
+                    <h3>@ViewData["Title"]</h3>
                 </div>
 
-                <div class="user-badge">
-                    <i class="fas fa-circle-user"></i>
-                    <span>@fullName</span>
+                <div class="user">
+                    @fullName
                 </div>
             </div>
 
             @RenderBody()
+
         </main>
+
     </div>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-
-    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

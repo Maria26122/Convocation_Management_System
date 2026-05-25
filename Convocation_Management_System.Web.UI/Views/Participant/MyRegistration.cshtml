@@ -4,8 +4,8 @@
     ViewData["Title"] = "My Registration";
     Layout = "~/Views/Shared/_ParticipantLayout.cshtml";
 
-    var status = (Model?.RegistrationStatus ?? "").Trim().ToLower();
-    var isPaid = status == "paid" || status == "confirmed";
+    var payment = ViewBag.Payment as Convocation.Entities.Payment;
+    var isPaid = payment != null && payment.PaymentStatus == "Paid";
 }
 
 <div class="content-card">
@@ -16,27 +16,28 @@
         {
             if (!isPaid)
             {
-                <form asp-controller="Participant"
-                      asp-action="SubmitPayment"
-                      method="post">
-
-                    <input type="hidden"
-                           name="registrationId"
-                           value="@Model.RegistrationId" />
-
-                   
-                </form>
+                <a asp-controller="Payment"
+                   asp-action="PayNow"
+                   asp-route-registrationId="@Model.RegistrationId"
+                   class="btn btn-success">
+                    Pay Now
+                </a>
             }
             else
             {
                 <a asp-controller="Participant"
-                       asp-action="MyQrPass"
-                       class="btn btn-primary">
-                    <i class="fas fa-qrcode me-2"></i>View QR Pass
+                   asp-action="MyPayment"
+                   class="btn btn-outline-success">
+                    View Payment
+                </a>
+
+                <a asp-controller="Participant"
+                   asp-action="MyQrPass"
+                   class="btn btn-primary">
+                    View QR Pass
                 </a>
             }
         }
-    </div>
 
     @if (Model == null)
     {
@@ -103,10 +104,10 @@
 
             @if (!isPaid)
             {
-                <a asp-controller="Participant"
-                   asp-action="MyPayment"
+                <a asp-controller="Payment"
+                   asp-action="PayNow"
+                   asp-route-registrationId="@Model.RegistrationId"
                    class="btn btn-success">
-
                     Pay Now
                 </a>
             }
@@ -115,20 +116,11 @@
                 <a asp-controller="Participant"
                    asp-action="MyPayment"
                    class="btn btn-outline-success">
-
-                    <i class="fas fa-receipt me-2"></i>View Payment
-                </a>
-
-                <a asp-controller="Participant"
-                   asp-action="MyQrPass"
-                   class="btn btn-outline-primary">
-
-                    <i class="fas fa-qrcode me-2"></i>View QR Pass
+                    View Payment
                 </a>
             }
-
-            <a asp-controller="Guest"
-               asp-action="Index"
+            <a asp-controller="Participant"
+               asp-action="MyGuest"
                class="btn btn-outline-secondary">
 
                 <i class="fas fa-users me-2"></i>My Guest

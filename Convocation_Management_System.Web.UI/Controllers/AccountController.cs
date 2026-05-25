@@ -180,7 +180,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             await HttpContext.SignOutAsync();
 
-            return RedirectToAction("Login", "Account");
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpGet]

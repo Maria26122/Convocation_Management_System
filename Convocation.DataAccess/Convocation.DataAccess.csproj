@@ -16,11 +16,6 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\Convocation.Entities\Convocation.Entities.csproj" />
-	  <ProjectReference Include="..\Convocation.Framework\Convocation.Framework.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Migrations\" />
 	</ItemGroup>
 
 </Project>

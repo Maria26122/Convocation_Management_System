@@ -1,0 +1,70 @@
+﻿@model Convocation_Management_System.Web.UI.Models.OperationDashboardViewModel
+
+@{
+    ViewData["Title"] = "Operation Dashboard";
+}
+
+<div class="container mt-4">
+
+    <h2 class="mb-4">Operation Control Center</h2>
+
+    <div class="row g-3">
+
+        <div class="col-md-3">
+            <div class="card shadow-sm p-3">
+                <h5>Total Tasks</h5>
+                <h2>@Model.TotalTasks</h2>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm p-3">
+                <h5>Active Tasks</h5>
+                <h2>@Model.ActiveTasks</h2>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm p-3">
+                <h5>Completed Tasks</h5>
+                <h2>@Model.CompletedTasks</h2>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm p-3">
+                <h5>Today Distributed</h5>
+                <h2>@Model.TotalDistributedToday</h2>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm p-3">
+                <h5>Food</h5>
+                <h2>@Model.FoodCount</h2>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm p-3">
+                <h5>Gown</h5>
+                <h2>@Model.GownCount</h2>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm p-3">
+                <h5>Certificate</h5>
+                <h2>@Model.CertificateCount</h2>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm p-3">
+                <h5>Staff Members</h5>
+                <h2>@Model.ActiveStaff</h2>
+            </div>
+        </div>
+
+    </div>
+</div>

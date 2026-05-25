@@ -15,5 +15,10 @@ namespace Convocation.Entities
 
         public ICollection<RolePermission> RolePermissions { get; set; }
             = new List<RolePermission>();
+
+        public static implicit operator Role(string v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

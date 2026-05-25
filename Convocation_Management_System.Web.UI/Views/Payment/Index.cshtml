@@ -5,7 +5,6 @@
     ViewData["Title"] = "Payment List";
 }
 
-
 <h2>All Payment</h2>
 
 <table class="table table-bordered">
@@ -22,20 +21,53 @@
     </thead>
 
     <tbody>
-        @foreach (var item in Model)
+        @if (Model != null && Model.Any())
         {
-            <tr>
-                <td>@item.PaymentId</td>
-                <td>@item.Registration?.Participant?.StudentId</td>
-                <td>@item.Registration?.Event?.EventTitle</td>
-                <td>@item.PaidAmount</td>
-                <td>@item.TransactionId</td>
-                <td>@item.PaymentStatus</td>
-                <td>
-                    <a asp-action="Approve" asp-route-id="@item.PaymentId" class="btn btn-success btn-sm">Approve</a>
-                    <a asp-action="Reject" asp-route-id="@item.PaymentId" class="btn btn-danger btn-sm">Reject</a>
-                </td>
-            </tr>
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.PaymentId</td>
+
+                    <td>
+                        @(item.Registration?.Participant?.StudentId ?? "N/A")
+                    </td>
+
+                    <td>
+                        @(item.Registration?.Event?.EventTitle ?? "N/A")
+                    </td>
+
+                    <td>@item.PaidAmount</td>
+
+                    <td>@item.TransactionId</td>
+
+                    <td>@item.PaymentStatus</td>
+                    <td>
+                        @if (item.PaymentStatus == "Pending")
+                        {
+                            <a asp-action="Approve"
+                               asp-route-id="@item.PaymentId"
+                               class="btn btn-success btn-sm">
+                                Approve
+                            </a>
+
+                            <a asp-action="Reject"
+                               asp-route-id="@item.PaymentId"
+                               class="btn btn-danger btn-sm">
+                                Reject
+                            </a>
+                        }
+                        else if (item.PaymentStatus == "Paid")
+                        {
+                            <span class="text-success">Approved</span>
+                        }
+                        else if (item.PaymentStatus == "Rejected")
+                        {
+                            <span class="text-danger">Rejected</span>
+                        }
+                    </td>
+                    
+                </tr>
+            }
         }
     </tbody>
 </table>

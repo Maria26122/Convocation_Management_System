@@ -35,13 +35,24 @@ namespace Convocation.DataAccess.Migrations
 
                     b.Property<string>("ActionType")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("DistributionTaskId")
+                        .HasColumnType("int");
 
                     b.Property<int>("EventId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsDelivered")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsQrVerified")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<int>("ParticipantId")
                         .HasColumnType("int");
@@ -56,12 +67,18 @@ namespace Convocation.DataAccess.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Remarks")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<int>("UserAccountId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("UserAccountId1")
+                        .HasColumnType("int");
+
                     b.HasKey("DistributionLogId");
+
+                    b.HasIndex("DistributionTaskId");
 
                     b.HasIndex("EventId");
 
@@ -75,7 +92,58 @@ namespace Convocation.DataAccess.Migrations
 
                     b.HasIndex("UserAccountId");
 
+                    b.HasIndex("UserAccountId1");
+
                     b.ToTable("DistributionLog");
+                });
+
+            modelBuilder.Entity("Convocation.Entities.DistributionTask", b =>
+                {
+                    b.Property<int>("DistributionTaskId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DistributionTaskId"));
+
+                    b.Property<int?>("AssignedStaffId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("DistributionType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("EventId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Remarks")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TaskTitle")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.HasKey("DistributionTaskId");
+
+                    b.HasIndex("AssignedStaffId");
+
+                    b.HasIndex("EventId");
+
+                    b.ToTable("DistributionTask");
                 });
 
             modelBuilder.Entity("Convocation.Entities.Event", b =>
@@ -463,12 +531,17 @@ namespace Convocation.DataAccess.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<int>("DistributionTaskId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Remarks")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("TaskTitle")
                         .IsRequired()
@@ -479,6 +552,8 @@ namespace Convocation.DataAccess.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("StaffTaskId");
+
+                    b.HasIndex("DistributionTaskId");
 
                     b.HasIndex("UserAccountId");
 
@@ -539,38 +614,51 @@ namespace Convocation.DataAccess.Migrations
                         },
                         new
                         {
-                            UserAccountId = 3,
-                            CreatedAt = new DateTime(2026, 5, 17, 19, 56, 47, 959, DateTimeKind.Unspecified).AddTicks(9201),
-                            Email = "mariaislam1226@gmail.com",
-                            FullName = "Maria Islam Shuchona",
+                            UserAccountId = 2,
+                            CreatedAt = new DateTime(2026, 5, 20, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "eventmanager@gmail.com",
+                            FullName = "Event Manager",
                             IsActive = true,
-                            NickName = "",
-                            PasswordHash = "Ym48gF537rRyxCxr5ge+KvesXAj9cFDyeOAzD+gav1c=",
-                            Phone = "01851355381",
-                            RoleId = 4
+                            NickName = "eventmanager",
+                            PasswordHash = "t5Y6r3iXw1hT4Q3Y7e7nNWh0VvM6nZk+3+8v2/2+J1Y=",
+                            Phone = "01711111111",
+                            RoleId = 2
+                        },
+                        new
+                        {
+                            UserAccountId = 3,
+                            CreatedAt = new DateTime(2026, 5, 20, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "staff1@gmail.com",
+                            FullName = "Staff1",
+                            IsActive = true,
+                            NickName = "staff1",
+                            PasswordHash = "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=",
+                            Phone = "01722222222",
+                            RoleId = 3
                         },
                         new
                         {
                             UserAccountId = 4,
-                            CreatedAt = new DateTime(2026, 5, 17, 20, 37, 24, 663, DateTimeKind.Unspecified).AddTicks(7944),
-                            Email = "shuchona@gmail.com",
-                            FullName = "Shuchona",
+                            CreatedAt = new DateTime(2026, 5, 20, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "staff2@gmail.com",
+                            FullName = "Staff2",
                             IsActive = true,
-                            NickName = "",
-                            PasswordHash = "2IwvVDg6k/EX5OOg/KjtgFYefq1v3L4iuvS2E3iWC+k=",
-                            Phone = "01851355382",
-                            RoleId = 4
+                            NickName = "staff2",
+                            PasswordHash = "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=",
+                            Phone = "01733333333",
+                            RoleId = 3
                         },
                         new
                         {
                             UserAccountId = 5,
-                            CreatedAt = new DateTime(2026, 5, 18, 0, 35, 42, 609, DateTimeKind.Unspecified).AddTicks(6320),
-                            Email = "mis@gmail.com",
-                            FullName = "Maria",
+                            CreatedAt = new DateTime(2026, 5, 20, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "staff3@gmail.com",
+                            FullName = "Staff3",
                             IsActive = true,
-                            PasswordHash = "wskrEOQJE84GQlOhnsUEpAzcJeQMqKF1eo4QhS3tEOw=",
-                            Phone = "01851355382",
-                            RoleId = 4
+                            NickName = "staff3",
+                            PasswordHash = "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=",
+                            Phone = "01744444444",
+                            RoleId = 3
                         },
                         new
                         {
@@ -581,28 +669,6 @@ namespace Convocation.DataAccess.Migrations
                             IsActive = true,
                             PasswordHash = "lK7J++2Yns4Ymn4XLJz0FmkFBJUVK8TB2/KjjX/YVic=",
                             Phone = "01851355382",
-                            RoleId = 4
-                        },
-                        new
-                        {
-                            UserAccountId = 7,
-                            CreatedAt = new DateTime(2026, 5, 18, 12, 14, 13, 716, DateTimeKind.Unspecified).AddTicks(7778),
-                            Email = "shuch@gmail.com",
-                            FullName = "Shuchonaa",
-                            IsActive = true,
-                            PasswordHash = "o89N5RAvRkvkkiLfq5xtreNIeAtDDvRCCllSH/npa2I=",
-                            Phone = "01851355381",
-                            RoleId = 4
-                        },
-                        new
-                        {
-                            UserAccountId = 9,
-                            CreatedAt = new DateTime(2026, 5, 18, 14, 42, 29, 525, DateTimeKind.Unspecified).AddTicks(7312),
-                            Email = "ary@gmail.com",
-                            FullName = "ariyan",
-                            IsActive = true,
-                            PasswordHash = "DwGS1cbVgZdTJReuXUr1SCJ/+jlpRCsdt0iOKYxfyDk=",
-                            Phone = "01851355381",
                             RoleId = 4
                         });
                 });
@@ -632,6 +698,11 @@ namespace Convocation.DataAccess.Migrations
 
             modelBuilder.Entity("Convocation.Entities.DistributionLog", b =>
                 {
+                    b.HasOne("Convocation.Entities.DistributionTask", "DistributionTask")
+                        .WithMany()
+                        .HasForeignKey("DistributionTaskId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Convocation.Entities.Event", "Event")
                         .WithMany()
                         .HasForeignKey("EventId")
@@ -659,10 +730,16 @@ namespace Convocation.DataAccess.Migrations
                         .HasForeignKey("RegistrationId1");
 
                     b.HasOne("Convocation.Entities.UserAccount", "UserAccount")
-                        .WithMany("DistributionLogs")
+                        .WithMany()
                         .HasForeignKey("UserAccountId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("Convocation.Entities.UserAccount", null)
+                        .WithMany("DistributionLog")
+                        .HasForeignKey("UserAccountId1");
+
+                    b.Navigation("DistributionTask");
 
                     b.Navigation("Event");
 
@@ -671,6 +748,24 @@ namespace Convocation.DataAccess.Migrations
                     b.Navigation("Registration");
 
                     b.Navigation("UserAccount");
+                });
+
+            modelBuilder.Entity("Convocation.Entities.DistributionTask", b =>
+                {
+                    b.HasOne("Convocation.Entities.UserAccount", "AssignedStaff")
+                        .WithMany()
+                        .HasForeignKey("AssignedStaffId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Convocation.Entities.Event", "Event")
+                        .WithMany()
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AssignedStaff");
+
+                    b.Navigation("Event");
                 });
 
             modelBuilder.Entity("Convocation.Entities.Guest", b =>
@@ -757,11 +852,19 @@ namespace Convocation.DataAccess.Migrations
 
             modelBuilder.Entity("Convocation.Entities.StaffTask", b =>
                 {
+                    b.HasOne("Convocation.Entities.DistributionTask", "DistributionTask")
+                        .WithMany()
+                        .HasForeignKey("DistributionTaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Convocation.Entities.UserAccount", "UserAccount")
                         .WithMany()
                         .HasForeignKey("UserAccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("DistributionTask");
 
                     b.Navigation("UserAccount");
                 });
@@ -831,7 +934,7 @@ namespace Convocation.DataAccess.Migrations
 
             modelBuilder.Entity("Convocation.Entities.UserAccount", b =>
                 {
-                    b.Navigation("DistributionLogs");
+                    b.Navigation("DistributionLog");
 
                     b.Navigation("Participant");
 

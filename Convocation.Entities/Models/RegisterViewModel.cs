@@ -26,6 +26,9 @@ namespace Convocation_Management_System.Web.UI.Models
         public string Session { get; set; } = string.Empty;
 
         [Required]
+        public string GuestCount { get; set; } = string.Empty;
+
+        [Required]
         [DataType(DataType.Password)]
         public string Password { get; set; } = string.Empty;
 

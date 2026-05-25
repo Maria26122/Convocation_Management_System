@@ -16,6 +16,7 @@ builder.Services.AddHttpClient();
 
 builder.Services.AddScoped<SSLCommercePayment>();
 builder.Services.AddScoped<QrGeneratorService>();
+builder.Services.AddScoped<EmailService>();
 
 // =========================
 // DB

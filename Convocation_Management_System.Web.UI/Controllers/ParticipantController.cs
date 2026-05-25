@@ -1,9 +1,9 @@
 ﻿using Convocation.DataAccess;
 using Convocation.Entities;
 using Convocation_Management_System.Web.UI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace Convocation_Management_System.Web.UI.Controllers
 {
@@ -16,18 +16,14 @@ namespace Convocation_Management_System.Web.UI.Controllers
             _context = context;
         }
 
+      
         // =========================
-        // HELPERS
+        // HELPERS (SESSION ONLY)
         // =========================
-        private int? GetUserId()
-        {
-            var userId = HttpContext.Session.GetString("UserId");
-            return int.TryParse(userId, out int id) ? id : null;
-        }
 
         private string GetRole()
         {
-            return (HttpContext.Session.GetString("Role") ?? "").ToLower();
+            return (HttpContext.Session.GetString("Role") ?? "").Trim().ToLower();
         }
 
         private bool IsParticipant()
@@ -36,19 +32,32 @@ namespace Convocation_Management_System.Web.UI.Controllers
             return role == "participant" || role == "student";
         }
 
+        private int? GetUserId()
+        {
+            var id = HttpContext.Session.GetString("UserId");
+            return int.TryParse(id, out int val) ? val : null;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var participants = await _context.Participant
+                .Include(p => p.UserAccount)
+                .OrderByDescending(p => p.ParticipantId)
+                .ToListAsync();
+
+            return View(participants);
+        }
+
         // =========================
         // DASHBOARD
         // =========================
         public async Task<IActionResult> Dashboard()
         {
-            var role = HttpContext.Session.GetString("Role")?.ToLower();
-
-            if (role != "participant" && role != "student")
+            if (!IsParticipant())
                 return RedirectToAction("Login", "Account");
 
-            var userIdString = HttpContext.Session.GetString("UserId");
-
-            if (!int.TryParse(userIdString, out int userId))
+            var userId = GetUserId();
+            if (userId == null)
                 return RedirectToAction("Login", "Account");
 
             var participant = await _context.Participant
@@ -69,67 +78,38 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             var payment = registration == null
                 ? null
-                : await _context.Payment.FirstOrDefaultAsync(p => p.RegistrationId == registration.RegistrationId);
+                : await _context.Payment.FirstOrDefaultAsync(p =>
+                    p.RegistrationId == registration.RegistrationId);
 
-            var qrPass = registration == null
-                ? null
-                : await _context.QrPass.FirstOrDefaultAsync(q => q.RegistrationId == registration.RegistrationId);
-
-            var guests = registration == null
-                ? new List<Guest>()
-                : await _context.Guest.Where(g => g.RegistrationId == registration.RegistrationId).ToListAsync();
-
-            int progress = 20;
-
-            if (!string.IsNullOrWhiteSpace(participant.StudentId) &&
-                !string.IsNullOrWhiteSpace(participant.Department) &&
-                !string.IsNullOrWhiteSpace(participant.Program) &&
-                !string.IsNullOrWhiteSpace(participant.Session))
+            var model = new ParticipantDashboardViewModel
             {
-                progress += 20;
-            }
+                FullName = participant.UserAccount.FullName,
+                Email = participant.UserAccount.Email,
 
-            if (registration != null) progress += 20;
-            if (payment != null && payment.PaymentStatus == "Paid") progress += 20;
-            if (qrPass != null) progress += 20;
-
-            return View(new ParticipantDashboardViewModel
-            {
-                FullName = participant.UserAccount?.FullName,
-                Email = participant.UserAccount?.Email,
-                Phone = participant.UserAccount?.Phone,
-
-                ParticipantId = participant.ParticipantId,
-                StudentId = participant.StudentId,
-                Department = participant.Department,
-                Program = participant.Program,
-                Session = participant.Session,
-
-                RegistrationId = registration?.RegistrationId,
                 RegistrationStatus = registration?.RegistrationStatus ?? "Not Registered",
-
-                GuestCount = guests.Count,
+                EventTitle = registration?.Event?.EventTitle ?? "No Event",
 
                 PaymentStatus = payment?.PaymentStatus ?? "Pending",
-                PaidAmount = payment?.PaidAmount ?? 0,
+                PaidAmount = payment?.PaidAmount ?? 0
+            };
 
-                HasQrPass = qrPass != null,
-                CompletionPercentage = progress
-            });
+            return View(model);
         }
 
         // =========================
-        // REGISTER EVENT (ONLY REGISTRATION - NO PAYMENT HERE)
+        // REGISTER EVENT
         // =========================
         public async Task<IActionResult> RegisterEvent(int eventId)
         {
-            var userId = HttpContext.Session.GetString("UserId");
+            if (!IsParticipant())
+                return RedirectToAction("Login", "Account");
 
-            if (string.IsNullOrEmpty(userId))
+            var userId = GetUserId();
+            if (userId == null)
                 return RedirectToAction("Login", "Account");
 
             var participant = await _context.Participant
-                .FirstOrDefaultAsync(p => p.UserAccountId == int.Parse(userId));
+                .FirstOrDefaultAsync(p => p.UserAccountId == userId);
 
             if (participant == null)
                 return RedirectToAction("Dashboard");
@@ -155,6 +135,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             return RedirectToAction("MyRegistration");
         }
+
         // =========================
         // MY REGISTRATION
         // =========================
@@ -168,7 +149,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return RedirectToAction("Login", "Account");
 
             var participant = await _context.Participant
-                .FirstOrDefaultAsync(p => p.UserAccountId == userId.Value);
+                .FirstOrDefaultAsync(p => p.UserAccountId == userId);
 
             if (participant == null)
                 return RedirectToAction("Login", "Account");
@@ -180,27 +161,30 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 .FirstOrDefaultAsync();
 
             return View(registration);
-        }
 
+        }
+         
         // =========================
-        // PAYMENT PAGE (ONLY READ)
+        // MY PAYMENT
         // =========================
         public async Task<IActionResult> MyPayment()
         {
-            var userId = HttpContext.Session.GetString("UserId");
+            if (!IsParticipant())
+                return RedirectToAction("Login", "Account");
 
-            if (string.IsNullOrEmpty(userId))
+            var userId = GetUserId();
+            if (userId == null)
                 return RedirectToAction("Login", "Account");
 
             var participant = await _context.Participant
-                .FirstOrDefaultAsync(p => p.UserAccountId == int.Parse(userId));
+                .FirstOrDefaultAsync(p => p.UserAccountId == userId);
 
             if (participant == null)
-                return RedirectToAction("Dashboard");
+                return RedirectToAction("Login", "Account");
 
             var registration = await _context.Registration
                 .Where(r => r.ParticipantId == participant.ParticipantId)
-                .OrderByDescending(r => r.RegistrationId)
+                .OrderByDescending(r => r.RegistrationDate)
                 .FirstOrDefaultAsync();
 
             if (registration == null)
@@ -225,7 +209,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return RedirectToAction("Login", "Account");
 
             var participant = await _context.Participant
-                .FirstOrDefaultAsync(p => p.UserAccountId == userId.Value);
+                .FirstOrDefaultAsync(p => p.UserAccountId == userId);
 
             if (participant == null)
                 return RedirectToAction("Login", "Account");
@@ -243,10 +227,50 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 .ToListAsync();
 
             return View(guests);
+
+
+
         }
 
         // =========================
-        // LOGOUT SAFE
+        // MY PROFILE
+        // =========================
+        public async Task<IActionResult> MyProfile()
+        {
+            if (!IsParticipant())
+                return RedirectToAction("Login", "Account");
+
+            var userId = GetUserId();
+            if (userId == null)
+                return RedirectToAction("Login", "Account");
+
+            var participant = await _context.Participant
+                .Include(p => p.UserAccount)
+                .FirstOrDefaultAsync(p => p.UserAccountId == userId);
+
+            if (participant == null)
+            {
+                TempData["Error"] = "Profile not found";
+                return RedirectToAction("Dashboard");
+            }
+
+            return View(participant);
+        }
+
+        // =========================
+        // MY QR PASS
+        // =========================
+        public async Task<IActionResult> MyQrPass(int registrationId)
+        {
+            var qr = await _context.QrPass
+                .Include(q => q.Registration)
+                .FirstOrDefaultAsync(q => q.RegistrationId == registrationId);
+
+            return View(qr);
+        }
+
+        // =========================
+        // LOGOUT
         // =========================
         public IActionResult Logout()
         {

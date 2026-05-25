@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Register";
+
 }
 
 <div class="container mt-5">
@@ -58,6 +59,12 @@
                                 <label asp-for="Session" class="form-label"></label>
                                 <input asp-for="Session" class="form-control" />
                                 <span asp-validation-for="Session" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="GuestCount" class="form-label"></label>
+                                <input asp-for="GuestCount" class="form-control" type="number" min="0" />
+                                <span asp-validation-for="GuestCount" class="text-danger"></span>
                             </div>
 
                             <div class="col-md-6 mb-3">

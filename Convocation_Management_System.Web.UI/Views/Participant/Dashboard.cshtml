@@ -1,30 +1,109 @@
-﻿@{
+﻿@model Convocation_Management_System.Web.UI.Models.ParticipantDashboardViewModel
+
+@{
     Layout = "~/Views/Shared/_ParticipantLayout.cshtml";
+    ViewData["Title"] = "Dashboard";
 }
 
-<h3 class="mb-4">Student Dashboard</h3>
+<div class="container mt-4">
 
-<div class="row">
+    <h2 class="mb-4">Welcome, @Model.FullName 👋</h2>
 
-    <div class="col-md-3">
-        <div class="card shadow-sm p-3">
-            <h6>Registration</h6>
-            <h3>@ViewBag.TotalRegistration</h3>
+    <!-- STATS CARDS -->
+    <div class="row">
+
+        <!-- EVENT -->
+        <div class="col-md-4">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Event</h5>
+                    <p class="card-text">@Model.EventTitle</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- REGISTRATION -->
+        <div class="col-md-4">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Registration</h5>
+                    <p class="card-text">@Model.RegistrationStatus</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAYMENT -->
+        <div class="col-md-4">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Payment</h5>
+                    <p class="card-text">@Model.PaymentStatus</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- DETAILS SECTION -->
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+
+            <h5>Student Info</h5>
+
+            <hr />
+
+            <p><b>Name:</b> @Model.FullName</p>
+            <p><b>Email:</b> @Model.Email</p>
+            <p><b>Phone:</b> @Model.Phone</p>
+            <p><b>Paid Amount:</b> ৳ @Model.PaidAmount</p>
+
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="card shadow-sm p-3">
-            <h6>Payment</h6>
-            <h3>@ViewBag.TotalPayment</h3>
-        </div>
-    </div>
+   
+    <!-- QUICK ACTIONS -->
 
-    <div class="col-md-3">
-        <div class="card shadow-sm p-3">
-            <h6>QR Pass</h6>
-            <h3>@ViewBag.TotalQR</h3>
-        </div>
+    <div class="mt-4">
+
+        @if (Model.RegistrationStatus == null)
+        {
+            <a asp-controller="Registration"
+               asp-action="Create"
+               asp-route-eventId="@Model.EventId"
+               class="btn btn-primary">
+                Register Now
+            </a>
+        }
+
+        else if (Model.RegistrationStatus == "Pending")
+        {
+            <span class="btn btn-secondary disabled">
+                Registration Pending Approval
+            </span>
+        }
+
+        else if (Model.RegistrationStatus == "Approved" &&
+                 Model.PaymentStatus == "Pending")
+        {
+            <a asp-controller="Payment"
+               asp-action="PayNow"
+               asp-route-registrationId="@Model.RegistrationId"
+               class="btn btn-warning">
+                Pay Now
+            </a>
+        }
+
+        else if (Model.RegistrationStatus == "Approved" &&
+                 Model.PaymentStatus == "Paid")
+        {
+            <a asp-controller="QrPass"
+               asp-action="MyQrPass"
+               asp-route-registrationId="@Model.RegistrationId"
+               class="btn btn-success">
+                View QR Pass
+            </a>
+        }
+
     </div>
 
 </div>

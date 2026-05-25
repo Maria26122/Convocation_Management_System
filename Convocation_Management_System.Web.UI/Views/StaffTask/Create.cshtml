@@ -1,28 +1,32 @@
 ﻿@model Convocation_Management_System.Web.UI.Models.StaffTaskViewModel
 
+@{
+    ViewData["Title"] = "Assign Staff";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
 <form asp-action="Create" method="post">
+
+    <label>Distribution Task</label>
+    <select asp-for="DistributionTaskId"
+            asp-items="Model.DistributionTasks"
+            class="form-control">
+        <option value="">-- Select Task --</option>
+    </select>
 
     <label>Staff</label>
     <select asp-for="UserAccountId"
-            class="form-control"
-            asp-items="Model.Users">
+            asp-items="Model.staffs"
+            class="form-control">
+        <option value="">-- Select Staff --</option>
     </select>
-
-    <label>Task Title</label>
-    <input asp-for="TaskTitle" class="form-control" />
-
-    <label>Description</label>
-    <textarea asp-for="Description" class="form-control"></textarea>
 
     <label>Status</label>
     <select asp-for="Status" class="form-control">
-        <option>Pending</option>
-        <option>InProgress</option>
-        <option>Completed</option>
+        <option value="Pending">Pending</option>
+        <option value="InProgress">In Progress</option>
+        <option value="Completed">Completed</option>
     </select>
-
-    <label>Remarks</label>
-    <textarea asp-for="Remarks" class="form-control"></textarea>
 
     <button class="btn btn-success mt-2">Save</button>
 </form>

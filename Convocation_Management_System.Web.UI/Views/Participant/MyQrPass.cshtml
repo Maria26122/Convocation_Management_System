@@ -1,24 +1,47 @@
 ﻿@model Convocation.Entities.QrPass
 
-<h3>My QR Pass</h3>
-
-@if (Model == null)
-{
-    <div class="alert alert-warning">
-        QR not generated yet.
-    </div>
+@{
+    ViewData["Title"] = "My QR Pass";
+    Layout = "~/Views/Shared/_ParticipantLayout.cshtml";
 }
-else
-{
-    <div class="text-center">
 
-        <img src="@Model.QrImagePath"
-             alt="QR Code"
-             style="width:250px;height:250px;" />
+<div class="container mt-4 text-center">
 
-        <p><b>QR Code Text:</b> @Model.QrCodeText</p>
+    <h2 class="mb-4">My QR Pass</h2>
 
-        <p><b>Status:</b> @(Model.IsUsed ? "Used" : "Active")</p>
+    @if (Model == null || string.IsNullOrEmpty(Model.QrImagePath))
+    {
+        <div class="alert alert-warning">
+            QR is not generated yet. Please complete your registration and payment.
+        </div>
 
-    </div>
-}
+        <a asp-controller="Registration"
+           asp-action="Index"
+           class="btn btn-primary mt-2">
+            Go to My Registrations
+        </a>
+    }
+    else
+    {
+        <div class="card shadow p-4 d-inline-block">
+
+            <img src="@Model.QrImagePath"
+                 alt="QR Code"
+                 style="width:250px;height:250px;" />
+
+            <hr />
+
+            <p><b>Registration ID:</b> @Model.RegistrationId</p>
+            <p><b>QR Text:</b> @Model.QrCodeText</p>
+
+        </div>
+
+        <div class="mt-3">
+            <a asp-controller="Registration"
+               asp-action="Index"
+               class="btn btn-outline-secondary">
+                Back
+            </a>
+        </div>
+    }
+</div>

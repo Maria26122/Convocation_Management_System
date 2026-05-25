@@ -65,8 +65,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         }
 
         // POST: Event/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+       
         [HttpPost]
         public async Task<IActionResult> Create(Event model)
         {

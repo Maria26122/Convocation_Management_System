@@ -132,6 +132,8 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             ModelState.Remove("Event");
 
+            registration.GuestCount = registration?.GuestCount ?? 0;
+
             if (registration.GuestCount < 0)
                 ModelState.AddModelError("GuestCount", "Guest count cannot be negative.");
 
@@ -165,7 +167,13 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 if (registration.GuestCount > selectedEvent.MaxGuestAllowed)
                     ModelState.AddModelError("GuestCount", $"Maximum allowed guest is {selectedEvent.MaxGuestAllowed}.");
 
-                registration.TotalAmount = selectedEvent.BaseFee + (registration.GuestCount * selectedEvent.GuestFee);
+                var baseFee = selectedEvent.BaseFee;
+                var guestFee = selectedEvent.GuestFee;
+
+                if (baseFee == null) baseFee = 0;
+                if (guestFee == null) guestFee = 0;
+
+                registration.TotalAmount = baseFee + (registration.GuestCount * guestFee);
             }
 
             bool alreadyExists = await _context.Registration

@@ -1,0 +1,81 @@
+﻿@model IEnumerable<Convocation.Entities.StaffTask>
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "My Tasks";
+}
+
+<div class="container mt-4">
+
+    <h2 class="mb-3">My Assigned Tasks</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            No tasks assigned yet.
+        </div>
+    }
+    else
+    {
+        <table class="table table-bordered table-striped">
+
+            <thead class="table-dark">
+                <tr>
+                    <th>Task Title</th>
+                    <th>Event</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Assigned At</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var item in Model)
+                {
+                    <tr>
+
+                        <td>
+                            @item.DistributionTask?.TaskTitle
+                        </td>
+
+                        <td>
+                            @item.DistributionTask?.Event?.EventTitle
+                        </td>
+
+                        <td>
+                            @item.DistributionTask?.DistributionType
+                        </td>
+
+                        <td>
+                            <span class="badge bg-@(item.DistributionTask?.Status == "Completed" ? "success" : "warning")">
+                                @item.DistributionTask?.Status
+                            </span>
+                        </td>
+
+                        <td>
+                            @item.AssignedAt.ToString("dd MMM yyyy hh:mm tt")
+                        </td>
+
+                        <td>
+
+                            <a asp-controller="DistributionTask"
+                               asp-action="ScanQr"
+                               asp-route-id="@item.DistributionTaskId"
+                               class="btn btn-primary btn-sm">
+
+                                Scan QR
+                            </a>
+
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+    }
+
+</div>

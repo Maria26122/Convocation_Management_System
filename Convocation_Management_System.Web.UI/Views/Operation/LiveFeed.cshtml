@@ -1,0 +1,21 @@
+﻿@model IEnumerable<Convocation.Entities.OperationActivityLog>
+
+<div class="container mt-4">
+
+    <h2>Live Operation Feed</h2>
+
+    <div class="list-group mt-3">
+
+        @foreach (var item in Model.OrderByDescending(x => x.Time))
+        {
+            <div class="list-group-item">
+                <strong>@item.ActivityType</strong><br />
+                @item.Message
+                <br />
+                <small class="text-muted">@item.Time</small>
+            </div>
+        }
+
+    </div>
+
+</div>

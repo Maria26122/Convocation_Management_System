@@ -12,7 +12,7 @@ namespace Convocation.DataAccess
         }
 
         // =====================
-        // DBSets (SINGULAR)
+        // CORE SYSTEM TABLES
         // =====================
         public DbSet<Role> Role { get; set; }
         public DbSet<UserAccount> UserAccount { get; set; }
@@ -22,32 +22,52 @@ namespace Convocation.DataAccess
         public DbSet<Guest> Guest { get; set; }
         public DbSet<Payment> Payment { get; set; }
         public DbSet<QrPass> QrPass { get; set; }
+
+        // =====================
+        // DISTRIBUTION SYSTEM
+        // =====================
+        public DbSet<DistributionItem> DistributionItem { get; set; }
+        public DbSet<DistributionTask> DistributionTask { get; set; }
         public DbSet<DistributionLog> DistributionLog { get; set; }
+        public DbSet<StaffTask> StaffTask { get; set; }
+        public DbSet<OperationActivityLog> OperationActivityLog { get; set; }
+
+        // =====================
+        // PERMISSION SYSTEM
+        // =====================
         public DbSet<Permission> Permission { get; set; }
         public DbSet<RolePermission> RolePermission { get; set; }
         public DbSet<UserPermission> UserPermission { get; set; }
-        public DbSet<StaffTask> StaffTask { get; set; }
-        public DbSet<DistributionItem> DistributionItem { get; set; }
+
+        // =====================
+        // OPTIONAL MODULES
+        // =====================
         public DbSet<FoodMenu> FoodMenu { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // TABLES
+            // =====================
+            // TABLE MAPPING
+            // =====================
             modelBuilder.Entity<Role>().ToTable("Role");
             modelBuilder.Entity<Permission>().ToTable("Permission");
             modelBuilder.Entity<RolePermission>().ToTable("RolePermission");
             modelBuilder.Entity<UserPermission>().ToTable("UserPermission");
 
-            // ROLE → USER
+            // =====================
+            // USER → ROLE
+            // =====================
             modelBuilder.Entity<UserAccount>()
                 .HasOne(u => u.Role)
                 .WithMany(r => r.UserAccounts)
                 .HasForeignKey(u => u.RoleId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // =====================
             // ROLE PERMISSION (MANY TO MANY)
+            // =====================
             modelBuilder.Entity<RolePermission>()
                 .HasKey(x => new { x.RoleId, x.PermissionId });
 
@@ -61,10 +81,9 @@ namespace Convocation.DataAccess
                 .WithMany(p => p.RolePermissions)
                 .HasForeignKey(x => x.PermissionId);
 
+            // =====================
             // USER PERMISSION
-            modelBuilder.Entity<UserPermission>()
-                .HasKey(x => x.UserPermissionId);
-
+            // =====================
             modelBuilder.Entity<UserPermission>()
                 .HasOne(x => x.UserAccount)
                 .WithMany(u => u.UserPermissions)
@@ -77,6 +96,9 @@ namespace Convocation.DataAccess
                 .HasForeignKey(x => x.PermissionId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // =====================
+            // DISTRIBUTION LOG RELATIONS
+            // =====================
             modelBuilder.Entity<DistributionLog>()
                 .HasOne(d => d.Registration)
                 .WithMany()
@@ -85,7 +107,7 @@ namespace Convocation.DataAccess
 
             modelBuilder.Entity<DistributionLog>()
                 .HasOne(d => d.UserAccount)
-                .WithMany(u => u.DistributionLogs)
+                .WithMany()
                 .HasForeignKey(d => d.UserAccountId)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -101,111 +123,139 @@ namespace Convocation.DataAccess
                 .HasForeignKey(d => d.ParticipantId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<DistributionLog>()
+                .HasIndex(x => new { x.RegistrationId, x.ActionType })
+                .IsUnique();
+
+            // =====================
+            // DISTRIBUTION TASK RELATIONS
+            // =====================
+            modelBuilder.Entity<DistributionTask>()
+                .HasOne(t => t.Event)
+                .WithMany()
+                .HasForeignKey(t => t.EventId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<DistributionLog>()
+                .HasOne(d => d.DistributionTask)
+                .WithMany()
+                .HasForeignKey(d => d.DistributionTaskId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<DistributionTask>()
+                .HasOne(d => d.AssignedStaff)
+                .WithMany()
+                .HasForeignKey(d => d.AssignedStaffId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<StaffTask>()
+                .HasOne(x => x.DistributionTask)
+                .WithMany()
+                .HasForeignKey(x => x.DistributionTaskId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<StaffTask>()
+                .HasOne(x => x.UserAccount)
+                .WithMany()
+                .HasForeignKey(x => x.UserAccountId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // =====================
             // SEED ROLES
+            // =====================
             modelBuilder.Entity<Role>().HasData(
                 new Role { RoleId = 1, RoleName = "Admin" },
                 new Role { RoleId = 2, RoleName = "Event Manager" },
                 new Role { RoleId = 3, RoleName = "Staff" },
                 new Role { RoleId = 4, RoleName = "Student" }
             );
-             
 
-
-            // USER ACCOUNT SEEDING
+            // =====================
+            // SEED USERS
+            // =====================
             modelBuilder.Entity<UserAccount>().HasData(
 
-                new UserAccount
-                {
-                    UserAccountId = 1,
-                    FullName = "Administrator",
-                    NickName = "admin",
-                    Email = "admin@gmail.com",
-                    Phone = "01700000000",
-                    PasswordHash = "JAvlGPq9JyTdtvBO6x2llnRI1+gxwIyPqCKAn3THIKk=",
-                    RoleId = 1,
-                    IsActive = true,
-                    CreatedAt = DateTime.Parse("2026-05-17 19:18:41.7900000")
-                },
+      new UserAccount
+      {
+          UserAccountId = 1,
+          FullName = "Administrator",
+          NickName = "admin",
+          Email = "admin@gmail.com",
+          Phone = "01700000000",
+          PasswordHash = "JAvlGPq9JyTdtvBO6x2llnRI1+gxwIyPqCKAn3THIKk=",
+          RoleId = 1,
+          IsActive = true,
+          CreatedAt = DateTime.Parse("2026-05-17 19:18:41.7900000")
+      },
 
-                new UserAccount
-                {
-                    UserAccountId = 3,
-                    FullName = "Maria Islam Shuchona",
-                    NickName = "",
-                    Email = "mariaislam1226@gmail.com",
-                    Phone = "01851355381",
-                    PasswordHash = "Ym48gF537rRyxCxr5ge+KvesXAj9cFDyeOAzD+gav1c=",
-                    RoleId = 4,
-                    IsActive = true,
-                    CreatedAt = DateTime.Parse("2026-05-17 19:56:47.9599201")
-                },
+      new UserAccount
+      {
+          UserAccountId = 2,
+          FullName = "Event Manager",
+          NickName = "eventmanager",
+          Email = "eventmanager@gmail.com",
+          Phone = "01711111111",
+          PasswordHash = "t5Y6r3iXw1hT4Q3Y7e7nNWh0VvM6nZk+3+8v2/2+J1Y=",
+          RoleId = 2,
+          IsActive = true,
+          CreatedAt = DateTime.Parse("2026-05-20 10:00:00")
+      },
 
-                new UserAccount
-                {
-                    UserAccountId = 4,
-                    FullName = "Shuchona",
-                    NickName = "",
-                    Email = "shuchona@gmail.com",
-                    Phone = "01851355382",
-                    PasswordHash = "2IwvVDg6k/EX5OOg/KjtgFYefq1v3L4iuvS2E3iWC+k=",
-                    RoleId = 4,
-                    IsActive = true,
-                    CreatedAt = DateTime.Parse("2026-05-17 20:37:24.6637944")
-                },
+       new UserAccount
+       {
+           UserAccountId = 3,
+           FullName = "Staff1",
+           NickName = "staff1",
+           Email = "staff1@gmail.com",
+           Phone = "01722222222",
+           PasswordHash = "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=",
+           RoleId = 3,
+           IsActive = true,
+           CreatedAt = DateTime.Parse("2026-05-20 10:00:00")
+       },
 
-                new UserAccount
-                {
-                    UserAccountId = 5,
-                    FullName = "Maria",
-                    NickName = null,
-                    Email = "mis@gmail.com",
-                    Phone = "01851355382",
-                    PasswordHash = "wskrEOQJE84GQlOhnsUEpAzcJeQMqKF1eo4QhS3tEOw=",
-                    RoleId = 4,
-                    IsActive = true,
-                    CreatedAt = DateTime.Parse("2026-05-18 00:35:42.6096320")
-                },
+      new UserAccount
+      {
+          UserAccountId = 4,
+          FullName = "Staff2",
+          NickName = "staff2",
+          Email = "staff2@gmail.com",
+          Phone = "01733333333",
+          PasswordHash = "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=",
+          RoleId = 3,
+          IsActive = true,
+          CreatedAt = DateTime.Parse("2026-05-20 10:00:00")
+      },
 
-                new UserAccount
-                {
-                    UserAccountId = 6,
-                    FullName = "maria",
-                    NickName = null,
-                    Email = "maria@gmail.com",
-                    Phone = "01851355382",
-                    PasswordHash = "lK7J++2Yns4Ymn4XLJz0FmkFBJUVK8TB2/KjjX/YVic=",
-                    RoleId = 4,
-                    IsActive = true,
-                    CreatedAt = DateTime.Parse("2026-05-18 12:07:03.8147314")
-                },
+      new UserAccount
+      {
+          UserAccountId = 5,
+          FullName = "Staff3",
+          NickName = "staff3",
+          Email = "staff3@gmail.com",
+          Phone = "01744444444",
+          PasswordHash = "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=",
+          RoleId = 3,
+          IsActive = true,
+          CreatedAt = DateTime.Parse("2026-05-20 10:00:00")
+      },
+      new UserAccount
+      {
+          UserAccountId = 6,
+          FullName = "maria",
+          NickName = null,
+          Email = "maria@gmail.com",
+          Phone = "01851355382",
+          PasswordHash = "lK7J++2Yns4Ymn4XLJz0FmkFBJUVK8TB2/KjjX/YVic=",
+          RoleId = 4,
+          IsActive = true,
+          CreatedAt = DateTime.Parse("2026-05-18 12:07:03.8147314")
+      }
 
-                new UserAccount
-                {
-                    UserAccountId = 7,
-                    FullName = "Shuchonaa",
-                    NickName = null,
-                    Email = "shuch@gmail.com",
-                    Phone = "01851355381",
-                    PasswordHash = "o89N5RAvRkvkkiLfq5xtreNIeAtDDvRCCllSH/npa2I=",
-                    RoleId = 4,
-                    IsActive = true,
-                    CreatedAt = DateTime.Parse("2026-05-18 12:14:13.7167778")
-                },
+      
 
-                new UserAccount
-                {
-                    UserAccountId = 9,
-                    FullName = "ariyan",
-                    NickName = null,
-                    Email = "ary@gmail.com",
-                    Phone = "01851355381",
-                    PasswordHash = "DwGS1cbVgZdTJReuXUr1SCJ/+jlpRCsdt0iOKYxfyDk=",
-                    RoleId = 4,
-                    IsActive = true,
-                    CreatedAt = DateTime.Parse("2026-05-18 14:42:29.5257312")
-                }
-            );
-
+     
+  );
         }
     }
 }

@@ -1,12 +1,14 @@
 ﻿using Convocation.DataAccess;
 using Convocation.Entities;
 using Convocation_Management_System.Web.UI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace Convocation_Management_System.Web.UI.Controllers
 {
+    
     public class StaffTaskController : Controller
     {
         private readonly ConvocationDbContext _context;
@@ -16,124 +18,131 @@ namespace Convocation_Management_System.Web.UI.Controllers
             _context = context;
         }
 
-        // LIST
+        // =========================
+        // INDEX
+        // =========================
         public async Task<IActionResult> Index()
         {
             var tasks = await _context.StaffTask
                 .Include(t => t.UserAccount)
+                .Include(t => t.DistributionTask)
                 .OrderByDescending(t => t.AssignedAt)
                 .ToListAsync();
 
             return View(tasks);
         }
 
+        // =========================
         // CREATE (GET)
+        // =========================
         public IActionResult Create()
         {
-            var model = new StaffTaskViewModel
-            {
-                Status = "Pending",
-                AssignedAt = DateTime.Now,
+            var model = new StaffTaskViewModel();
 
-                Users = _context.UserAccount
-                    .Select(u => new SelectListItem
-                    {
-                        Value = u.UserAccountId.ToString(),
-                        Text = u.FullName
-                    }).ToList()
-            };
+            LoadDropdowns(model);
 
             return View(model);
         }
 
+        // =========================
         // CREATE (POST)
+        // =========================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(StaffTaskViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                model.Users = _context.UserAccount
-                    .Select(u => new SelectListItem
-                    {
-                        Value = u.UserAccountId.ToString(),
-                        Text = u.FullName
-                    }).ToList();
-
+                LoadDropdowns(model);
                 return View(model);
             }
 
-            var task = new StaffTask
+            // validate distribution task exists
+            var taskExists = await _context.DistributionTask
+                .AnyAsync(t => t.DistributionTaskId == model.DistributionTaskId);
+
+            if (!taskExists)
             {
+                ModelState.AddModelError("", "Invalid Distribution Task selected.");
+                LoadDropdowns(model);
+                return View(model);
+            }
+
+            // validate staff exists
+            var staffExists = await _context.UserAccount
+                .AnyAsync(u => u.UserAccountId == model.UserAccountId);
+
+            if (!staffExists)
+            {
+                ModelState.AddModelError("", "Invalid Staff selected.");
+                LoadDropdowns(model);
+                return View(model);
+            }
+
+            var staffTask = new StaffTask
+            {
+                DistributionTaskId = model.DistributionTaskId,
                 UserAccountId = model.UserAccountId,
-                TaskTitle = model.TaskTitle,
-                Description = model.Description,
                 Status = "Pending",
                 AssignedAt = DateTime.Now
             };
 
-            _context.StaffTask.Add(task);
+            _context.StaffTask.Add(staffTask);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Index");
+            TempData["Success"] = "Staff assigned successfully.";
+
+            return RedirectToAction(nameof(Index));
         }
 
+        // =========================
         // EDIT (GET)
-        public IActionResult Edit(int id)
+        // =========================
+        public async Task<IActionResult> Edit(int id)
         {
-            var task = _context.StaffTask.FirstOrDefault(x => x.StaffTaskId == id);
+            var task = await _context.StaffTask
+                .FirstOrDefaultAsync(x => x.StaffTaskId == id);
 
-            if (task == null) return NotFound();
+            if (task == null)
+                return NotFound();
 
             var model = new StaffTaskViewModel
             {
                 StaffTaskId = task.StaffTaskId,
+                DistributionTaskId = task.DistributionTaskId,
                 UserAccountId = task.UserAccountId,
-                TaskTitle = task.TaskTitle,
-                Description = task.Description,
                 Status = task.Status,
-                Remarks = task.Remarks,
                 AssignedAt = task.AssignedAt,
-                CompletedAt = task.CompletedAt,
-
-                Users = _context.UserAccount
-                    .Select(u => new SelectListItem
-                    {
-                        Value = u.UserAccountId.ToString(),
-                        Text = u.FullName
-                    }).ToList()
+                CompletedAt = task.CompletedAt
             };
+
+            LoadDropdowns(model);
 
             return View(model);
         }
 
+        // =========================
         // EDIT (POST)
+        // =========================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(StaffTaskViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                model.Users = _context.UserAccount
-                    .Select(u => new SelectListItem
-                    {
-                        Value = u.UserAccountId.ToString(),
-                        Text = u.FullName
-                    }).ToList();
-
+                LoadDropdowns(model);
                 return View(model);
             }
 
             var task = await _context.StaffTask
                 .FirstOrDefaultAsync(x => x.StaffTaskId == model.StaffTaskId);
 
-            if (task == null) return NotFound();
+            if (task == null)
+                return NotFound();
 
+            task.DistributionTaskId = model.DistributionTaskId;
             task.UserAccountId = model.UserAccountId;
-            task.TaskTitle = model.TaskTitle;
-            task.Description = model.Description;
             task.Status = model.Status;
-            task.Remarks = model.Remarks;
 
             if (model.Status == "Completed" && task.CompletedAt == null)
             {
@@ -142,14 +151,19 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Index");
+            TempData["Success"] = "Task updated successfully.";
+
+            return RedirectToAction(nameof(Index));
         }
 
+        // =========================
         // DELETE
+        // =========================
         public async Task<IActionResult> Delete(int id)
         {
             var task = await _context.StaffTask
                 .Include(t => t.UserAccount)
+                .Include(t => t.DistributionTask)
                 .FirstOrDefaultAsync(t => t.StaffTaskId == id);
 
             if (task == null)
@@ -159,6 +173,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         }
 
         [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var task = await _context.StaffTask.FindAsync(id);
@@ -172,14 +187,26 @@ namespace Convocation_Management_System.Web.UI.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // HELPER
-        private void LoadUsers()
+        // =========================
+        // DROPDOWNS (FIXED)
+        // =========================
+        private void LoadDropdowns(StaffTaskViewModel model)
         {
-            ViewBag.Users = _context.UserAccount
-                .Select(u => new
+            model.DistributionTasks = _context.DistributionTask
+                .Select(t => new SelectListItem
                 {
-                    u.UserAccountId,
-                    FullName = u.FullName ?? "Unknown User"
+                    Value = t.DistributionTaskId.ToString(),
+                    Text = t.TaskTitle
+                })
+                .ToList();
+
+            model.staffs = _context.UserAccount
+                .Include(u => u.Role)
+                .Where(u => u.Role.RoleName == "Staff")
+                .Select(u => new SelectListItem
+                {
+                    Value = u.UserAccountId.ToString(),
+                    Text = u.FullName
                 })
                 .ToList();
         }

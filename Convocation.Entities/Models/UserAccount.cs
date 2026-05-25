@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Convocation.Entities.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -10,7 +11,7 @@ namespace Convocation.Entities
         public int UserAccountId { get; set; }
 
         public string? FullName { get; set; }
-  public string? NickName { get; set; }
+        public string? NickName { get; set; }
         public string? Email { get; set; }
         public string? Phone { get; set; }
         public string PasswordHash { get; set; }
@@ -24,7 +25,7 @@ namespace Convocation.Entities
 
         public Participant? Participant { get; set; }
 
-        public ICollection<DistributionLog> DistributionLogs { get; set; }
+        public ICollection<DistributionLog> DistributionLog { get; set; }
             = new List<DistributionLog>();
 
         public ICollection<UserPermission> UserPermissions { get; set; }

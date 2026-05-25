@@ -1,21 +1,11 @@
 ﻿@model Convocation.Entities.StaffTask
 
+@{
+    ViewData["Title"] = "Assign Staff";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
 <form asp-action="Assign" method="post">
-
-    <div class="form-group">
-        <label>Task Title</label>
-        <input asp-for="TaskTitle" class="form-control" />
-    </div>
-
-    <div class="form-group">
-        <label>Description</label>
-        <input asp-for="Description" class="form-control" />
-    </div>
-
-    <div class="form-group">
-        <label>Remarks</label>
-        <input asp-for="Remarks" class="form-control" />
-    </div>
 
     <div class="form-group">
         <label>Assign To</label>

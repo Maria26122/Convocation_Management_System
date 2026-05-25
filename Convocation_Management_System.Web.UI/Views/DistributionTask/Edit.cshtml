@@ -1,0 +1,39 @@
+﻿@model Convocation_Management_System.Web.UI.Models.DistributionTaskViewModel
+
+@{
+    ViewData["Title"] = "Edit Task";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4">
+
+    <h2>Edit Task</h2>
+
+    <form asp-action="Edit" method="post">
+
+        <input type="hidden" asp-for="DistributionTaskId" />
+
+        <div class="mb-2">
+            <label>Title</label>
+            <input asp-for="TaskTitle" class="form-control" />
+        </div>
+
+        <div class="mb-2">
+            <label>Status</label>
+            <select asp-for="Status" class="form-control">
+                <option value="Pending">Pending</option>
+                <option value="InProgress">In Progress</option>
+                <option value="Completed">Completed</option>
+            </select>
+        </div>
+
+        <div class="mb-2">
+            <label>Remarks</label>
+            <input asp-for="Remarks" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-success">Update</button>
+
+    </form>
+
+</div>

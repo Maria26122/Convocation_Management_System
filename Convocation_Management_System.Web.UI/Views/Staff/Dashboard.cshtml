@@ -1,0 +1,58 @@
+﻿@model IEnumerable<Convocation.Entities.StaffTask>
+
+@{
+    Layout = "~/Views/Shared/_StaffLayout.cshtml";
+    ViewData["Title"] = "Staff Dashboard";
+}
+
+<div class="container mt-4">
+
+    <h2 class="mb-4">My Assigned Tasks</h2>
+
+    <div class="row">
+
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4 mb-4">
+
+                <div class="card shadow-sm h-100">
+
+                    <div class="card-body">
+
+                        <h5 class="card-title">
+                            @item.DistributionTask.TaskTitle
+                        </h5>
+
+                        <p>
+                            <b>Event:</b>
+                            @item.DistributionTask.Event.EventTitle
+                        </p>
+
+                        <p>
+                            <b>Type:</b>
+                            @item.DistributionTask.DistributionType
+                        </p>
+
+                        <p>
+                            <b>Status:</b>
+                            @item.DistributionTask.Status
+                        </p>
+
+                        <a asp-controller="DistributionTask"
+                           asp-action="ScanQr"
+                           asp-route-id="@item.DistributionTaskId"
+                           class="btn btn-primary w-100">
+
+                            Start Distribution
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+</div>

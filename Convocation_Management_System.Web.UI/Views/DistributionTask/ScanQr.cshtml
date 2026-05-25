@@ -1,0 +1,116 @@
+﻿@model Convocation_Management_System.Web.UI.Models.QrDistributionViewModel
+
+@{
+    var task = ViewBag.Task as Convocation.Entities.DistributionTask;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    ViewData["Title"] = "QR Scanner";
+}
+
+<div class="container mt-4">
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <h3 class="mb-4">
+                QR Scanner - @task?.DistributionType
+            </h3>
+
+            <!-- CAMERA QR SCANNER -->
+            <div class="mb-4">
+
+                <div id="reader" style="width:100%; max-width:400px;"></div>
+
+            </div>
+
+            <!-- MANUAL INPUT FORM -->
+            <form asp-action="ScanQr"
+                  method="post"
+                  id="scanForm">
+
+                <input type="hidden"
+                       asp-for="DistributionTaskId" />
+
+                <div class="mb-3">
+
+                    <label asp-for="QrCodeText"
+                           class="form-label">
+                        QR Code
+                    </label>
+
+                    <input asp-for="QrCodeText"
+                           id="QrCodeText"
+                           class="form-control"
+                           placeholder="Scan or enter QR code manually" />
+
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary">
+
+                    <i class="fas fa-check-circle me-2"></i>
+                    Verify QR
+
+                </button>
+
+            </form>
+
+            <!-- RESULT -->
+            @if (!string.IsNullOrEmpty(Model.Message))
+            {
+                <div class="alert @(Model.IsSuccess ? "alert-success" : "alert-danger") mt-4">
+
+                    <h5>@Model.Message</h5>
+
+                    @if (Model.IsSuccess)
+                    {
+                        <hr />
+
+                        <p>
+                            <strong>Student:</strong>
+                            @Model.StudentName
+                        </p>
+
+                        <p>
+                            <strong>Student ID:</strong>
+                            @Model.StudentId
+                        </p>
+                    }
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <script src="https://unpkg.com/html5-qrcode"></script>
+
+    <script>
+
+        function onScanSuccess(decodedText, decodedResult) {
+
+        // SET QR VALUE
+        document.getElementById("QrCodeText").value = decodedText;
+
+        // AUTO SUBMIT
+        document.getElementById("scanForm").submit();
+        }
+
+        const html5QrcodeScanner = new Html5QrcodeScanner(
+        "reader",
+        {
+        fps: 10,
+        qrbox: 250
+        }
+        );
+
+        html5QrcodeScanner.render(onScanSuccess);
+
+    </script>
+}

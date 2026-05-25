@@ -1,0 +1,66 @@
+﻿@model IEnumerable<Convocation.Entities.DistributionTask>
+
+@{
+    ViewData["Title"] = "Distribution Tasks";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between mb-3">
+        <h2>Distribution Tasks</h2>
+
+        <a asp-action="Create" class="btn btn-primary">
+            + Create Task
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    <table class="table table-bordered">
+
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Event</th>
+                <th>Staff</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.TaskTitle</td>
+                    <td>@item.DistributionType</td>
+                    <td>@item.Event?.EventTitle</td>
+                    <td>@item.AssignedStaff?.FullName</td>
+                    <td>
+                        <span class="badge bg-info">@item.Status</span>
+                    </td>
+                    <td class="d-flex gap-1">
+
+                        <a asp-action="Edit" asp-route-id="@item.DistributionTaskId"
+                           class="btn btn-sm btn-warning">Edit</a>
+
+                        <a asp-action="Delete" asp-route-id="@item.DistributionTaskId"
+                           class="btn btn-sm btn-danger">Delete</a>
+
+                        <a asp-action="ScanQr" asp-route-id="@item.DistributionTaskId"
+                           class="btn btn-sm btn-dark">QR</a>
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+
+    </table>
+</div>
