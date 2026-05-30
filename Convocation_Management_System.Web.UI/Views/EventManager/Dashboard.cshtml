@@ -1,0 +1,77 @@
+﻿@{
+    ViewData["Title"] = "Event Manager Dashboard";
+    Layout = "~/Views/Shared/_EventManagerLayout.cshtml";
+}
+
+<div class="container mt-4">
+
+    <h2 class="mb-4">
+        Event Manager Dashboard
+    </h2>
+
+    <div class="row">
+
+        <div class="col-md-3 mb-3">
+            <div class="card text-center shadow">
+                <div class="card-body">
+                    <h3>@ViewBag.TotalTasks</h3>
+                    <p>Total Tasks</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card text-center shadow">
+                <div class="card-body">
+                    <h3>@ViewBag.PendingTasks</h3>
+                    <p>Pending Tasks</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card text-center shadow">
+                <div class="card-body">
+                    <h3>@ViewBag.CompletedTasks</h3>
+                    <p>Completed Tasks</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card text-center shadow">
+                <div class="card-body">
+                    <h3>@ViewBag.TotalStaff</h3>
+                    <p>Total Staff</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row mt-4">
+
+        <div class="col-md-4">
+            <a asp-action="Tasks"
+               class="btn btn-primary w-100">
+                Manage Tasks
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a asp-action="Staffs"
+               class="btn btn-success w-100">
+                View Staff
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a asp-action="Logs"
+               class="btn btn-dark w-100">
+                Distribution Logs
+            </a>
+        </div>
+
+    </div>
+
+</div>

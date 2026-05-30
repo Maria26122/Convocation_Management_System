@@ -1,0 +1,43 @@
+﻿@model IEnumerable<Convocation.Entities.DistributionTask>
+
+@{
+    ViewData["Title"] = "Tasks";
+    Layout = "~/Views/Shared/_EventManagerLayout.cshtml";
+}
+
+<div class="container mt-4">
+
+    <h2>Distribution Tasks</h2>
+
+    <a asp-controller="DistributionTask"
+       asp-action="Create"
+       class="btn btn-primary mb-3">
+        Create Task
+    </a>
+
+    <table class="table table-bordered table-striped">
+
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Task Name</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.DistributionTaskId</td>
+                    <td>@item.TaskTitle</td>
+                    <td>@item.Status</td>
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+
+</div>

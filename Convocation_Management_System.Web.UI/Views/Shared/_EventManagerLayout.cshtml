@@ -1,0 +1,81 @@
+﻿@using Microsoft.AspNetCore.Http
+@{
+    var role = Context.Session.GetString("Role") ?? "";
+    var fullName = Context.Session.GetString("FullName") ?? "Event Manager";
+    var isLoggedIn = !string.IsNullOrWhiteSpace(Context.Session.GetString("UserId"));
+
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - Event Manager</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/admin-theme.css" />
+</head>
+
+<body>
+
+    <div class="sidebar">
+
+        <div class="brand">
+            <i class="fas fa-calendar-check"></i>
+            <div>
+                <h4>Event Panel</h4>
+                <small>Event Manager</small>
+            </div>
+        </div>
+
+        <a asp-controller="EventManager" asp-action="Dashboard"
+           class="sidebar-link @(currentController == "EventManager" ? "active-menu" : "")">
+            <i class="fas fa-house"></i> Dashboard
+        </a>
+
+        <a asp-controller="Event" asp-action="Index"
+           class="sidebar-link @(currentController == "Event" ? "active-menu" : "")">
+            <i class="fas fa-calendar-days"></i> Events
+        </a>
+
+        <a asp-controller="DistributionTask" asp-action="Index"
+           class="sidebar-link @(currentController == "DistributionTask" ? "active-menu" : "")">
+            <i class="fas fa-list-check"></i> Tasks
+        </a>
+
+        <a asp-controller="StaffTask" asp-action="Index"
+           class="sidebar-link @(currentController == "StaffTask" ? "active-menu" : "")">
+            <i class="fas fa-user-cog"></i> Staff Assignments
+        </a>
+
+        <a asp-controller="DistributionLog" asp-action="Index"
+           class="sidebar-link @(currentController == "DistributionLog" ? "active-menu" : "")">
+            <i class="fas fa-clipboard-list"></i> Distribution Logs
+        </a>
+
+        <a asp-controller="QrPass" asp-action="Index"
+           class="sidebar-link @(currentController == "QrPass" ? "active-menu" : "")">
+            <i class="fas fa-qrcode"></i> QR Pass
+        </a>
+
+        <a asp-controller="Account" asp-action="Logout"
+           class="sidebar-link text-danger">
+            <i class="fas fa-right-from-bracket"></i> Logout
+        </a>
+
+    </div>
+
+    <div class="content">
+
+        <div class="topbar">
+            <h4>@ViewData["Title"]</h4>
+            <span>@fullName</span>
+        </div>
+
+        @RenderBody()
+    </div>
+
+</body>
+</html>

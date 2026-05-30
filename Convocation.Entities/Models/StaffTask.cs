@@ -32,7 +32,7 @@ namespace Convocation.Entities
         // =========================
         [Required]
         [StringLength(20)]
-        public string Status { get; set; } = "Pending";
+        public string Status { get; set; } = "Assigned";
 
         public DateTime AssignedAt { get; set; } = DateTime.Now;
 

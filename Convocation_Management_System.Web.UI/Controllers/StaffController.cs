@@ -1,11 +1,15 @@
 ﻿using Convocation.DataAccess;
+using Convocation_Management_System.Web.UI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Convocation_Management_System.Web.UI.Controllers
 {
+    [Authorize(Roles = "staff")]
     public class StaffController : Controller
     {
+
         private readonly ConvocationDbContext _context;
 
         public StaffController(ConvocationDbContext context)
@@ -15,22 +19,32 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
         public async Task<IActionResult> Dashboard()
         {
-            var userIdString = HttpContext.Session.GetString("UserId");
+            var userId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
 
-            if (string.IsNullOrEmpty(userIdString))
-                return RedirectToAction("Login", "Account");
+            var user = await _context.UserAccount.FindAsync(userId);
 
-            int userId = Convert.ToInt32(userIdString);
+            var model = new StaffDashboardViewModel
+            {
+                FullName = user.FullName,
+                Email = user.Email,
 
-            var assignedTasks = await _context.StaffTask
-                .Include(s => s.DistributionTask)
-                .ThenInclude(t => t.Event)
-                .Where(s => s.UserAccountId == userId)
-                .ToListAsync();
+                AssignedTasks = await _context.StaffTask
+                    .CountAsync(x => x.UserAccountId == userId),
 
-            ViewBag.TotalTasks = assignedTasks.Count;
+                PendingTasks = await _context.StaffTask
+                    .CountAsync(x => x.UserAccountId == userId && x.Status == "Pending"),
 
-            return View(assignedTasks);
+                InProgressTasks = await _context.StaffTask
+                    .CountAsync(x => x.UserAccountId == userId && x.Status == "InProgress"),
+
+                CompletedTasks = await _context.StaffTask
+                    .CountAsync(x => x.UserAccountId == userId && x.Status == "Completed"),
+
+                TodayScans = await _context.DistributionLog
+                    .CountAsync(x => x.UserAccountId == userId && x.ActionDate.Date == DateTime.Today)
+            };
+
+            return View(model);
         }
     }
 }

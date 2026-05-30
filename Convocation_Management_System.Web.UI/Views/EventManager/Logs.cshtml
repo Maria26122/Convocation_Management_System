@@ -1,0 +1,47 @@
+﻿@model IEnumerable<Convocation.Entities.DistributionLog>
+
+@{
+    ViewData["Title"] = "Distribution Logs";
+    Layout = "~/Views/Shared/_EventManagerLayout.cshtml";
+}
+
+<div class="container mt-4">
+
+    <h2>Distribution Logs</h2>
+
+    <table class="table table-bordered table-striped">
+
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Action Type</th>
+                <th>Date</th>
+                <th>Delivered</th>
+                <th>QR Verified</th>
+                <th>Remarks</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @foreach (var log in Model)
+            {
+                <tr>
+                    <td>@log.DistributionLogId</td>
+                    <td>@log.ActionType</td>
+                    <td>@log.ActionDate.ToString("dd MMM yyyy hh:mm tt")</td>
+                    <td>
+                        @(log.IsDelivered ? "Yes" : "No")
+                    </td>
+                    <td>
+                        @(log.IsQrVerified ? "Yes" : "No")
+                    </td>
+                    <td>@log.Remarks</td>
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+
+</div>

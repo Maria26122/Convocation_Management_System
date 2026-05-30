@@ -31,13 +31,6 @@ namespace Convocation.Entities
         public string DistributionType { get; set; } = string.Empty;
 
         // =========================
-        // STAFF ASSIGNMENT
-        // =========================
-
-        public int? AssignedStaffId { get; set; }
-        public UserAccount? AssignedStaff { get; set; }
-
-        // =========================
         // STATUS
         // =========================
 

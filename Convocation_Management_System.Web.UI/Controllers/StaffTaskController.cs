@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Convocation_Management_System.Web.UI.Controllers
 {
-    
+    [Authorize(Roles = "admin,eventmanager")]
     public class StaffTaskController : Controller
     {
         private readonly ConvocationDbContext _context;

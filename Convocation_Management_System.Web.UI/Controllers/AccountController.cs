@@ -136,10 +136,25 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             await SignInUserAsync(user, roleName);
 
-            if (roleName == "admin" || roleName =="event manager" || roleName == "staff")
+            if (roleName == "admin")
+            {
                 return RedirectToAction("Index", "Admin");
+            }
+            else if (roleName == "eventmanager")
+            {
+                return RedirectToAction("Dashboard", "EventManager");
+            }
+            else if (roleName == "staff")
+            {
+                return RedirectToAction("Dashboard", "Staff");
+            }
+            else if (roleName == "participant" || roleName == "student")
+            {
+                return RedirectToAction("Dashboard", "Participant");
+            }
 
-            return RedirectToAction("Dashboard", "Participant");
+            return RedirectToAction("Index", "Home");
+           
         }
 
         // =========================

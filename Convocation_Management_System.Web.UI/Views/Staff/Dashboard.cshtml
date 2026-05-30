@@ -1,58 +1,48 @@
-﻿@model IEnumerable<Convocation.Entities.StaffTask>
+﻿@model Convocation_Management_System.Web.UI.Models.StaffDashboardViewModel
 
 @{
-    Layout = "~/Views/Shared/_StaffLayout.cshtml";
     ViewData["Title"] = "Staff Dashboard";
+    Layout = "~/Views/Shared/_StaffLayout.cshtml";
 }
 
 <div class="container mt-4">
 
-    <h2 class="mb-4">My Assigned Tasks</h2>
+    <h3>Welcome, @Model.FullName 👋</h3>
 
-    <div class="row">
+    <div class="card mt-3">
+        <div class="card-body">
 
-        @foreach (var item in Model)
-        {
-            <div class="col-md-4 mb-4">
+            <p><b>Total Tasks:</b> @Model.Tasks</p>
+            <p><b>Pending:</b> @Model.PendingTasks</p>
+            <p><b>Completed:</b> @Model.CompletedTasks</p>
 
-                <div class="card shadow-sm h-100">
+        </div>
+    </div>
 
-                    <div class="card-body">
+    <div class="mt-4">
+        <h5>My Tasks</h5>
 
-                        <h5 class="card-title">
-                            @item.DistributionTask.TaskTitle
-                        </h5>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Event</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
 
-                        <p>
-                            <b>Event:</b>
-                            @item.DistributionTask.Event.EventTitle
-                        </p>
+            <tbody>
+                @foreach (var item in Model.Tasks)
+                {
+                    <tr>
+                        <td>@item.DistributionTask.TaskTitle</td>
+                        <td>@item.DistributionTask.Event?.EventTitle</td>
+                        <td>@item.Status</td>
+                    </tr>
+                }
+            </tbody>
 
-                        <p>
-                            <b>Type:</b>
-                            @item.DistributionTask.DistributionType
-                        </p>
-
-                        <p>
-                            <b>Status:</b>
-                            @item.DistributionTask.Status
-                        </p>
-
-                        <a asp-controller="DistributionTask"
-                           asp-action="ScanQr"
-                           asp-route-id="@item.DistributionTaskId"
-                           class="btn btn-primary w-100">
-
-                            Start Distribution
-                        </a>
-
-                    </div>
-
-                </div>
-
-            </div>
-        }
-
+        </table>
     </div>
 
 </div>

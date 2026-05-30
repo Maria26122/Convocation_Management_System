@@ -361,26 +361,78 @@
                                             </a>
                                         </li>
                                     }
+
+                                    else if (role.ToLower() == "eventmanager")
+                                    {
+                                        <li>
+                                            <a class="dropdown-item dropdown-item-custom" asp-controller="EventManager" asp-action="Dashboard">
+                                                <i class="fas fa-chart-pie me-2"></i>Dashboard
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item dropdown-item-custom" asp-controller="Event" asp-action="Index">
+                                                <i class="fas fa-calendar me-2"></i>Manage Events
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item dropdown-item-custom" asp-controller="DistributionTask" asp-action="Index">
+                                                <i class="fas fa-tasks me-2"></i>Distribution Tasks
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item dropdown-item-custom" asp-controller="StaffTask" asp-action="Index">
+                                                <i class="fas fa-user-check me-2"></i>Staff Assignments
+                                            </a>
+                                        </li>
+                                    }
+
+                                    else if (role.ToLower() == "staff")
+                                    {
+                                        <li>
+                                            <a class="dropdown-item dropdown-item-custom" asp-controller="Staff" asp-action="Dashboard">
+                                                <i class="fas fa-home me-2"></i>Dashboard
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item dropdown-item-custom" asp-controller="DistributionTask" asp-action="MyTasks">
+                                                <i class="fas fa-clipboard-list me-2"></i>My Tasks
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item dropdown-item-custom" asp-controller="DistributionTask" asp-action="ScanQr">
+                                                <i class="fas fa-qrcode me-2"></i>Scan QR
+                                            </a>
+                                        </li>
+                                    }
+
                                     else if (role.ToLower() == "student" || role.ToLower() == "participant")
                                     {
                                         <li>
                                             <a class="dropdown-item dropdown-item-custom" asp-controller="Participant" asp-action="Dashboard">
-                                                <i class="fas fa-user-graduate me-2"></i>My Dashboard
+                                                <i class="fas fa-user-graduate me-2"></i> Dashboard
                                             </a>
                                         </li>
+
                                         <li>
                                             <a class="dropdown-item dropdown-item-custom" asp-controller="Participant" asp-action="MyProfile">
-                                                <i class="fas fa-id-card me-2"></i>My Profile
+                                                <i class="fas fa-id-card me-2"></i> Profile
                                             </a>
                                         </li>
+
                                         <li>
                                             <a class="dropdown-item dropdown-item-custom" asp-controller="Participant" asp-action="MyRegistration">
-                                                <i class="fas fa-file-signature me-2"></i>My Registration
+                                                <i class="fas fa-file-signature me-2"></i> Registration
                                             </a>
                                         </li>
+
                                         <li>
                                             <a class="dropdown-item dropdown-item-custom" asp-controller="Participant" asp-action="MyPayment">
-                                                <i class="fas fa-credit-card me-2"></i>My Payment
+                                                <i class="fas fa-credit-card me-2"></i> Payment
                                             </a>
                                         </li>
                                     }

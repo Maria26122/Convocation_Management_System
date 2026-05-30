@@ -1,0 +1,71 @@
+﻿@using Microsoft.AspNetCore.Http
+@{
+    var role = Context.Session.GetString("Role") ?? "";
+    var fullName = Context.Session.GetString("FullName") ?? "Staff";
+    var userId = Context.Session.GetString("UserId");
+
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - Staff Panel</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/admin-theme.css" />
+</head>
+
+<body>
+
+    <div class="sidebar">
+
+        <div class="brand">
+            <i class="fas fa-user-cog"></i>
+            <div>
+                <h4>Staff Panel</h4>
+                <small>Operations Team</small>
+            </div>
+        </div>
+
+        <a asp-controller="Staff" asp-action="Dashboard"
+           class="sidebar-link @(currentController == "Staff" ? "active-menu" : "")">
+            <i class="fas fa-house"></i> Dashboard
+        </a>
+
+        <a asp-controller="DistributionTask" asp-action="MyTasks"
+           class="sidebar-link @(currentController == "DistributionTask" ? "active-menu" : "")">
+            <i class="fas fa-list-check"></i> My Tasks
+        </a>
+
+        <a asp-controller="DistributionTask" asp-action="ScanQr"
+           class="sidebar-link @(currentController == "DistributionTask" && ViewContext.RouteData.Values["action"]?.ToString() == "ScanQr" ? "active-menu" : "")">
+            <i class="fas fa-qrcode"></i> QR Scanner
+        </a>
+
+        <a asp-controller="DistributionLog" asp-action="Index"
+           class="sidebar-link @(currentController == "DistributionLog" ? "active-menu" : "")">
+            <i class="fas fa-clipboard-list"></i> My Logs
+        </a>
+
+        <a asp-controller="Account" asp-action="Logout"
+           class="sidebar-link text-danger">
+            <i class="fas fa-right-from-bracket"></i> Logout
+        </a>
+
+    </div>
+
+    <div class="content">
+
+        <div class="topbar">
+            <h4>@ViewData["Title"]</h4>
+            <span>@fullName</span>
+        </div>
+
+        @RenderBody()
+    </div>
+
+</body>
+</html>

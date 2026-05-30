@@ -31,12 +31,13 @@
             <select asp-for="EventId" asp-items="Model.Events" class="form-control"></select>
         </div>
 
-        <div class="mb-2">
-            <label>Assign Staff</label>
-            <select asp-for="AssignedStaffId" asp-items="Model.Staffs" class="form-control"></select>
+        <div class="alert alert-info mt-3">
+            Staff assignment will be done separately from Staff Task module.
         </div>
 
-        <button type="submit" class="btn btn-success">Create</button>
+        <button type="submit" class="btn btn-success">
+            Create Task
+        </button>
 
     </form>
 

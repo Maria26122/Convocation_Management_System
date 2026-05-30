@@ -127,6 +127,12 @@ namespace Convocation.DataAccess
                 .HasIndex(x => new { x.RegistrationId, x.ActionType })
                 .IsUnique();
 
+            modelBuilder.Entity<DistributionLog>()
+               .HasOne(d => d.DistributionTask)
+               .WithMany()
+               .HasForeignKey(d => d.DistributionTaskId)
+               .OnDelete(DeleteBehavior.Restrict);
+
             // =====================
             // DISTRIBUTION TASK RELATIONS
             // =====================
@@ -134,18 +140,6 @@ namespace Convocation.DataAccess
                 .HasOne(t => t.Event)
                 .WithMany()
                 .HasForeignKey(t => t.EventId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<DistributionLog>()
-                .HasOne(d => d.DistributionTask)
-                .WithMany()
-                .HasForeignKey(d => d.DistributionTaskId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<DistributionTask>()
-                .HasOne(d => d.AssignedStaff)
-                .WithMany()
-                .HasForeignKey(d => d.AssignedStaffId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<StaffTask>()
@@ -164,10 +158,10 @@ namespace Convocation.DataAccess
             // SEED ROLES
             // =====================
             modelBuilder.Entity<Role>().HasData(
-                new Role { RoleId = 1, RoleName = "Admin" },
-                new Role { RoleId = 2, RoleName = "Event Manager" },
-                new Role { RoleId = 3, RoleName = "Staff" },
-                new Role { RoleId = 4, RoleName = "Student" }
+                new Role { RoleId = 1, RoleName = "admin" },
+                new Role { RoleId = 2, RoleName = " eventmanager" },
+                new Role { RoleId = 3, RoleName = "staff" },
+                new Role { RoleId = 4, RoleName = "student" }
             );
 
             // =====================

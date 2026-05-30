@@ -1,0 +1,37 @@
+﻿@model IEnumerable<Convocation.Entities.UserAccount>
+
+@{
+    ViewData["Title"] = "Staffs";
+    Layout = "~/Views/Shared/_EventManagerLayout.cshtml";
+}
+
+<div class="container mt-4">
+
+    <h2>Staff Members</h2>
+
+    <table class="table table-bordered">
+
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @foreach (var staff in Model)
+            {
+                <tr>
+                    <td>@staff.FullName</td>
+                    <td>@staff.Email</td>
+                    <td>@staff.Phone</td>
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+
+</div>

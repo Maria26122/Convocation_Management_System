@@ -18,8 +18,6 @@ namespace Convocation_Management_System.Web.UI.Models
         [Required]
         public string DistributionType { get; set; } = string.Empty;
 
-        public int? AssignedStaffId { get; set; }
-
         public string Status { get; set; } = "Pending";
 
         public string? Remarks { get; set; }
