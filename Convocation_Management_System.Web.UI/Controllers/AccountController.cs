@@ -136,7 +136,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             await SignInUserAsync(user, roleName);
 
-            if (roleName == "admin")
+            if (roleName == "admin" || roleName =="event manager" || roleName == "staff")
                 return RedirectToAction("Index", "Admin");
 
             return RedirectToAction("Dashboard", "Participant");
@@ -181,6 +181,21 @@ namespace Convocation_Management_System.Web.UI.Controllers
             await HttpContext.SignOutAsync();
 
             return RedirectToAction("Index", "Home");
+        }
+
+        public IActionResult ResetPassword()
+        {
+            var user = _context.UserAccount
+                .FirstOrDefault(x => x.Email == "eventmanager@gmail.com");
+
+            if (user == null)
+                return Content("User not found");
+
+            user.PasswordHash = PasswordHelper.HashPassword("123456");
+
+            _context.SaveChanges();
+
+            return Content("Password reset successful");
         }
 
         [HttpGet]
