@@ -1,6 +1,7 @@
 ﻿@model Convocation_Management_System.Web.UI.Models.StaffTaskViewModel
+
 @{
-    ViewData["Title"] = "Edit Task";
+    ViewData["Title"] = "Edit Staff Task";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
@@ -15,12 +16,20 @@
 
             <input type="hidden" asp-for="StaffTaskId" />
 
+            <!-- DISTRIBUTION TASK (READONLY DISPLAY) -->
+            <div class="mb-3">
+                <label class="form-label">Distribution Task</label>
+                <input class="form-control"
+                       value="@Model.DistributionTasks.FirstOrDefault(x => x.Value == Model.DistributionTaskId.ToString())?.Text"
+                       readonly />
+            </div>
+
             <!-- STAFF -->
             <div class="mb-3">
                 <label class="form-label">Assign To</label>
                 <select asp-for="UserAccountId"
                         class="form-control"
-                        asp-items="ViewBag.Users">
+                        asp-items="Model.staffs">
                 </select>
             </div>
 
@@ -28,22 +37,14 @@
             <div class="mb-3">
                 <label class="form-label">Status</label>
                 <select asp-for="Status" class="form-control">
-
                     <option value="Pending">Pending</option>
                     <option value="InProgress">In Progress</option>
                     <option value="Completed">Completed</option>
-
                 </select>
             </div>
 
-            <!-- BUTTONS -->
-            <button type="submit" class="btn btn-primary">
-                Update
-            </button>
-
-            <a asp-action="Index" class="btn btn-secondary ms-2">
-                Back
-            </a>
+            <button type="submit" class="btn btn-primary">Update</button>
+            <a asp-action="Index" class="btn btn-secondary ms-2">Back</a>
 
         </form>
 

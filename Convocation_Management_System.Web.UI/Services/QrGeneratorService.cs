@@ -1,7 +1,5 @@
 ﻿using QRCoder;
 using Microsoft.AspNetCore.Hosting;
-using System.Drawing;
-using System.Drawing.Imaging;
 
 namespace Convocation_Management_System.Web.UI.Services
 {
@@ -14,9 +12,9 @@ namespace Convocation_Management_System.Web.UI.Services
             _env = env;
         }
 
-        public string GenerateQr(string text, string fileName = null)
+        public string GenerateQr(string text, string? fileName = null)
         {
-            fileName ??= Guid.NewGuid() + ".png";
+            fileName ??= $"{Guid.NewGuid():N}.png";
 
             var folderPath = Path.Combine(_env.WebRootPath, "qrcodes");
 
@@ -25,13 +23,13 @@ namespace Convocation_Management_System.Web.UI.Services
 
             var fullPath = Path.Combine(folderPath, fileName);
 
-            using var qrGenerator = new QRCodeGenerator();
-            using var qrData = qrGenerator.CreateQrCode(text, QRCodeGenerator.ECCLevel.Q);
-            using var qrCode = new QRCode(qrData);
+            using var generator = new QRCodeGenerator();
+            using var data = generator.CreateQrCode(text, QRCodeGenerator.ECCLevel.Q);
+            using var qr = new PngByteQRCode(data);
 
-            using Bitmap bitmap = qrCode.GetGraphic(20);
+            byte[] bytes = qr.GetGraphic(20);
 
-            bitmap.Save(fullPath, ImageFormat.Png);
+            File.WriteAllBytes(fullPath, bytes);
 
             return "/qrcodes/" + fileName;
         }

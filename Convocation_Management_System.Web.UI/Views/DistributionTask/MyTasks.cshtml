@@ -45,10 +45,6 @@
                         </td>
 
                         <td>
-                            @item.DistributionTask?.DistributionType
-                        </td>
-
-                        <td>
                             <span class="badge bg-@(item.DistributionTask?.Status == "Completed" ? "success" : "warning")">
                                 @item.DistributionTask?.Status
                             </span>

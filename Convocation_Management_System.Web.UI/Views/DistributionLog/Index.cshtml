@@ -1,4 +1,83 @@
-﻿
+﻿@model IEnumerable<Convocation.Entities.DistributionLog>
+
 @{
+    ViewData["Title"] = "Distribution Logs";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Distribution Logs</h3>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-warning">
+            No distribution logs found.
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm border-0">
+
+            <div class="card-body p-0">
+
+                <table class="table table-hover mb-0">
+
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Participant</th>
+                            <th>Task</th>
+                            <th>Status</th>
+                            <th>Remarks</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @{
+                            int i = 1;
+                        }
+
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@i</td>
+
+                                <td>
+                                    @(item.Participant?.UserAccount?.FullName ?? "N/A")
+                                </td>
+
+                                <td>
+                                    @(item.DistributionTask?.TaskTitle ?? "N/A")
+                                </td>
+
+                                <td>
+                                    @if (item.IsDelivered)
+                                    {
+                                        <span class="badge bg-success">Delivered</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @item.ActionDate.ToString("dd MMM yyyy hh:mm tt")
+                                </td>
+                            </tr>
+
+                            i++;
+                        }
+                    </tbody>
+
+                </table>
+
+            </div>
+        </div>
+    }
+
+</div>

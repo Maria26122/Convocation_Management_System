@@ -17,7 +17,5 @@ namespace Convocation_Management_System.Web.UI.Models
         public string? StudentName { get; set; }
 
         public string? StudentId { get; set; }
-
-        public string? DistributionType { get; set; }
     }
 }

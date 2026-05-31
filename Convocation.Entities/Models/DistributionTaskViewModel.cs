@@ -15,12 +15,7 @@ namespace Convocation_Management_System.Web.UI.Models
 
         public string? Description { get; set; }
 
-        [Required]
-        public string DistributionType { get; set; } = string.Empty;
-
         public string Status { get; set; } = "Pending";
-
-        public string? Remarks { get; set; }
 
         public List<SelectListItem> Events { get; set; } = new();
 

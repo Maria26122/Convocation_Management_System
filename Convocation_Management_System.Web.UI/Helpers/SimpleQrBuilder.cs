@@ -8,7 +8,7 @@ namespace Convocation_Management_System.Web.UI.Helpers
         {
             long timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
-            return $"REG:{registrationId}|EVT:{eventId}|UID:{userId}|TS:{timestamp}";
+            return $"CONV|REG={registrationId}|EVT={eventId}|UID={userId}|TS={timestamp}";
         }
     }
 }

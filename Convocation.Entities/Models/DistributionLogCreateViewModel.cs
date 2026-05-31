@@ -31,10 +31,6 @@ namespace Convocation_Management_System.Web.UI.Models
         [Display(Name = "Distribution Type")]
         public string ActionType { get; set; } = string.Empty;
 
-        [Display(Name = "Remarks")]
-        [StringLength(500)]
-        public string? Remarks { get; set; }
-
         [Display(Name = "Notes")]
         [StringLength(500)]
         public string? Note { get; set; }
@@ -62,7 +58,6 @@ namespace Convocation_Management_System.Web.UI.Models
         public List<SelectListItem> Registrations { get; set; }
             = new List<SelectListItem>();
 
-        public List<SelectListItem> DistributionTypes { get; set; }
-            = new List<SelectListItem>();
+        
     }
 }

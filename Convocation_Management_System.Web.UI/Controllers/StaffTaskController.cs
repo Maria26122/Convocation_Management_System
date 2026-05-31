@@ -134,25 +134,23 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return View(model);
             }
 
-            var task = await _context.StaffTask
-                .FirstOrDefaultAsync(x => x.StaffTaskId == model.StaffTaskId);
+            var staffTask = await _context.StaffTask
+    .FirstOrDefaultAsync(x => x.StaffTaskId == model.StaffTaskId);
 
-            if (task == null)
+            if (staffTask == null)
                 return NotFound();
 
-            task.DistributionTaskId = model.DistributionTaskId;
-            task.UserAccountId = model.UserAccountId;
-            task.Status = model.Status;
+            staffTask.UserAccountId = model.UserAccountId;
+            staffTask.Status = model.Status;
 
-            if (model.Status == "Completed" && task.CompletedAt == null)
+            if (model.Status == "Completed" && staffTask.CompletedAt == null)
             {
-                task.CompletedAt = DateTime.Now;
+                staffTask.CompletedAt = DateTime.Now;
             }
 
             await _context.SaveChangesAsync();
 
             TempData["Success"] = "Task updated successfully.";
-
             return RedirectToAction(nameof(Index));
         }
 

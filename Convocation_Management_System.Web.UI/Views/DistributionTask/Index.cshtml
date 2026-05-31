@@ -27,7 +27,6 @@
         <thead>
             <tr>
                 <th>Title</th>
-                <th>Type</th>
                 <th>Event</th>
                 <th>Status</th>
                 <th>Action</th>
@@ -39,21 +38,45 @@
             {
                 <tr>
                     <td>@item.TaskTitle</td>
-                    <td>@item.DistributionType</td>
-                    <td>@item.Event?.EventTitle</td>
+
                     <td>
-                        <span class="badge bg-info">@item.Status</span>
+                        @item.Event?.EventTitle
                     </td>
+
+                    <td>
+                        @if (item.Status == "Completed")
+                        {
+                            <span class="badge bg-success">Completed</span>
+                        }
+                        else if (item.Status == "In Progress")
+                        {
+                            <span class="badge bg-warning text-dark">In Progress</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Pending</span>
+                        }
+                    </td>
+
                     <td class="d-flex gap-1">
 
-                        <a asp-action="Edit" asp-route-id="@item.DistributionTaskId"
-                           class="btn btn-sm btn-warning">Edit</a>
+                        <a asp-action="Edit"
+                           asp-route-id="@item.DistributionTaskId"
+                           class="btn btn-sm btn-warning">
+                            Edit
+                        </a>
 
-                        <a asp-action="Delete" asp-route-id="@item.DistributionTaskId"
-                           class="btn btn-sm btn-danger">Delete</a>
+                        <a asp-action="Delete"
+                           asp-route-id="@item.DistributionTaskId"
+                           class="btn btn-sm btn-danger">
+                            Delete
+                        </a>
 
-                        <a asp-action="ScanQr" asp-route-id="@item.DistributionTaskId"
-                           class="btn btn-sm btn-dark">QR</a>
+                        <a asp-action="ScanQr"
+                           asp-route-id="@item.DistributionTaskId"
+                           class="btn btn-sm btn-dark">
+                            QR
+                        </a>
 
                     </td>
                 </tr>

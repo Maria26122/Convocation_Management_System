@@ -32,19 +32,15 @@ namespace Convocation_Management_System.Web.UI.Controllers
         }
 
         // =========================
-        // CREATE (GET)
+        // CREATE
         // =========================
         public IActionResult Create()
         {
             var model = new DistributionTaskViewModel();
-
             LoadDropdowns(model);
             return View(model);
         }
 
-        // =========================
-        // CREATE (POST)
-        // =========================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(DistributionTaskViewModel model)
@@ -60,7 +56,6 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 EventId = model.EventId,
                 TaskTitle = model.TaskTitle,
                 Description = model.Description,
-                DistributionType = model.DistributionType,
                 Status = "Pending",
                 CreatedAt = DateTime.Now
             };
@@ -77,7 +72,9 @@ namespace Convocation_Management_System.Web.UI.Controllers
         // =========================
         public async Task<IActionResult> Edit(int id)
         {
-            var task = await _context.DistributionTask.FindAsync(id);
+            var task = await _context.DistributionTask
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.DistributionTaskId == id);
 
             if (task == null)
                 return NotFound();
@@ -88,10 +85,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 EventId = task.EventId,
                 TaskTitle = task.TaskTitle,
                 Description = task.Description,
-                DistributionType = task.DistributionType,
                 Status = task.Status,
-                Remarks = task.Remarks,
-          
             };
 
             LoadDropdowns(model);
@@ -99,12 +93,18 @@ namespace Convocation_Management_System.Web.UI.Controllers
         }
 
         // =========================
-        // EDIT (POST)
+        // EDIT (POST FIXED)
         // =========================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(DistributionTaskViewModel model)
         {
+            if (model.DistributionTaskId <= 0)
+            {
+                TempData["Error"] = "Invalid task ID.";
+                return RedirectToAction(nameof(Index));
+            }
+
             if (!ModelState.IsValid)
             {
                 LoadDropdowns(model);
@@ -112,22 +112,29 @@ namespace Convocation_Management_System.Web.UI.Controllers
             }
 
             var task = await _context.DistributionTask
-                .FirstOrDefaultAsync(x => x.DistributionTaskId == model.DistributionTaskId);
+          .FirstOrDefaultAsync(x => x.DistributionTaskId == model.DistributionTaskId);
 
             if (task == null)
                 return NotFound();
 
+            // VALIDATE EVENT
+            var eventExists = await _context.Event.AnyAsync(e => e.EventId == model.EventId);
+            if (!eventExists)
+            {
+                TempData["Error"] = "Invalid Event selected.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // UPDATE
             task.EventId = model.EventId;
             task.TaskTitle = model.TaskTitle;
             task.Description = model.Description;
-            task.DistributionType = model.DistributionType;
             task.Status = model.Status;
-            task.Remarks = model.Remarks;
 
-            if (model.Status == "Completed" && task.CompletedAt == null)
-            {
-                task.CompletedAt = DateTime.Now;
-            }
+            if (model.Status == "Completed")
+                task.CompletedAt ??= DateTime.Now;
+            else
+                task.CompletedAt = null;
 
             await _context.SaveChangesAsync();
 
@@ -136,7 +143,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
         }
 
         // =========================
-        // DELETE (GET)
+        // DELETE
         // =========================
         public async Task<IActionResult> Delete(int id)
         {
@@ -150,9 +157,6 @@ namespace Convocation_Management_System.Web.UI.Controllers
             return View(task);
         }
 
-        // =========================
-        // DELETE (POST)
-        // =========================
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -179,7 +183,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 return NotFound();
 
             task.Status = "In Progress";
-
+            _context.Update(task);
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));

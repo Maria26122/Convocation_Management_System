@@ -138,7 +138,6 @@ namespace Convocation_Management_System.Web.UI.Controllers
         // PAYMENT SUCCESS
         // =========================================
         [AllowAnonymous]
-        [HttpPost]
         [HttpGet, HttpPost]
         public async Task<IActionResult> Success()
         {
@@ -166,33 +165,44 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             await _context.SaveChangesAsync();
 
-            // GENERATE QR
-            var qrText = $"REG-{registration.RegistrationId}-USER-{registration.ParticipantId}";
+            // =========================
+            // QR GENERATION (ONLY HERE)
+            // =========================
+            var qrText = SimpleQrBuilder.Build(
+                registration.RegistrationId,
+                registration.EventId,
+                registration.Participant.UserAccountId
+            );
 
-            var qrPath = _qrService.GenerateQr(qrText);
+            var qrImage = _qrService.GenerateQr(qrText);
 
-            if (registration.Payment.PaymentStatus == "Paid")
+            var existingQr = await _context.QrPass
+                .FirstOrDefaultAsync(x => x.RegistrationId == registration.RegistrationId);
+
+            if (existingQr == null)
             {
-                var qrCodeText = SimpleQrBuilder.Build(
-                    registration.RegistrationId,
-                    registration.EventId,
-                    registration.Participant.UserAccountId
-                );
-
-                var qrImagePath = _qrService.GenerateQr(qrCodeText);
-
                 var qr = new QrPass
                 {
                     RegistrationId = registration.RegistrationId,
-                    QrCodeText = qrCodeText,
-                    QrImagePath = qrImagePath,
-                    CreatedAt = DateTime.Now
+                    QrCodeText = qrText,
+                    QrImagePath = qrImage,
+                    CreatedAt = DateTime.Now,
+                    IsUsed = false
                 };
 
                 _context.QrPass.Add(qr);
-                await _context.SaveChangesAsync();
             }
+            else
+            {
+                existingQr.QrCodeText = qrText;
+                existingQr.QrImagePath = qrImage;
+            }
+
+            await _context.SaveChangesAsync();
+
+            // =========================
             // EMAIL
+            // =========================
             var email = registration.Participant.UserAccount.Email;
             var name = registration.Participant.UserAccount.FullName;
 
@@ -200,12 +210,13 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 email,
                 "Convocation Payment & QR Pass",
                 $"<p>Dear {name}, payment successful.</p>",
-                qrPath);
+                qrImage
+            );
 
             TempData["Success"] = "Payment successful! QR sent to your email.";
 
             return RedirectToAction("MyQrPass", "Participant",
-     new { registrationId = registration.RegistrationId });
+                new { registrationId = registration.RegistrationId });
         }
 
         // =========================================

@@ -13,27 +13,52 @@
 
         <input type="hidden" asp-for="DistributionTaskId" />
 
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <!-- TITLE -->
         <div class="mb-2">
-            <label>Title</label>
+            <label asp-for="TaskTitle"></label>
             <input asp-for="TaskTitle" class="form-control" />
+            <span asp-validation-for="TaskTitle" class="text-danger"></span>
         </div>
 
         <div class="mb-2">
-            <label>Status</label>
+            <label asp-for="EventId"></label>
+            <select asp-for="EventId" class="form-control" asp-items="Model.Events">
+                <option value="">-- Select Event --</option>
+            </select>
+        </div>
+
+        <!-- DESCRIPTION -->
+        <div class="mb-2">
+            <label asp-for="Description"></label>
+            <textarea asp-for="Description" class="form-control"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <!-- STATUS -->
+        <div class="mb-2">
+            <label asp-for="Status"></label>
             <select asp-for="Status" class="form-control">
                 <option value="Pending">Pending</option>
                 <option value="In Progress">In Progress</option>
                 <option value="Completed">Completed</option>
             </select>
         </div>
+        <button type="submit" class="btn btn-success">
+            Update
+        </button>
 
-        <div class="mb-2">
-            <label>Remarks</label>
-            <input asp-for="Remarks" class="form-control" />
-        </div>
-
-        <button type="submit" class="btn btn-success">Update</button>
+        <a asp-action="Index" class="btn btn-secondary">
+            Cancel
+        </a>
 
     </form>
 
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
