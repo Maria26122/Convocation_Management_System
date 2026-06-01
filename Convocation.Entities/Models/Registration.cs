@@ -38,5 +38,7 @@ namespace Convocation.Entities
         [StringLength(100)]
         public string? TransactionId { get; set; }
         public Payment? Payment { get; set; }
+
+        public QrPass? QrPass { get; set; }
     }
 }

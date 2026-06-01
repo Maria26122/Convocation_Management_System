@@ -258,23 +258,19 @@ namespace Convocation_Management_System.Web.UI.Controllers
         // =========================
         // MY REGISTRATION
         // =========================
+        [Authorize(Roles = "participant,student")]
         public async Task<IActionResult> MyRegistration()
         {
-            var userId = GetUserId();
-            if (userId == null) return RedirectToAction("Login", "Account");
+            var userId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
 
-            var participant = await _context.Participant
-                .FirstOrDefaultAsync(p => p.UserAccountId == userId);
-
-            if (participant == null) return NotFound();
-
-            var registration = await _context.Registration
+            var registrations = await _context.Registration
                 .Include(r => r.Event)
-                .Where(r => r.ParticipantId == participant.ParticipantId)
-                .OrderByDescending(r => r.RegistrationDate)
-                .FirstOrDefaultAsync();
+                .Include(r => r.Payment)
+                .Include(r => r.QrPass)
+                .Where(r => r.Participant.UserAccountId == userId)
+                .ToListAsync();
 
-            return View(registration);
+            return View(registrations);
         }
 
         // =========================
@@ -336,14 +332,14 @@ namespace Convocation_Management_System.Web.UI.Controllers
         // =========================
         // MY QR PASS
         // =========================
+        [Authorize(Roles = "participant,student")]
         public async Task<IActionResult> MyQrPass(int registrationId)
         {
             var qr = await _context.QrPass
-                .Include(q => q.Registration)
                 .FirstOrDefaultAsync(q => q.RegistrationId == registrationId);
 
             if (qr == null)
-                return NotFound();
+                return View(null);
 
             return View(qr);
         }

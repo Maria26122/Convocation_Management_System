@@ -1,10 +1,12 @@
 ﻿@using Microsoft.AspNetCore.Http
 
 @{
+    var role = Context.Session.GetString("Role") ?? "";
+    var fullName = Context.Session.GetString("FullName") ?? "";
+
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
-    var fullName = Context.Session.GetString("FullName") ?? "Student";
-
+   
     bool isDashboard = currentController == "Participant" && currentAction == "Dashboard";
     bool isProfile = currentController == "Participant" && currentAction == "MyProfile";
     bool isRegistration = currentController == "Participant" && currentAction == "MyRegistration";

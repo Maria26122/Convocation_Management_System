@@ -59,6 +59,11 @@ namespace Convocation.DataAccess
             // =====================
             // USER → ROLE
             // =====================
+            modelBuilder.Entity<Registration>()
+                .HasOne(r => r.QrPass)
+                .WithOne(q => q.Registration)
+                .HasForeignKey<QrPass>(q => q.RegistrationId);
+
             modelBuilder.Entity<UserAccount>()
                 .HasOne(u => u.Role)
                 .WithMany(r => r.UserAccounts)
@@ -153,6 +158,11 @@ namespace Convocation.DataAccess
                 .WithMany()
                 .HasForeignKey(x => x.UserAccountId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<QrPass>()
+    .HasOne(x => x.Registration)
+    .WithOne(x => x.QrPass)
+    .HasForeignKey<QrPass>(x => x.RegistrationId);
 
             // =====================
             // SEED ROLES

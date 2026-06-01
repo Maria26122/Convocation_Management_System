@@ -1,12 +1,12 @@
 ﻿@using Microsoft.AspNetCore.Http
+
 @{
     var role = Context.Session.GetString("Role") ?? "";
-    var fullName = Context.Session.GetString("FullName") ?? "Event Manager";
-    var isLoggedIn = !string.IsNullOrWhiteSpace(Context.Session.GetString("UserId"));
+    var fullName = Context.Session.GetString("FullName") ?? "";
 
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
 }
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -50,16 +50,16 @@
             <i class="fas fa-user-cog"></i> Staff Assignments
         </a>
 
+        <a asp-controller="QrScan" asp-action="Scan"
+           class="sidebar-link @(currentController == "QrScan" ? "active-menu" : "")">
+            <i class="fas fa-qrcode"></i> QR Scanner
+        </a>
+
         <a asp-controller="DistributionLog" asp-action="Index"
            class="sidebar-link @(currentController == "DistributionLog" ? "active-menu" : "")">
             <i class="fas fa-clipboard-list"></i> Distribution Logs
         </a>
-
-        <a asp-controller="QrPass" asp-action="Index"
-           class="sidebar-link @(currentController == "QrPass" ? "active-menu" : "")">
-            <i class="fas fa-qrcode"></i> QR Pass
-        </a>
-
+      
         <a asp-controller="Account" asp-action="Logout"
            class="sidebar-link text-danger">
             <i class="fas fa-right-from-bracket"></i> Logout

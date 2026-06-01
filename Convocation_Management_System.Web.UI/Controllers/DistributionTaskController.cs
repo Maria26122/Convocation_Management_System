@@ -23,8 +23,26 @@ namespace Convocation_Management_System.Web.UI.Controllers
         // =========================
         public async Task<IActionResult> Index()
         {
-            var tasks = await _context.DistributionTask
-                .Include(t => t.Event)
+            var role = HttpContext.Session.GetString("Role");
+            var userId = HttpContext.Session.GetString("UserId");
+
+            IQueryable<DistributionTask> query = _context.DistributionTask
+                .Include(t => t.Event);
+
+            // STAFF: only their assigned tasks
+            if (role == "staff")
+            {
+                int uid = Convert.ToInt32(userId);
+
+                query = query.Where(t =>
+                    _context.StaffTask.Any(st =>
+                        st.UserAccountId == uid &&
+                        st.DistributionTaskId == t.DistributionTaskId
+                    )
+                );
+            }
+
+            var tasks = await query
                 .OrderByDescending(t => t.CreatedAt)
                 .ToListAsync();
 

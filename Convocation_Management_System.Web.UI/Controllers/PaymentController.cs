@@ -169,19 +169,19 @@ namespace Convocation_Management_System.Web.UI.Controllers
             // QR GENERATION (ONLY HERE)
             // =========================
             var qrText = SimpleQrBuilder.Build(
-                registration.RegistrationId,
-                registration.EventId,
-                registration.Participant.UserAccountId
-            );
+     registration.RegistrationId,
+     registration.EventId,
+     registration.Participant.UserAccountId
+ );
 
             var qrImage = _qrService.GenerateQr(qrText);
 
-            var existingQr = await _context.QrPass
+            var qr = await _context.QrPass
                 .FirstOrDefaultAsync(x => x.RegistrationId == registration.RegistrationId);
 
-            if (existingQr == null)
+            if (qr == null)
             {
-                var qr = new QrPass
+                qr = new QrPass
                 {
                     RegistrationId = registration.RegistrationId,
                     QrCodeText = qrText,
@@ -194,8 +194,9 @@ namespace Convocation_Management_System.Web.UI.Controllers
             }
             else
             {
-                existingQr.QrCodeText = qrText;
-                existingQr.QrImagePath = qrImage;
+                qr.QrCodeText = qrText;
+                qr.QrImagePath = qrImage;
+                qr.IsUsed = false;
             }
 
             await _context.SaveChangesAsync();

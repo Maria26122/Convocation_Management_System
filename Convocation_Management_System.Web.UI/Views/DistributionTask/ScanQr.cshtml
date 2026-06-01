@@ -1,114 +1,164 @@
-﻿@model Convocation_Management_System.Web.UI.Models.QrDistributionViewModel
-
-@{
-    var task = ViewBag.Task as Convocation.Entities.DistributionTask;
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
-
+﻿@{
     ViewData["Title"] = "QR Scanner";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
+
+<style>
+    .scanner-box {
+        max-width: 450px;
+        margin: auto;
+        padding: 20px;
+        border-radius: 15px;
+        background: #fff;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+
+    #reader {
+        width: 100%;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .result-box {
+        margin-top: 15px;
+        padding: 12px;
+        border-radius: 10px;
+        display: none;
+    }
+
+    .success {
+        background: #d1f7d6;
+        color: #1a7f37;
+    }
+
+    .error {
+        background: #ffd6d6;
+        color: #a10000;
+    }
+
+    .pulse {
+        animation: pulse 0.6s ease;
+    }
+
+    @@keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.05);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
+</style>
 
 <div class="container mt-4">
 
-    <div class="card shadow-sm">
+    <div class="scanner-box">
 
-        <div class="card-body">
+        <h4><i class="fas fa-qrcode"></i> Live QR Scanner</h4>
 
-           
+        <div id="reader"></div>
 
-            <!-- CAMERA QR SCANNER -->
-            <div class="mb-4">
+        <div id="resultBox" class="result-box"></div>
 
-                <div id="reader" style="width:100%; max-width:400px;"></div>
-
-            </div>
-
-            <!-- MANUAL INPUT FORM -->
-            <form asp-action="ScanQr"
-                  method="post"
-                  id="scanForm">
-
-                <input type="hidden"
-                       asp-for="DistributionTaskId" />
-
-                <div class="mb-3">
-
-                    <label asp-for="QrCodeText"
-                           class="form-label">
-                        QR Code
-                    </label>
-
-                    <input asp-for="QrCodeText"
-                           id="QrCodeText"
-                           class="form-control"
-                           placeholder="Scan or enter QR code manually" />
-
-                </div>
-
-                <button type="submit"
-                        class="btn btn-primary">
-
-                    <i class="fas fa-check-circle me-2"></i>
-                    Verify QR
-
-                </button>
-
-            </form>
-
-            <!-- RESULT -->
-            @if (!string.IsNullOrEmpty(Model.Message))
-            {
-                <div class="alert @(Model.IsSuccess ? "alert-success" : "alert-danger") mt-4">
-
-                    <h5>@Model.Message</h5>
-
-                    @if (Model.IsSuccess)
-                    {
-                        <hr />
-
-                        <p>
-                            <strong>Student:</strong>
-                            @Model.StudentName
-                        </p>
-
-                        <p>
-                            <strong>Student ID:</strong>
-                            @Model.StudentId
-                        </p>
-                    }
-
-                </div>
-            }
-
-        </div>
+        <input type="hidden" id="taskId" value="@((ViewBag.TaskId ?? 0).ToString())" />
 
     </div>
 
 </div>
 
-@section Scripts {
+<!-- BEEP SOUND -->
+<audio id="beepSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
 
-    <script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://unpkg.com/html5-qrcode"></script>
 
-    <script>
+<script>
 
-        function onScanSuccess(decodedText, decodedResult) {
+    let isScanning = false;
+    let scanner;
 
-        // SET QR VALUE
-        document.getElementById("QrCodeText").value = decodedText;
+    function showResult(message, isSuccess) {
+        const box = document.getElementById("resultBox");
 
-        // AUTO SUBMIT
-        document.getElementById("scanForm").submit();
+        box.style.display = "block";
+        box.className = "result-box " + (isSuccess ? "success" : "error");
+        box.innerHTML = message;
+
+        box.classList.add("pulse");
+
+        setTimeout(() => box.classList.remove("pulse"), 600);
+    }
+
+    function playBeep() {
+        document.getElementById("beepSound").play();
+    }
+
+    function stopScanner() {
+        if (scanner) {
+            scanner.clear().catch(() => {});
         }
+    }
 
-        const html5QrcodeScanner = new Html5QrcodeScanner(
+    function onScanSuccess(decodedText) {
+
+        if (isScanning) return;
+        isScanning = true;
+
+        fetch('@Url.Action("Verify", "QrScan")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `qrText=${encodeURIComponent(decodedText)}&taskId=${document.getElementById("taskId").value}`
+        })
+        .then(res => res.json())
+        .then(data => {
+
+            if (data.success) {
+                playBeep();
+
+                showResult(
+                    `✔ Success<br>Student: ${data.name}<br>ID: ${data.student}`,
+                    true
+                );
+
+                // OPTIONAL: stop scanner after success
+                // stopScanner();
+            }
+            else {
+                showResult("✖ " + data.message, false);
+            }
+
+            setTimeout(() => {
+                isScanning = false;
+            }, 2000);
+
+        })
+        .catch(() => {
+            showResult("Server error", false);
+            isScanning = false;
+        });
+    }
+
+    onScanFailure(error) {
+    console.warn(error);
+    }
+    scanner = new Html5QrcodeScanner(
         "reader",
         {
-        fps: 10,
-        qrbox: 250
+            fps: 10,
+            qrbox: 250,
+            rememberLastUsedCamera: true
         }
-        );
+    );
 
-        html5QrcodeScanner.render(onScanSuccess);
+    scanner.render(onScanSuccess);
 
-    </script>
-}
+</script>

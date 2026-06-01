@@ -1,6 +1,12 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Http
+
+@{
+    var role = Context.Session.GetString("Role") ?? "";
+    var fullName = Context.Session.GetString("FullName") ?? "";
+
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+
    
     var isOperationOpen =
         currentController == "StaffTask" ||
@@ -44,6 +50,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     <link rel="stylesheet" href="~/css/admin-theme.css" />
 </head>
+
 <body>
     <div class="sidebar">
         <div class="brand d-flex align-items-center gap-2">
@@ -130,14 +137,6 @@
                             <span>Event</span>
                         </span>
                     </a>
-                     <a asp-controller="QrPass" asp-action="Index"
-           class="sidebar-link @(currentController == "QrPass" && currentAction == "Index" ? "active-menu" : "")">
-            <span class="menu-left">
-                <i class="fas fa-qrcode menu-icon"></i>
-                <span>QR Passes</span>
-            </span>
-        </a>
-                  
                 </div>
             </div>
         </div>
@@ -178,12 +177,11 @@
                         <span>Distribution Logs</span>
                     </a>
 
-                    <a asp-controller="DistributionTask" asp-action="ScanQr"
-                       class="sidebar-link @(currentController == "DistributionTask" && currentAction == "ScanQr" ? "active-menu" : "")">
+                    <a asp-controller="QrScan" asp-action="Scan"
+                       class="sidebar-link @(currentController == "QrScan" && currentAction == "Scan" ? "active-menu" : "")">
                         <i class="fas fa-qrcode menu-icon"></i>
                         <span>QR Scanner</span>
                     </a>
-
                 </div>
 
             </div>

@@ -1,8 +1,10 @@
-﻿@model IEnumerable<Convocation.Entities.StaffTask>
+﻿@model IEnumerable<Convocation.Entities.DistributionTask>
 
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "My Tasks";
+
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
 }
 
 <div class="container mt-4">
@@ -23,55 +25,40 @@
                 <tr>
                     <th>Task Title</th>
                     <th>Event</th>
-                    <th>Type</th>
                     <th>Status</th>
-                    <th>Assigned At</th>
+                    <th>Created</th>
                     <th>Action</th>
                 </tr>
             </thead>
 
             <tbody>
-
-                @foreach (var item in Model)
+                    @foreach (var item in Model)
                 {
                     <tr>
+                        <td>@item.TaskTitle</td>
+
+                        <td>@item.Event?.EventTitle</td>
 
                         <td>
-                            @item.DistributionTask?.TaskTitle
-                        </td>
-
-                        <td>
-                            @item.DistributionTask?.Event?.EventTitle
-                        </td>
-
-                        <td>
-                            <span class="badge bg-@(item.DistributionTask?.Status == "Completed" ? "success" : "warning")">
-                                @item.DistributionTask?.Status
+                            <span class="badge bg-@(item.Status == "Completed" ? "success" : "warning")">
+                                @item.Status
                             </span>
                         </td>
 
-                        <td>
-                            @item.AssignedAt.ToString("dd MMM yyyy hh:mm tt")
-                        </td>
+                        <td>@item.CreatedAt.ToString("dd MMM yyyy hh:mm tt")</td>
 
                         <td>
-
-                            <a asp-controller="DistributionTask"
-                               asp-action="ScanQr"
-                               asp-route-id="@item.DistributionTaskId"
-                               class="btn btn-primary btn-sm">
-
-                                Scan QR
+                            <a asp-controller="QrScan"
+                               asp-action="Scan"
+                               asp-route-taskId="@item.DistributionTaskId"
+                               class="btn btn-sm btn-primary">
+                                QR Scanner
                             </a>
-
                         </td>
-
                     </tr>
                 }
-
             </tbody>
 
         </table>
     }
-
 </div>

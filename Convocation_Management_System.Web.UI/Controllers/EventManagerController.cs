@@ -22,7 +22,12 @@ namespace Convocation_Management_System.Web.UI.Controllers
         // ==========================
         public async Task<IActionResult> Dashboard()
         {
-            var userId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+            var userIdString = HttpContext.Session.GetString("UserId");
+
+            if (string.IsNullOrEmpty(userIdString))
+                return RedirectToAction("Login", "Account");
+
+            var userId = Convert.ToInt32(userIdString);
 
             var user = await _context.UserAccount.FindAsync(userId);
 
@@ -37,7 +42,8 @@ namespace Convocation_Management_System.Web.UI.Controllers
                 CompletedTasks = await _context.DistributionTask.CountAsync(x => x.Status == "Completed"),
 
                 TotalStaff = await _context.UserAccount
-                    .CountAsync(x => x.Role.RoleName == "Staff")
+                .Include(x => x.Role)
+                .CountAsync(x => x.Role.RoleName.ToLower() == "staff")
             };
 
             return View(model);

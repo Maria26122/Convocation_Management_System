@@ -72,10 +72,11 @@
                             Delete
                         </a>
 
-                        <a asp-action="ScanQr"
-                           asp-route-id="@item.DistributionTaskId"
-                           class="btn btn-sm btn-dark">
-                            QR
+                        <a asp-controller="DistributionScan"
+                           asp-action="Scan"
+                           asp-route-taskId="@item.DistributionTaskId"
+                           class="btn btn-dark btn-sm">
+                            Scan QR
                         </a>
 
                     </td>

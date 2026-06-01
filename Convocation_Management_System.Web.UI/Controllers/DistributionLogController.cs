@@ -16,8 +16,10 @@ namespace Convocation_Management_System.Web.UI.Controllers
         public async Task<IActionResult> Index()
         {
             var logs = await _context.DistributionLog
-                .Include(x => x.DistributionTask)
                 .Include(x => x.UserAccount)
+                .Include(x => x.Participant)
+                .Include(x => x.Event)
+                .Include(x => x.DistributionTask)
                 .OrderByDescending(x => x.ActionDate)
                 .ToListAsync();
 

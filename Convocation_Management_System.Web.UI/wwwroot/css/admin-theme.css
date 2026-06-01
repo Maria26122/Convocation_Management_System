@@ -27,14 +27,14 @@ a {
     z-index: 1000;
 }
 
-.sidebar::-webkit-scrollbar {
-    width: 6px;
-}
+    .sidebar::-webkit-scrollbar {
+        width: 6px;
+    }
 
-.sidebar::-webkit-scrollbar-thumb {
-    background: #d9dee3;
-    border-radius: 10px;
-}
+    .sidebar::-webkit-scrollbar-thumb {
+        background: #d9dee3;
+        border-radius: 10px;
+    }
 
 .brand {
     padding: 6px 16px 16px 16px;
@@ -77,10 +77,10 @@ a {
     transition: all 0.2s ease;
 }
 
-.sidebar-link:hover {
-    background-color: #f2f3ff;
-    color: #696cff !important;
-}
+    .sidebar-link:hover {
+        background-color: #f2f3ff;
+        color: #696cff !important;
+    }
 
 .menu-left {
     display: flex;
@@ -106,9 +106,9 @@ a {
     color: #a1acb8;
 }
 
-.toggle-icon.rotate {
-    transform: rotate(90deg);
-}
+    .toggle-icon.rotate {
+        transform: rotate(90deg);
+    }
 
 .open-menu {
     background-color: #f8f9ff;
@@ -129,10 +129,10 @@ a {
     box-shadow: 0 4px 12px rgba(105,108,255,0.24);
 }
 
-.active-menu span,
-.active-menu i {
-    color: #ffffff !important;
-}
+    .active-menu span,
+    .active-menu i {
+        color: #ffffff !important;
+    }
 
 /* =========================
    Content
@@ -154,11 +154,11 @@ a {
     margin-bottom: 24px;
 }
 
-.topbar h4 {
-    margin: 0;
-    font-size: 1.4rem;
-    font-weight: 700;
-}
+    .topbar h4 {
+        margin: 0;
+        font-size: 1.4rem;
+        font-weight: 700;
+    }
 
 /* =========================
    Dashboard Cards
@@ -172,22 +172,22 @@ a {
     border: 1px solid #eef1f4;
 }
 
-.stats-card .icon {
-    font-size: 1.5rem;
-    color: #696cff;
-    margin-bottom: 12px;
-}
+    .stats-card .icon {
+        font-size: 1.5rem;
+        color: #696cff;
+        margin-bottom: 12px;
+    }
 
-.stats-card h6 {
-    margin: 0 0 8px;
-    color: #8592a3;
-    font-size: 0.92rem;
-}
+    .stats-card h6 {
+        margin: 0 0 8px;
+        color: #8592a3;
+        font-size: 0.92rem;
+    }
 
-.stats-card h2 {
-    margin: 0;
-    font-size: 1.8rem;
-}
+    .stats-card h2 {
+        margin: 0;
+        font-size: 1.8rem;
+    }
 
 /* =========================
    Status Grid (FIXED)
@@ -243,9 +243,9 @@ a {
     font-weight: 600;
 }
 
-.btn-primary:hover {
-    background-color: #5f61e6;
-}
+    .btn-primary:hover {
+        background-color: #5f61e6;
+    }
 
 /* =========================
    Forms
@@ -257,11 +257,11 @@ a {
     border: 1px solid #d9dee3;
 }
 
-.form-control:focus,
-.form-select:focus {
-    border-color: #696cff;
-    box-shadow: 0 0 0 0.15rem rgba(105,108,255,0.15);
-}
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #696cff;
+        box-shadow: 0 0 0 0.15rem rgba(105,108,255,0.15);
+    }
 
 /* =========================
    Tables

@@ -12,8 +12,9 @@
     <div class="card mt-3">
         <div class="card-body">
 
-            <p><b>Total Tasks:</b> @Model.Tasks</p>
+            <p><b>Total Tasks:</b> @Model.AssignedTasks</p>
             <p><b>Pending:</b> @Model.PendingTasks</p>
+            <p><b>In Progress:</b> @Model.InProgressTasks</p>
             <p><b>Completed:</b> @Model.CompletedTasks</p>
 
         </div>
@@ -37,7 +38,20 @@
                     <tr>
                         <td>@item.DistributionTask.TaskTitle</td>
                         <td>@item.DistributionTask.Event?.EventTitle</td>
-                        <td>@item.Status</td>
+                        <td>
+                            @if (item.Status == "Completed")
+                            {
+                                <span class="badge bg-success">Completed</span>
+                            }
+                            else if (item.Status == "InProgress")
+                            {
+                                <span class="badge bg-warning text-dark">In Progress</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Pending</span>
+                            }
+                        </td>
                     </tr>
                 }
             </tbody>

@@ -32,7 +32,9 @@
             <hr />
 
             <p><b>Registration ID:</b> @Model.RegistrationId</p>
-            <p><b>QR Text:</b> @Model.QrCodeText</p>
+            <input class="form-control"
+                   readonly
+                   value="@Model.QrCodeText" />
 
         </div>
 
