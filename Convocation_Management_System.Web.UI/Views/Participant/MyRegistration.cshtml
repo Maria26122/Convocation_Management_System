@@ -23,20 +23,7 @@
                     Pay Now
                 </a>
             }
-            else
-            {
-                <a asp-controller="Participant"
-                   asp-action="MyPayment"
-                   class="btn btn-outline-success">
-                    View Payment
-                </a>
-
-                <a asp-controller="Participant"
-                   asp-action="MyQrPass"
-                   class="btn btn-primary">
-                    View QR Pass
-                </a>
-            }
+           
         }
 
     @if (Model == null)
@@ -114,18 +101,19 @@
             else
             {
                 <a asp-controller="Participant"
-                   asp-action="MyPayment"
-                   class="btn btn-outline-success">
-                    View Payment
-                </a>
-            }
-            <a asp-controller="Participant"
-               asp-action="MyGuest"
-               class="btn btn-outline-secondary">
+                       asp-action="MyPayment"
+                       class="btn btn-outline-success">
+                        View Payment
+                    </a>
 
-                <i class="fas fa-users me-2"></i>My Guest
-            </a>
+                    <a asp-controller="Participant"
+                       asp-action="MyQrPass"
+                       class="btn btn-primary">
+                        View QR Pass
+                    </a>
+                }
 
         </div>
     }
+   </div>
 </div>

@@ -135,6 +135,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
             var user = await _context.UserAccount
                 .Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.UserAccountId == id);
+        
 
             if (user == null) return NotFound();
 

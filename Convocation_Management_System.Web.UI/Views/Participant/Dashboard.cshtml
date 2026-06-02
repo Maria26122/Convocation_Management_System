@@ -9,99 +9,66 @@
 
     <h2 class="mb-4">Welcome, @Model.FullName 👋</h2>
 
-    <!-- STATS CARDS -->
-    <div class="row">
-
-        <!-- EVENT -->
-        <div class="col-md-4">
-            <div class="card text-white bg-primary mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Event</h5>
-                    <p class="card-text">@Model.EventTitle</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- REGISTRATION -->
-        <div class="col-md-4">
-            <div class="card text-white bg-info mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Registration</h5>
-                    <p class="card-text">@Model.RegistrationStatus</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- PAYMENT -->
-        <div class="col-md-4">
-            <div class="card text-white bg-success mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Payment</h5>
-                    <p class="card-text">@Model.PaymentStatus</p>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- DETAILS SECTION -->
-    <div class="card shadow-sm mt-4">
-        <div class="card-body">
-
-            <h5>Student Info</h5>
-
-            <hr />
-
-            <p><b>Name:</b> @Model.FullName</p>
-            <p><b>Email:</b> @Model.Email</p>
-            <p><b>Phone:</b> @Model.Phone</p>
-            <p><b>Paid Amount:</b> ৳ @Model.PaidAmount</p>
-
-        </div>
-    </div>
-
-   
-    <!-- QUICK ACTIONS -->
-
     <div class="mt-4">
 
-        @if (Model.RegistrationStatus == null)
+        @if (Model.RegistrationId == null)
         {
             <a asp-controller="Registration"
                asp-action="Create"
-               asp-route-eventId="@Model.EventId"
                class="btn btn-primary">
-                Register Now
+                🚀 Register Now
             </a>
         }
 
         else if (Model.RegistrationStatus == "Pending")
         {
-            <span class="btn btn-secondary disabled">
-                Registration Pending Approval
-            </span>
+            <div class="alert alert-warning">
+                ⏳ Your registration is under review
+            </div>
+        }
+
+        else if (Model.RegistrationStatus == "Rejected")
+        {
+            <div class="alert alert-danger">
+                ❌ Registration rejected. Contact admin.
+            </div>
         }
 
         else if (Model.RegistrationStatus == "Approved" &&
-                 Model.PaymentStatus == "Pending")
+                 Model.PaymentStatus != "Paid")
         {
             <a asp-controller="Payment"
                asp-action="PayNow"
                asp-route-registrationId="@Model.RegistrationId"
                class="btn btn-warning">
-                Pay Now
+                💳 Pay Now
             </a>
         }
 
-        else if (Model.RegistrationStatus == "Approved" &&
-                 Model.PaymentStatus == "Paid")
+        else if (Model.PaymentStatus == "Paid")
         {
-            <a asp-controller="QrPass"
-               asp-action="MyQrPass"
-               asp-route-registrationId="@Model.RegistrationId"
-               class="btn btn-success">
-                View QR Pass
-            </a>
+            <div class="d-flex gap-2 flex-wrap">
+
+                <a asp-controller="Participant"
+                   asp-action="MyQrPass"
+                   asp-route-registrationId="@Model.RegistrationId"
+                   class="btn btn-success">
+                    🎫 View QR Pass
+                </a>
+
+                <a asp-controller="Participant"
+                   asp-action="MyRegistration"
+                   class="btn btn-outline-primary">
+                    📄 View Registration
+                </a>
+
+                <a asp-controller="Participant"
+                   asp-action="MyPayment"
+                   class="btn btn-outline-success">
+                    💰 Payment Details
+                </a>
+
+            </div>
         }
 
     </div>

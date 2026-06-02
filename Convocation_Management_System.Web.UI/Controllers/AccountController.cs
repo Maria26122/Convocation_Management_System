@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace Convocation_Management_System.Web.UI.Controllers
 {
@@ -198,19 +200,59 @@ namespace Convocation_Management_System.Web.UI.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        public IActionResult ResetPassword()
+
+        // =========================
+        // CHANGE PASSWORD (GET)
+        // =========================
+        [Authorize]
+        [HttpGet]
+        public IActionResult ChangePassword()
         {
-            var user = _context.UserAccount
-                .FirstOrDefault(x => x.Email == "eventmanager@gmail.com");
+            return View();
+        }
+
+
+        // =========================
+        // CHANGE PASSWORD (POST)
+        // =========================
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel vm)
+        {
+            if (!ModelState.IsValid)
+                return View(vm);
+
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userIdString))
+                return RedirectToAction("Login");
+
+            if (!int.TryParse(userIdString, out int userId))
+                return RedirectToAction("Login");
+
+            var user = await _context.UserAccount
+                .FirstOrDefaultAsync(x => x.UserAccountId == userId);
 
             if (user == null)
-                return Content("User not found");
+                return RedirectToAction("Login");
 
-            user.PasswordHash = PasswordHelper.HashPassword("123456");
+            var currentHash = PasswordHelper.HashPassword(vm.CurrentPassword);
 
-            _context.SaveChanges();
+            if (user.PasswordHash != currentHash)
+            {
+                ModelState.AddModelError("", "Current password is incorrect");
+                return View(vm);
+            }
 
-            return Content("Password reset successful");
+            user.PasswordHash = PasswordHelper.HashPassword(vm.NewPassword);
+
+            _context.Update(user);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Password changed successfully";
+
+            return RedirectToAction("ChangePassword");
         }
 
         [HttpGet]

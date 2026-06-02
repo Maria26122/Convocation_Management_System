@@ -5,73 +5,84 @@
 
 <div class="container mt-4">
 
-    <h2 class="mb-4">
-        Event Manager Dashboard
-    </h2>
+    <!-- HEADER -->
+    <div class="mb-4">
+        <h3 class="fw-bold">Dashboard Overview</h3>
+        <p class="text-muted mb-0">
+            Manage tasks, staff assignments, and distribution activities.
+        </p>
+    </div>
 
-    <div class="row">
+    <!-- STATS CARDS -->
+    <div class="row g-3">
 
-        <div class="col-md-3 mb-3">
-            <div class="card text-center shadow">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
                 <div class="card-body">
-                    <h3>@ViewBag.TotalTasks</h3>
-                    <p>Total Tasks</p>
+                    <small class="text-muted">Total Tasks</small>
+                    <h3 class="mb-0">@ViewBag.TotalTasks</h3>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3 mb-3">
-            <div class="card text-center shadow">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
                 <div class="card-body">
-                    <h3>@ViewBag.PendingTasks</h3>
-                    <p>Pending Tasks</p>
+                    <small class="text-muted">Pending Tasks</small>
+                    <h3 class="mb-0 text-warning">@ViewBag.PendingTasks</h3>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3 mb-3">
-            <div class="card text-center shadow">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
                 <div class="card-body">
-                    <h3>@ViewBag.CompletedTasks</h3>
-                    <p>Completed Tasks</p>
+                    <small class="text-muted">Completed Tasks</small>
+                    <h3 class="mb-0 text-success">@ViewBag.CompletedTasks</h3>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3 mb-3">
-            <div class="card text-center shadow">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
                 <div class="card-body">
-                    <h3>@ViewBag.TotalStaff</h3>
-                    <p>Total Staff</p>
+                    <small class="text-muted">Active Staff</small>
+                    <h3 class="mb-0 text-primary">@ViewBag.TotalStaff</h3>
                 </div>
             </div>
         </div>
 
     </div>
 
-    <div class="row mt-4">
+    <!-- ACTION PANEL -->
+    <div class="card shadow-sm border-0 mt-4">
+        <div class="card-body">
 
-        <div class="col-md-4">
-            <a asp-action="Tasks"
-               class="btn btn-primary w-100">
-                Manage Tasks
-            </a>
+            <h5 class="mb-3">Quick Actions</h5>
+
+            <div class="row g-3">
+
+                <div class="col-md-4">
+                    <a asp-action="Tasks" class="btn btn-outline-primary w-100">
+                        Manage Tasks
+                    </a>
+                </div>
+
+                <div class="col-md-4">
+                    <a asp-action="Staffs" class="btn btn-outline-success w-100">
+                        Staff Directory
+                    </a>
+                </div>
+
+                <div class="col-md-4">
+                    <a asp-action="Logs" class="btn btn-outline-dark w-100">
+                        Distribution Logs
+                    </a>
+                </div>
+
+            </div>
+
         </div>
-
-        <div class="col-md-4">
-            <a asp-action="Staffs"
-               class="btn btn-success w-100">
-                View Staff
-            </a>
-        </div>
-
-        <div class="col-md-4">
-            <a asp-action="Logs"
-               class="btn btn-dark w-100">
-                Distribution Logs
-            </a>
-        </div>
-
     </div>
 
 </div>

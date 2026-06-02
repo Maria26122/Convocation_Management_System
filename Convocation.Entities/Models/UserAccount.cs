@@ -9,7 +9,6 @@ namespace Convocation.Entities
     {
         [Key]
         public int UserAccountId { get; set; }
-
         public string? FullName { get; set; }
         public string? NickName { get; set; }
         public string? Email { get; set; }

@@ -9,41 +9,27 @@
 
     <h2 class="mb-4">My QR Pass</h2>
 
-    @if (Model == null || string.IsNullOrEmpty(Model.QrImagePath))
+    @if (Model == null)
     {
         <div class="alert alert-warning">
-            QR is not generated yet. Please complete your registration and payment.
+            QR is not generated yet. Please complete payment first.
         </div>
-
-        <a asp-controller="Registration"
-           asp-action="Index"
-           class="btn btn-primary mt-2">
-            Go to My Registrations
-        </a>
     }
     else
     {
         <div class="card shadow p-4 d-inline-block">
 
-            <img src="@Model.QrImagePath"
+            <img src="@Url.Content(Model.QrImagePath)"
                  alt="QR Code"
                  style="width:250px;height:250px;" />
 
             <hr />
 
             <p><b>Registration ID:</b> @Model.RegistrationId</p>
+
             <input class="form-control"
                    readonly
                    value="@Model.QrCodeText" />
-
-        </div>
-
-        <div class="mt-3">
-            <a asp-controller="Registration"
-               asp-action="Index"
-               class="btn btn-outline-secondary">
-                Back
-            </a>
         </div>
     }
 </div>

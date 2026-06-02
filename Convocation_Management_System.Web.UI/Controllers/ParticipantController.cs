@@ -235,23 +235,24 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             var registration = await _context.Registration
                 .Include(r => r.Event)
+                .Include(r => r.Payment)
                 .Where(r => r.ParticipantId == participant.ParticipantId)
                 .OrderByDescending(r => r.RegistrationDate)
                 .FirstOrDefaultAsync();
-
-            var payment = registration == null
-                ? null
-                : await _context.Payment.FirstOrDefaultAsync(p =>
-                    p.RegistrationId == registration.RegistrationId);
 
             return View(new ParticipantDashboardViewModel
             {
                 FullName = participant.UserAccount.FullName,
                 Email = participant.UserAccount.Email,
-                RegistrationStatus = registration?.RegistrationStatus ?? "Not Registered",
+                Phone = participant.UserAccount.Phone,
+
+                EventId = registration?.EventId,
+                RegistrationId = registration?.RegistrationId,
+
                 EventTitle = registration?.Event?.EventTitle ?? "No Event",
-                PaymentStatus = payment?.PaymentStatus ?? "Pending",
-                PaidAmount = payment?.PaidAmount ?? 0
+                RegistrationStatus = registration?.RegistrationStatus ?? "Not Registered",
+                PaymentStatus = registration?.Payment?.PaymentStatus ?? "Pending",
+                PaidAmount = registration?.Payment?.PaidAmount ?? 0
             });
         }
 
@@ -263,14 +264,17 @@ namespace Convocation_Management_System.Web.UI.Controllers
         {
             var userId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
 
-            var registrations = await _context.Registration
+            var registration = await _context.Registration
                 .Include(r => r.Event)
                 .Include(r => r.Payment)
                 .Include(r => r.QrPass)
                 .Where(r => r.Participant.UserAccountId == userId)
-                .ToListAsync();
+                .OrderByDescending(r => r.RegistrationDate)
+                .FirstOrDefaultAsync();
 
-            return View(registrations);
+            ViewBag.Payment = registration?.Payment;
+
+            return View(registration);
         }
 
         // =========================
@@ -333,13 +337,29 @@ namespace Convocation_Management_System.Web.UI.Controllers
         // MY QR PASS
         // =========================
         [Authorize(Roles = "participant,student")]
-        public async Task<IActionResult> MyQrPass(int registrationId)
+        public async Task<IActionResult> MyQrPass()
         {
-            var qr = await _context.QrPass
-                .FirstOrDefaultAsync(q => q.RegistrationId == registrationId);
+            var userId = GetUserId();
 
-            if (qr == null)
+            if (userId == null)
+                return RedirectToAction("Login", "Account");
+
+            var participant = await _context.Participant
+                .FirstOrDefaultAsync(p => p.UserAccountId == userId);
+
+            if (participant == null)
                 return View(null);
+
+            var registration = await _context.Registration
+                .Where(r => r.ParticipantId == participant.ParticipantId)
+                .OrderByDescending(r => r.RegistrationDate)
+                .FirstOrDefaultAsync();
+
+            if (registration == null)
+                return View(null);
+
+            var qr = await _context.QrPass
+                .FirstOrDefaultAsync(q => q.RegistrationId == registration.RegistrationId);
 
             return View(qr);
         }

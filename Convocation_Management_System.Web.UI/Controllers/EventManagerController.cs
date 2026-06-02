@@ -23,32 +23,26 @@ namespace Convocation_Management_System.Web.UI.Controllers
         // ==========================
         public async Task<IActionResult> Dashboard()
         {
-            var userIdString = HttpContext.Session.GetString("UserId");
+            var totalTasks = await _context.DistributionTask.CountAsync();
 
-            if (string.IsNullOrEmpty(userIdString))
-                return RedirectToAction("Login", "Account");
+            var pendingTasks = await _context.DistributionTask
+                .CountAsync(x => x.Status == "Pending");
 
-            var userId = Convert.ToInt32(userIdString);
+            var completedTasks = await _context.DistributionTask
+                .CountAsync(x => x.Status == "Completed");
 
-            var user = await _context.UserAccount.FindAsync(userId);
+            var totalStaff = await _context.UserAccount
+                .CountAsync(x => x.Role.RoleName == "staff");
 
-            var model = new EventManagerDashboardViewModel
-            {
-                FullName = user.FullName,
-                Email = user.Email,
+            ViewBag.TotalTasks = totalTasks;
+            ViewBag.PendingTasks = pendingTasks;
+            ViewBag.CompletedTasks = completedTasks;
+            ViewBag.TotalStaff = totalStaff;
 
-                TotalEvents = await _context.Event.CountAsync(),
-                TotalTasks = await _context.DistributionTask.CountAsync(),
-                PendingTasks = await _context.DistributionTask.CountAsync(x => x.Status == "Pending"),
-                CompletedTasks = await _context.DistributionTask.CountAsync(x => x.Status == "Completed"),
-
-                TotalStaff = await _context.UserAccount
-                .Include(x => x.Role)
-                .CountAsync(x => x.Role.RoleName.ToLower() == "staff")
-            };
-
-            return View(model);
+            return View();
         }
+
+            
         // ==========================
         // VIEW TASKS
         // ==========================

@@ -2,11 +2,11 @@
 {
     public class ParticipantDashboardViewModel
     {
-        private string phone;
+        private string? phone;
 
         public string FullName { get; set; } = "";
         public string Email { get; set; } = "";
-        public string Phone { get => phone; set => phone = value; }
+        public string? Phone { get => phone; set => phone = value; }
 
         public string StudentId { get; set; } = "";
         public string Department { get; set; } = "";
@@ -17,16 +17,16 @@
         public int ParticipantId { get; set; }
 
         public int? RegistrationId { get; set; }
-        public string RegistrationStatus { get; set; } 
+        public string? RegistrationStatus { get; set; } 
         public DateTime? RegistrationDate { get; set; }
         public int GuestCount { get; set; }
-        public string EventId { get; set; }
-        public string EventTitle { get; set; } 
+        public int? EventId { get; set; }
+        public string? EventTitle { get; set; } 
         public DateTime? EventDate { get; set; }
         public string Venue { get; set; } = "TBA";
         public int MaxGuestAllowed { get; set; }
 
-        public string PaymentStatus { get; set; } 
+        public string? PaymentStatus { get; set; } 
         public decimal PaidAmount { get; set; }
         public DateTime? PaymentDate { get; set; }
         public string? TransactionId { get; set; }

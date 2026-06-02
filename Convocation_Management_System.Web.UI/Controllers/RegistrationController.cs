@@ -121,6 +121,16 @@ namespace Convocation_Management_System.Web.UI.Controllers
             if (registration.GuestCount < 0)
                 registration.GuestCount = 0;
 
+            registration.GuestCount = registration.GuestCount;
+
+            var eventData = await _context.Event.FindAsync(registration.EventId);
+
+            registration.TotalAmount =
+                eventData.BaseFee +
+                (registration.GuestCount * eventData.GuestFee);
+
+            registration.RegistrationStatus = "Pending";
+
             // 🔥 SERVER SIDE CALCULATION (IMPORTANT)
             registration.TotalAmount =
                 (selectedEvent.BaseFee = 0) +
@@ -135,6 +145,10 @@ namespace Convocation_Management_System.Web.UI.Controllers
             TempData["SuccessMessage"] = "Registration created successfully.";
 
             return RedirectToAction("PayNow", "Payment", new { registrationId = registration.RegistrationId });
+
+          
+
+           
         }
 
         [HttpGet]

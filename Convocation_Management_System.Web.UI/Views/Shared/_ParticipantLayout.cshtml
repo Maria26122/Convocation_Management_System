@@ -12,7 +12,7 @@
     bool isRegistration = currentController == "Participant" && currentAction == "MyRegistration";
     bool isPayment = currentController == "Participant" && currentAction == "MyPayment";
     bool isQr = currentController == "Participant" && currentAction == "MyQrPass";
-    bool isGuest = currentController == "Participant" && currentAction == "MyGuest";
+   
 }
 
 <!DOCTYPE html>
@@ -186,11 +186,6 @@
                 <a asp-controller="Participant" asp-action="MyQrPass"
                    class="@(isQr ? "active" : "")">
                     <i class="fas fa-qrcode"></i> QR Pass
-                </a>
-
-                <a asp-controller="Participant" asp-action="MyGuest"
-                   class="@(isGuest ? "active" : "")">
-                    <i class="fas fa-users"></i> Guests
                 </a>
 
                 <a asp-controller="Account" asp-action="Logout"
