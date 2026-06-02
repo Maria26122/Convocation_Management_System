@@ -74,41 +74,30 @@ namespace Convocation_Management_System.Web.UI.Controllers
         public async Task<IActionResult> Create(int? eventId)
         {
             if (!LoggedIn())
-            {
-                if (eventId.HasValue && eventId.Value > 0)
+                return RedirectToAction("Login", "Account");
+
+            var events = await _context.Event
+                .Select(e => new
                 {
-                    return RedirectToAction("Register", "Account", new { eventId = eventId.Value });
-                }
+                    e.EventId,
+                    e.EventTitle,
+                    e.EventDate,
+                    e.BaseFee,
+                    e.GuestFee
+                })
+                .ToListAsync();
 
-                return RedirectToAction("Login", "Account");
-            }
-
-            if (!IsParticipant() && !IsAdmin() && !IsStaff())
-                return RedirectToAction("Login", "Account");
-
-            await LoadDropdownsAsync(null, eventId);
+            ViewBag.Event = events;
+            ViewBag.SelectedEventId = eventId;
 
             var model = new Registration
             {
                 EventId = eventId ?? 0,
-                RegistrationDate = DateTime.Now,
-                RegistrationStatus = "Pending",
                 GuestCount = 0,
-                TotalAmount = 0
+                TotalAmount = 0,
+                RegistrationStatus = "Pending",
+                RegistrationDate = DateTime.Now
             };
-
-            if (IsParticipant())
-            {
-                model.ParticipantId = await CurrentParticipantIdAsync();
-
-                if (model.ParticipantId == 0)
-                {
-                    TempData["Error"] = "Participant profile not found. Please complete your profile first.";
-                    return RedirectToAction("Dashboard", "Participant");
-                }
-            }
-
-            ViewBag.SelectedEventId = eventId;
 
             return View(model);
         }
@@ -120,97 +109,32 @@ namespace Convocation_Management_System.Web.UI.Controllers
             if (!LoggedIn())
                 return RedirectToAction("Login", "Account");
 
-            if (!IsParticipant() && !IsAdmin() && !IsStaff())
-                return RedirectToAction("Login", "Account");
-
-            if (IsParticipant())
-            {
-                registration.ParticipantId = await CurrentParticipantIdAsync();
-                ModelState.Remove("ParticipantId");
-                ModelState.Remove("Participant");
-            }
-
-            ModelState.Remove("Event");
-
-            registration.GuestCount = registration?.GuestCount ?? 0;
-
-            if (registration.GuestCount < 0)
-                ModelState.AddModelError("GuestCount", "Guest count cannot be negative.");
-
-            var participantExists = await _context.Participant
-                .AnyAsync(p => p.ParticipantId == registration.ParticipantId);
-
-            if (!participantExists)
-                ModelState.AddModelError("ParticipantId", "Invalid participant.");
-
             var selectedEvent = await _context.Event
                 .FirstOrDefaultAsync(e => e.EventId == registration.EventId);
 
             if (selectedEvent == null)
             {
-                ModelState.AddModelError("EventId", "Selected event is invalid.");
-            }
-            else
-            {
-                if (!selectedEvent.IsActive)
-                    ModelState.AddModelError("EventId", "This event is not active.");
-
-                var now = DateTime.Now;
-
-                if (IsParticipant() &&
-                    !(selectedEvent.RegistrationtartDate <= now &&
-                      selectedEvent.RegistrationEndDate >= now))
-                {
-                    ModelState.AddModelError("EventId", "Registration is closed for this event.");
-                }
-
-                if (registration.GuestCount > selectedEvent.MaxGuestAllowed)
-                    ModelState.AddModelError("GuestCount", $"Maximum allowed guest is {selectedEvent.MaxGuestAllowed}.");
-
-                var baseFee = selectedEvent.BaseFee;
-                var guestFee = selectedEvent.GuestFee;
-
-                if (baseFee == null) baseFee = 0;
-                if (guestFee == null) guestFee = 0;
-
-                registration.TotalAmount = baseFee + (registration.GuestCount * guestFee);
-            }
-
-            bool alreadyExists = await _context.Registration
-                .AnyAsync(r => r.ParticipantId == registration.ParticipantId &&
-                               r.EventId == registration.EventId);
-
-            if (alreadyExists)
-                ModelState.AddModelError("", "This participant is already registered for the selected event.");
-
-            if (!ModelState.IsValid)
-            {
-                await LoadDropdownsAsync(registration.ParticipantId, registration.EventId);
-                ViewBag.SelectedEventId = registration.EventId;
+                ModelState.AddModelError("EventId", "Invalid event.");
                 return View(registration);
             }
 
-            registration.RegistrationDate = DateTime.Now;
+            if (registration.GuestCount < 0)
+                registration.GuestCount = 0;
 
-            if (string.IsNullOrWhiteSpace(registration.RegistrationStatus))
-                registration.RegistrationStatus = "Pending";
+            // 🔥 SERVER SIDE CALCULATION (IMPORTANT)
+            registration.TotalAmount =
+                (selectedEvent.BaseFee = 0) +
+                (registration.GuestCount * (selectedEvent.GuestFee=0));
+
+            registration.RegistrationStatus = "Pending";
+            registration.RegistrationDate = DateTime.Now;
 
             _context.Registration.Add(registration);
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Registration saved successfully. Please complete payment.";
+            TempData["SuccessMessage"] = "Registration created successfully.";
 
-            if (IsParticipant())
-            {
-                if (registration.TotalAmount <= 0)
-                {
-                    TempData["Error"] = "Invalid amount.";
-                    return RedirectToAction(nameof(Index));
-                }
-                return RedirectToAction("PayNow", "Payment", new { registrationId = registration.RegistrationId });
-            }
-
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("PayNow", "Payment", new { registrationId = registration.RegistrationId });
         }
 
         [HttpGet]

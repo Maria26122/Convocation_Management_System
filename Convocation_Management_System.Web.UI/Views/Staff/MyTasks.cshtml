@@ -1,7 +1,7 @@
-﻿@model IEnumerable<Convocation.Entities.DistributionTask>
+﻿@model IEnumerable<Convocation.Entities.StaffTask>
 
 @{
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    Layout = "~/Views/Shared/_StaffLayout.cshtml";
     ViewData["Title"] = "My Tasks";
 
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
@@ -21,7 +21,7 @@
     {
         <table class="table table-bordered table-striped">
 
-            <thead class="table-dark">
+            <thead>
                 <tr>
                     <th>Task Title</th>
                     <th>Event</th>
@@ -32,12 +32,17 @@
             </thead>
 
             <tbody>
-                    @foreach (var item in Model)
+                @foreach (var item in Model)
                 {
                     <tr>
-                        <td>@item.TaskTitle</td>
 
-                        <td>@item.Event?.EventTitle</td>
+                        <td>
+                            @item.DistributionTask?.TaskTitle
+                        </td>
+
+                        <td>
+                            @item.DistributionTask?.Event?.EventTitle
+                        </td>
 
                         <td>
                             <span class="badge bg-@(item.Status == "Completed" ? "success" : "warning")">
@@ -45,7 +50,9 @@
                             </span>
                         </td>
 
-                        <td>@item.CreatedAt.ToString("dd MMM yyyy hh:mm tt")</td>
+                        <td>
+                            @item.AssignedAt.ToString("dd MMM yyyy hh:mm tt")
+                        </td>
 
                         <td>
                             <a asp-controller="QrScan"
@@ -55,6 +62,7 @@
                                 QR Scanner
                             </a>
                         </td>
+
                     </tr>
                 }
             </tbody>

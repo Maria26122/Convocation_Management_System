@@ -1,0 +1,28 @@
+﻿@model Convocation_Management_System.Web.UI.Models.StaffTaskViewModel
+
+@{
+    Layout = "~/Views/Shared/_EventManagerLayout.cshtml";
+    ViewData["Title"] = "Assign Staff";
+}
+
+<div class="container mt-4">
+
+    <h3>Assign Staff to Task</h3>
+
+    <form asp-action="Assign" method="post">
+
+        <div class="mb-3">
+            <label>Task</label>
+            <select asp-for="DistributionTaskId" asp-items="Model.DistributionTasks" class="form-control"></select>
+        </div>
+
+        <div class="mb-3">
+            <label>Staff</label>
+            <select asp-for="UserAccountId" asp-items="Model.staffs" class="form-control"></select>
+        </div>
+
+        <button class="btn btn-primary">Assign</button>
+
+    </form>
+
+</div>

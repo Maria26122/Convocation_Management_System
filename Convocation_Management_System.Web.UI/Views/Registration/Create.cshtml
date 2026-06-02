@@ -1,178 +1,61 @@
 ﻿@model Convocation.Entities.Registration
 
 @{
-    var role = (Context.Session.GetString("Role") ?? "").Trim().ToLower();
-
-    Layout = (role == "student" || role == "participant")
-        ? "~/Views/Shared/_ParticipantLayout.cshtml"
-        : "~/Views/Shared/_AdminLayout.cshtml";
-
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Create Registration";
 
-    var Event = ViewBag.Event as IEnumerable<dynamic>;
-    var selectedEventId = ViewBag.SelectedEventId != null ? (int)ViewBag.SelectedEventId : Model.EventId;
+    var events = ViewBag.Event as IEnumerable<dynamic>;
+    var selectedEventId = ViewBag.SelectedEventId ?? Model.EventId;
 }
 
-<div class="form-card">
-    <h3 class="form-title mb-4">Create Registration</h3>
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
 
-    <form asp-action="Create" method="post">
-        @Html.AntiForgeryToken()
+    <div class="row g-3">
 
-        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <!-- EVENT -->
+        <div class="col-md-6">
+            <label>Event</label>
 
-        <div class="row g-3">
+            <select asp-for="EventId" class="form-select" id="EventSelect">
+                <option value="">Select Event</option>
 
-            <div class="col-md-6">
-                @if (role == "admin" || role == "staff" || role == "eventmanager")
+                @foreach (var item in events)
                 {
-                    <div class="mb-3">
-                        <label asp-for="ParticipantId" class="form-label"></label>
-                        <select asp-for="ParticipantId" asp-items="ViewBag.ParticipantId" class="form-select">
-                            <option value="">-- Select Participant --</option>
-                        </select>
-                        <span asp-validation-for="ParticipantId" class="text-danger"></span>
-                    </div>
+                    <option value="@item.EventId"
+                            data-basefee="@item.BaseFee"
+                            data-guestfee="@item.GuestFee"
+                            selected="@(item.EventId == selectedEventId)">
+                        @item.EventTitle
+                    </option>
                 }
-                else
-                {
-                    <input type="hidden" asp-for="ParticipantId" />
-                }
-            </div>
-
-            <div class="col-md-6">
-                <label asp-for="EventId" class="form-label"></label>
-
-                <select asp-for="EventId" class="form-select" id="EventSelect">
-                    <option value="">-- Select Event --</option>
-
-                    @if (ViewBag.Event != null)
-                    {
-                        foreach (var item in ViewBag.Event)
-                        {
-                            if (selectedEventId == item.EventId || Model.EventId == item.EventId)
-                            {
-                                <option value="@item.EventId"
-                                        data-basefee="@item.BaseFee"
-                                        data-guestfee="@item.GuestFee"
-                                        selected>
-                                    @item.EventTitle - @Convert.ToDateTime(item.EventDate).ToString("dd MMM yyyy")
-                                </option>
-                            }
-                            else
-                            {
-                                <option value="@item.EventId"
-                                        data-basefee="@item.BaseFee"
-                                        data-guestfee="@item.GuestFee">
-                                    @item.EventTitle - @Convert.ToDateTime(item.EventDate).ToString("dd MMM yyyy")
-                                </option>
-                            }
-                        }
-                    }
-                </select>
-
-                <span asp-validation-for="EventId" class="text-danger"></span>
-            </div>
-
-            <div class="col-md-6">
-                <label asp-for="GuestCount" class="form-label"></label>
-                <input asp-for="GuestCount" class="form-control" min="0" />
-                <span asp-validation-for="GuestCount" class="text-danger"></span>
-            </div>
-
-            <div class="col-md-6">
-                <label asp-for="TotalAmount" class="form-label"></label>
-                <input asp-for="TotalAmount" class="form-control" readonly />
-                <span asp-validation-for="TotalAmount" class="text-danger"></span>
-            </div>
-
-            @if (role == "admin" || role == "staff" || role == "eventmanager")
-            {
-                <div class="col-md-6">
-                    <label asp-for="RegistrationStatus" class="form-label"></label>
-                    <select asp-for="RegistrationStatus" class="form-select">
-                        <option value="Pending">Pending</option>
-                        <option value="Paid">Paid</option>
-                        <option value="Confirmed">Confirmed</option>
-                        <option value="Rejected">Rejected</option>
-                    </select>
-                    <span asp-validation-for="RegistrationStatus" class="text-danger"></span>
-                </div>
-            }
-            else
-            {
-                <input type="hidden" asp-for="RegistrationStatus" value="Pending" />
-            }
-
+            </select>
         </div>
 
-        <div class="mt-4">
-            <button type="submit" class="btn btn-primary">
-                <i class="fas fa-save me-2"></i>Save
-            </button>
-
-            @if (role == "student" || role == "participant")
-            {
-                <a asp-controller="Participant" asp-action="MyRegistration" class="btn btn-secondary">
-                    Back
-                </a>
-            }
-            else
-            {
-                <a asp-action="Index" class="btn btn-secondary">
-                    Back to List
-                </a>
-            }
+        <!-- GUEST COUNT -->
+        <div class="col-md-6">
+            <label>Guest Count</label>
+            <input asp-for="GuestCount"
+                   class="form-control"
+                   id="GuestCount"
+                   min="0" />
         </div>
-    </form>
-</div>
 
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+        <!-- TOTAL -->
+        <div class="col-md-6">
+            <label>Total Amount</label>
+            <input asp-for="TotalAmount"
+                   class="form-control"
+                   id="TotalAmount"
+                   readonly />
+        </div>
 
-    <script>
-        function calculateAmount() {
-            var EventSelect = document.getElementById("EventSelect");
-            var guestCountInput = document.getElementById("GuestCount");
-            var totalAmountInput = document.getElementById("TotalAmount");
+        <!-- STATUS -->
+        <input type="hidden" asp-for="RegistrationStatus" value="Pending" />
 
-            if (!EventSelect || !guestCountInput || !totalAmountInput) return;
+    </div>
 
-            var selectedOption = EventSelect.options[EventSelect.selectedIndex];
-
-            if (!selectedOption) {
-                totalAmountInput.value = "0.00";
-                return;
-            }
-
-            var baseFee = parseFloat(selectedOption.getAttribute("data-basefee")) || 0;
-            var guestFee = parseFloat(selectedOption.getAttribute("data-guestfee")) || 0;
-            var guestCount = parseInt(guestCountInput.value) || 0;
-
-            if (guestCount < 0) {
-                guestCount = 0;
-                guestCountInput.value = 0;
-            }
-
-            var total = baseFee + (guestCount * guestFee);
-            totalAmountInput.value = total.toFixed(2);
-        }
-
-        document.addEventListener("DOMContentLoaded", function () {
-            var EventSelect = document.getElementById("EventSelect");
-            var guestCountInput = document.getElementById("GuestCount");
-
-            if (EventSelect) {
-                EventSelect.addEventListener("change", calculateAmount);
-            }
-
-            if (guestCountInput) {
-                guestCountInput.addEventListener("input", calculateAmount);
-            }
-
-            calculateAmount();
-        });
-    </script>
-}
+    <button type="submit" class="btn btn-primary mt-3">
+        Save & Pay
+    </button>
+</form>

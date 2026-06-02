@@ -47,5 +47,19 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             return View(model);
         }
+
+        public async Task<IActionResult> MyTasks()
+        {
+            var userId =
+                Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+
+            var tasks = await _context.StaffTask
+                .Include(x => x.DistributionTask)
+                    .ThenInclude(x => x.Event)
+                .Where(x => x.UserAccountId == userId)
+                .ToListAsync();
+
+            return View(tasks);
+        }
     }
 }

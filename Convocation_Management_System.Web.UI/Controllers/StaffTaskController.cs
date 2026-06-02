@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Convocation_Management_System.Web.UI.Controllers
 {
-    [Authorize(Roles = "admin,eventmanager")]
+    [Authorize(Roles = "admin,eventmanager,staff")]
     public class StaffTaskController : Controller
     {
         private readonly ConvocationDbContext _context;
@@ -184,6 +184,7 @@ namespace Convocation_Management_System.Web.UI.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+      
 
         // =========================
         // DROPDOWNS (FIXED)
